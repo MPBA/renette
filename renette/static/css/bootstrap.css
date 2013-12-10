@@ -2537,6 +2537,12 @@ fieldset[disabled] .btn-success.active {
   border-color: #46b8da;
 }
 
+.btn-go {
+  color: #ffffff;
+  background-color: #87a801;
+  border-color: #e3e3e3;
+}
+
 .btn-info:hover,
 .btn-info:focus,
 .btn-info:active,
@@ -5569,8 +5575,8 @@ a.list-group-item.active:hover,
 a.list-group-item.active:focus {
   z-index: 2;
   color: #ffffff;
-  background-color: #428bca;
-  border-color: #428bca;
+  background-color: #87a801;
+  border-color: #87a801;
 }
 
 a.list-group-item.active .list-group-item-heading,

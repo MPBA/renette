@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extrahead %}
+      <script type="text/javascript">
+       jQuery(document).ready(function(){
+
+          $("#load_ex_data").click(function(){
+            jQuery.get('/media/test.tsv', function(data){
+                var testdata = data;
+                 $("#exampleData").text("");
+                 $("#exampleData").text(testdata);
+            });
+
+
+          });
+
+          $('input:file[multiple]').change(
+            function(e){
+                console.log(e.currentTarget.files);
+                var numFiles = e.currentTarget.files.length;
+                    for (i=0;i<numFiles;i++){
+                        fileSize = parseInt(e.currentTarget.files[i].size, 10)/1024;
+                        filesize = Math.round(fileSize);
+                        $('<li />').text(e.currentTarget.files[i].name).appendTo($('#output'));
+                        $('<span />').addClass('filesize').text('(' + filesize + 'kb)').appendTo($('#output li:last'));
+                    }
+            });
+
+           $("#reset_form").click(function(){
+               $("#output").find('li').remove();
+            });
+
+        });
+
+
+
+    </script>
+{% endblock extrahead %}
+
+{% block container %}
+<div class="row row-offcanvas row-offcanvas-right">
+        <div class="col-md-12 col-md-9">
+
+
+          <div class="row">
+            <div class="col-6">
+              <h2>Load your files</h2>
+              <form method="POST" enctype="multipart/form-data" role="form" class="form-horizontal">
+                  {% csrf_token %}
+                  <div class="fileinput fileinput-new" data-provides="fileinput">
+                      <div class="input-group">
+                        <span class="input-group-addon btn btn-default btn-file"><input type="file" name="files[]" multiple></span>
+                          <div class="form-control uneditable-input span3" data-trigger="fileinput">
+                            <ul id="output"></ul>
+                        </div>
+                      </div>
+                  </div>
+                  <br>
+                  <input type="submit" class="btn btn-go" name="Upload">
+                  <input type="reset" value="Reset" class="btn btn-danger" id="reset_form">
+              </form>
+
+            </div><!--/span-->
+            <hr>
+            <div class="col-6">
+              <h2>Run tasks with Example Data</h2>
+              <form role="form" class="form-horizontal">
+                  <div class="form-group">
+                    <label for="exampleInputEmail1"></label>
+                    <div class="col-sm-9">
+                        <textarea class="form-control" id="exampleData" placeholder="Enter data ..." rows="7"></textarea>
+                    </div>
+                    <div class="col-sm-offset-6">
+                        <p style="text-align: justify">
+                        You can copy and paste your source data into the textarea or click <a href="#" id="load_ex_data">here</a> to load demo data.
+                        <br>Start the task just clicking the Go button! Enjoy
+                        </p>
+                    </div>
+                  </div>
+                    <button type="submit" class="btn btn-go">Go >></button>
+              </form>
+            </div><!--/span-->
+
+
+          </div><!--/row-->
+        </div><!--/span-->
+        {% include "navigation.html" %}
+      </div><!--/row-->
+{% endblock container %}
+
+
+

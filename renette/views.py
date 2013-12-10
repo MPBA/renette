@@ -1,6 +1,5 @@
 # -*- encoding: utf-8 -*-
 __author__ = 'ernesto'
-from datetime import datetime
 
 #This file contains only the views for the main app. It's made just to render an home page for the project
 
