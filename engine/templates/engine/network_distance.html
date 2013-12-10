@@ -45,18 +45,30 @@
           <div class="row">
             <div class="col-6">
               <h2>Load your files</h2>
-              <form method="POST" enctype="multipart/form-data" role="form" class="form-horizontal">
+              <form method="POST" enctype="multipart/form-data" role="form" class="form-horizontal" action="{% url 'network_distance_2' %}">
                   {% csrf_token %}
                   <div class="fileinput fileinput-new" data-provides="fileinput">
                       <div class="input-group">
-                        <span class="input-group-addon btn btn-default btn-file"><input type="file" name="files[]" multiple></span>
+                        <span class="input-group-addon btn btn-default btn-file"><input type="file" name="files" multiple></span>
                           <div class="form-control uneditable-input span3" data-trigger="fileinput">
                             <ul id="output"></ul>
                         </div>
                       </div>
+
+                      <div class="checkbox-inline">
+                        <label>
+                          <input type="checkbox" name="exclude_col_header"> Exclude Columns Header
+                        </label>
+                      </div>
+                      <div class="checkbox-inline">
+                        <label>
+                          <input type="checkbox" name="exclude_row_header"> Exclude Rows Header
+                        </label>
+                      </div>
+
                   </div>
-                  <br>
-                  <input type="submit" class="btn btn-go" name="Upload">
+
+                  <input type="submit" class="btn btn-go" name="Upload" value="Go >>">
                   <input type="reset" value="Reset" class="btn btn-danger" id="reset_form">
               </form>
 
