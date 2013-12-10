@@ -1,8 +1,4 @@
-*.pyc
-*.pyo
-.venv
-db/*
-settings/local_settings.py
-local_settings.py
-.idea
-.DS_Store
+#### emacs backup files ######
+##############################
+
+*~
