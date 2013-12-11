@@ -28,14 +28,14 @@ def handle_uploads(request, files):
     return saved
 
 
-def document_validator(document):
+def document_validator(document, ex_col, ex_row):
     try:
         dialect = csv.Sniffer().sniff(document.read(4096), delimiters=[';', ',', '\t'])
         document.seek(0, 0)
         reader = csv.reader(document.read().splitlines(), dialect)
         temp_list = list(reader)
-        ncol = len(temp_list[0])
-        nrow = len(temp_list)
+        ncol = (len(temp_list[0]) - 1) if ex_row else len(temp_list[0])
+        nrow = (len(temp_list) -1) if ex_col else len(temp_list)
         is_cubic = True if (ncol == nrow) else False
         return_value = {'is_valid': True, 'nrow': nrow, 'ncol': ncol, 'separator': dialect.delimiter, 'is_cubic': is_cubic}
     except csv.Error:

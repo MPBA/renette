@@ -61,6 +61,7 @@
                         <tr><td>{{f}}</td></tr>
                     {% endfor %}
                 </table>
+
               <h3>Uploaded Files</h3>
                   <table class="table table-striped table-hover">
                     <thead>
@@ -84,15 +85,15 @@
                     {% endfor %}
                 </table>
                 <div class="col-md-6">
-                <form method="POST" role="form" class="form-horizontal" id="myform">
-                    {% csrf_token %}
+                <form method="POST" role="form" class="form-horizontal" id="myform" action="{% url 'network_distance_3' %}">
+                  {% csrf_token %}
                   <fieldset>
 
                     <div class="form-group">
                       <label for="id_distance">Distance</label>
                       <select id="id_distance" class="form-control" name="distance" required>
                         <option value="">--------</option>
-                        <option value="HIM">Ipsen</option>
+                        <option value="HIM">HIM</option>
                         <option value="IM">Ipsen Mikhailov</option>
                         <option value="H">Hamming</option>
                       </select>
@@ -103,7 +104,7 @@
                     </div>
                     <div class="form-group">
                       <label for="id_ga">ga</label>
-                      <input type="text" class="positive-integer form-control" name="ga" id="id_ga" value="" disabled>
+                      <input type="text" class="positive form-control" name="ga" id="id_ga" value="" disabled>
                     </div>
                     <div class="form-group">
                       <label for="id_components">Components</label>
@@ -112,6 +113,9 @@
                         <option value="False">False</option>
                       </select>
                     </div>
+                      {% for f in handled %}
+                        <input type="hidden" name="file" value="{{ f.1 }}">
+                     {% endfor %}
                     <button type="submit" class="btn btn-primary">Submit</button>
                   </fieldset>
                 </form>
