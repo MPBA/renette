@@ -35,7 +35,7 @@ class NetworkDistanceStep2Class(View):
             if valid['is_valid'] and valid['is_cubic']:
                 dim.append(valid['nrow'])
                 max_ga = valid['nrow']
-
+                separ = valid['separator']
                 files.append({'name': file.name, 'type': file.content_type, 'file_to_save': file.read(), 'prop': valid})
                 to_save.append(file)
         if len(files) < 2:
@@ -46,7 +46,11 @@ class NetworkDistanceStep2Class(View):
             return redirect('network_distance')
         else:
             f = handle_uploads(self.request, to_save)
-        context = {'posted_files': request.FILES.getlist('files'), 'uploaded_files': files, 'max_ga': max_ga, 'handled': f}
+        context = {'posted_files': request.FILES.getlist('files'),
+                   'uploaded_files': files,
+                   'max_ga': max_ga,
+                   'handled': f,
+                   'sep': separ}
         return render(request, self.template_name, context)
 
 
@@ -54,6 +58,7 @@ class NetworkDistanceStep3Class(View):
     template_name = 'engine/network_distance_3.html'
 
     def post(self, request):
+        print request.POST
         files = request.POST.getlist('file')
         context = {'files': files}
         messages.add_message(self.request, messages.SUCCESS, 'Process submitted with success!!!')
