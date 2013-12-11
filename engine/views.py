@@ -22,12 +22,15 @@ class NetworkDistanceStep2Class(View):
     def post(self, request):
         files = []
         to_save = []
-        for file in request.FILES.getlist('files'):
+        if len(request.FILES.getlist('files')) < 2:
+            return redirect('network_distance')
 
+        for file in request.FILES.getlist('files'):
             valid = document_validator(file)
-            if valid['is_valid']:
+            if valid['is_valid'] and valid['is_cubic']:
                 files.append({'name': file.name, 'type': file.content_type, 'file_to_save': file.read(), 'prop': valid})
                 to_save.append(file)
+
         f = handle_uploads(self.request, to_save)
 
         context = {'posted_files': request.FILES.getlist('files'), 'uploaded_files': files}

@@ -28,7 +28,7 @@ class Mat2Adj:
                 self.mylist.append(tmpdata)
                 rcount += 1
             except IOError:
-                
+                raise IOError
         if rcount == self.nfiles:
             return True
         else:

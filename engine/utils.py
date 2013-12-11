@@ -25,7 +25,6 @@ def handle_uploads(request, files):
                 dest.write(chunk)
             dest.close()
             saved.append((file, os.path.join(upload_dir, upload.name)))
-    # returns [(key1, path1), (key2, path2), ...]
     return saved
 
 
@@ -37,8 +36,13 @@ def document_validator(document):
         temp_list = list(reader)
         ncol = len(temp_list[0])
         nrow = len(temp_list)
-        return_value = {'is_valid': True, 'nrow': nrow, 'ncol': ncol, 'separator': dialect.delimiter}
+        is_cubic = True if (ncol == nrow) else False
+
+        return_value = {'is_valid': True, 'nrow': nrow, 'ncol': ncol, 'separator': dialect.delimiter, 'is_cubic': is_cubic}
     except csv.Error:
-        #raise ValidationError(u'Not a valid CSV file')
         return_value = {'is_valid': False}
+    except Exception:
+        return_value = {'is_valid': False}
+
     return return_value
+
