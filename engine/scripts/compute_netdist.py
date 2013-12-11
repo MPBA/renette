@@ -3,32 +3,41 @@ from rpy2.robjects.packages import importr
 from rpy2.robjects.vectors import DataFrame, ListVector
 import rpy2.rlike.container as rlc
 from rpy2.robjects.numpy2ri import numpy2ri
+import rpy2.rinterface as ri
 import numpy as np
 
 
 
 class NetDist:
     
-    def __init__(self, filelist, d="HIM",components=False):
+    def __init__(self, filelist, param={}):
         
         self.nfiles = len(filelist)
         try:
             self.nfiles > 2
         except ValueError:
             print "Not enough file loaded"
-        
+            
         self.filelist = filelist
         self.nettools = importr('nettools')
         self.mylist = rlc.TaggedList([])
-        self.d = d
-        self.components = components
+        self.param = param
         
     def loadfiles(self):
         rcount = 0
+        asmatrix = robjects.r['as.matrix']
+        
+        param = {'sep':'\t', 'header': True, 'as_is':True}
+
+        for p in param.keys():
+            if self.param.has_key(p):
+                param[p] = self.param[p]
+                
+        
         for f in self.filelist:
             try:
                 dataf = DataFrame.from_csvfile(f, sep = "\t", header = True, as_is=True ,row_names=1)
-                
+                dataf = asmatrix(dataf)
                 self.mylist.append(dataf)
                 rcount += 1
             except IOError:
@@ -42,11 +51,18 @@ class NetDist:
 
     def compute(self):
         ## robjects.conversion.py2ri = numpy2ri
+        param = {'d':'HIM', 'ga':ri.NULL, 'components':True, 'rho':1}
+        
+        for p in param.keys():
+            if self.param.has_key(p):
+                param[p] = self.param[p]
         try:
-            self.res = self.nettools.netdist(self.mylist, d=self.d, components = self.components)
+            self.res = self.nettools.netdist(self.mylist, d=param['d'], components = param['components'], ga=param['ga'])
             return_value = True
         except ValueError:
+            print 'Error in computing network distance'
             return_value = False
+        
         
         self.computed = return_value
         return return_value
