@@ -116,6 +116,9 @@
                       {% for f in handled %}
                         <input type="hidden" name="file" value="{{ f.1 }}">
                      {% endfor %}
+                        <input type="hidden" name="sep" value="{{ sep }}">
+                        <input type="hidden" name="col" value="{{ request.POST.exclude_col_header }}">
+                        <input type="hidden" name="row" value="{{ request.POST.exclude_row_header }}">
                     <button type="submit" class="btn btn-primary">Submit</button>
                   </fieldset>
                 </form>
