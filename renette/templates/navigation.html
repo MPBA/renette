@@ -1,7 +1,7 @@
 {% load engine_tags %}
 <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
     <div class="list-group">
-        <a href="{% url 'network_distance' %}" class="list-group-item {% current 'network_distance' %}"><strong>Network Distance</strong></a>
+        <a href="{% url 'network_distance' %}" class="list-group-item {% current 'network_distance' %}{% current 'network_distance_2' %}"><strong>Network Distance</strong></a>
         <a href="#" class="list-group-item"><strong>Network Inference</strong></a>
         <a href="#" class="list-group-item"><strong>Network Stability</strong></a>
     </div>

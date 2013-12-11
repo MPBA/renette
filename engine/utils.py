@@ -37,7 +37,6 @@ def document_validator(document):
         ncol = len(temp_list[0])
         nrow = len(temp_list)
         is_cubic = True if (ncol == nrow) else False
-
         return_value = {'is_valid': True, 'nrow': nrow, 'ncol': ncol, 'separator': dialect.delimiter, 'is_cubic': is_cubic}
     except csv.Error:
         return_value = {'is_valid': False}
