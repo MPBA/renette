@@ -12,11 +12,9 @@ def test_process():
 
 
 @celery.task
-def test_netdist():
-    nd = compute_netdist.NetDist(['/media/datapart/fbk/code/renette/renette/engine/scripts/test_adj.tsv',
-                     '/media/datapart/fbk/code/renette/renette/engine/scripts/test_adj.tsv'],
-                    d="HIM",
-                    components=True)
+def test_netdist(files, param):
+    nd = compute_netdist.NetDist(files, param)
+
     print nd.loadfiles()
     print nd.compute()
     print nd.get_results()

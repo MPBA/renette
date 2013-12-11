@@ -27,7 +27,7 @@ class NetDist:
         rcount = 0
         asmatrix = robjects.r['as.matrix']
         
-        param = {'sep':'\t', 'header': True, 'as_is':True}
+        param = {'sep':'\t', 'header': True, 'as_is':True, 'row.names': False}
 
         for p in param.keys():
             if self.param.has_key(p):

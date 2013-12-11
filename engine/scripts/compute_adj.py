@@ -55,4 +55,3 @@ class Mat2Adj:
         else:
             print "No adjacency matrix computed"
             
-    

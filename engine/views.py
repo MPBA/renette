@@ -7,7 +7,10 @@ from django.views.generic.base import View
 from django.shortcuts import redirect, render
 from .utils import handle_uploads, document_validator
 from django.contrib import messages
-
+from engine.tasks import test_netdist
+from django.conf import settings
+import rpy2.rinterface as ri
+import os
 
 class NetworkDistanceClass(View):
     template_name = 'engine/network_distance.html'
@@ -54,7 +57,25 @@ class NetworkDistanceStep3Class(View):
     template_name = 'engine/network_distance_3.html'
 
     def post(self, request):
-        files = request.POST.getlist('file')
-        context = {'files': files}
+        files = []
+        for file in request.FILES.getlist('files'):
+            files.append(os.path.join(settings.MEDIA_ROOT, file))
+
+        param = {
+            'd': request.POST['distance'],
+            'ga': request.POST['ga'] if request.POST['ga'] else ri.NULL,
+            'components': request.POST['components'],
+            'rho': request.POST['rho'] if request.POST['rho'] else ri.NULL,
+            'sep': request.POST['sep'],
+            'header': request.POST['col'],
+            'row.names': request.POST['row']
+        }
+        try:
+            t = test_netdist.delay(files, param)
+        except Exception, e:
+            messages.add_message(self.request, messages.ERROR, 'Error')
+
+        context = {'files': files, 'task': t}
+        print t
         messages.add_message(self.request, messages.SUCCESS, 'Process submitted with success!!!')
         return render(request, self.template_name, context)
