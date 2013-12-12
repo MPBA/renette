@@ -6,3 +6,4 @@
 .idea
 renette/media
 renette/settings/local_settings.py
+*.csv

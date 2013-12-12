@@ -64,15 +64,15 @@ class NetworkDistanceStep3Class(View):
         files = []
         for file in request.POST.getlist('file'):
             files.append(os.path.join(settings.MEDIA_ROOT, file))
-
+        print request.POST
         param = {
-            'd': request.POST['distance'],
-            'ga': float(request.POST['ga']) if request.POST['ga'] else ri.NULL,
-            'components': bool(request.POST['components']),
-            'rho': float(request.POST['rho']) if request.POST['rho'] else ri.NULL,
-            'sep': request.POST['sep'],
-            'header': bool(request.POST['col']),
-            'row.names': 1 if bool(request.POST['row']) else ri.NULL
+            'd': request.POST.get("distance", "HIM"),
+            'ga': float(request.POST.get("ga")) if request.POST.get("ga", False) else None,
+            'components': bool(request.POST.get("components", True)),
+            'rho':  float(request.POST.get("rho")) if request.POST.get("rho", False) else None,
+            'sep': request.POST.get("sep", "\t"),
+            'header': True if request.POST.get("col", False) else False,
+            'row.names': 1 if request.POST.get("row", False) else None
         }
         try:
             t = test_netdist.delay(files, param)

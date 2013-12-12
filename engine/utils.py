@@ -33,6 +33,13 @@ def document_validator(document, ex_col, ex_row):
         document.seek(0, 0)
         reader = csv.reader(document.read().splitlines(), dialect)
         temp_list = list(reader)
+
+        # check char in first row and first col
+        if not ex_row and not temp_list[0][-1].isdigit():
+            raise ValueError
+        if not ex_col and not temp_list[-1][0].isdigit():
+            raise ValueError
+
         ncol = (len(temp_list[0]) - 1) if ex_row else len(temp_list[0])
         nrow = (len(temp_list) - 1) if ex_col else len(temp_list)
         is_cubic = True if (ncol == nrow) else False
@@ -40,6 +47,8 @@ def document_validator(document, ex_col, ex_row):
     except csv.Error:
         return_value = {'is_valid': False}
     except Exception:
+        return_value = {'is_valid': False}
+    except ValueError:
         return_value = {'is_valid': False}
 
     return return_value
