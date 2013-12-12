@@ -62,17 +62,17 @@ class NetworkDistanceStep3Class(View):
 
     def post(self, request):
         files = []
-        for file in request.FILES.getlist('files'):
+        for file in request.POST.getlist('file'):
             files.append(os.path.join(settings.MEDIA_ROOT, file))
 
         param = {
             'd': request.POST['distance'],
-            'ga': request.POST['ga'] if request.POST['ga'] else ri.NULL,
-            'components': request.POST['components'],
-            'rho': request.POST['rho'] if request.POST['rho'] else ri.NULL,
+            'ga': float(request.POST['ga']) if request.POST['ga'] else ri.NULL,
+            'components': bool(request.POST['components']),
+            'rho': float(request.POST['rho']) if request.POST['rho'] else ri.NULL,
             'sep': request.POST['sep'],
-            'header': request.POST['col'],
-            'row.names': request.POST['row']
+            'header': bool(request.POST['col']),
+            'row.names': 1 if bool(request.POST['row']) else ri.NULL
         }
         try:
             t = test_netdist.delay(files, param)
@@ -81,7 +81,7 @@ class NetworkDistanceStep3Class(View):
 
         context = {'files': files, 'task': t}
         print t
-        print request.POST
-
+        print param
+        print files
         messages.add_message(self.request, messages.SUCCESS, 'Process submitted with success!!!')
         return render(request, self.template_name, context)
