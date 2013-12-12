@@ -36,7 +36,6 @@ class NetDist:
             if p in self.param:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
-        print param
         for f in self.filelist:
             try:
                 dataf = DataFrame.from_csvfile(f,
@@ -48,7 +47,7 @@ class NetDist:
                 dataf = asmatrix(dataf)
                 self.mylist.append(dataf)
                 rcount += 1
-            except IOError:
+            except IOError, RRuntimeError:
                 print "Can't load file %s" % f
 
         if rcount == self.nfiles:
@@ -72,7 +71,6 @@ class NetDist:
             if p in self.param:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
-        print param
         try:
             self.res = nettools.netdist(self.mylist,
                                         d=param['d'],
@@ -92,6 +90,7 @@ class NetDist:
 
     def get_results(self):
         if self.computed:
-            return self.res
+            #return self.res
+            return 'COMPUTED'
         else:
             print "No distance computed"

@@ -53,3 +53,19 @@ def document_validator(document, ex_col, ex_row):
 
     return return_value
 
+
+def get_bootsrap_badge(status):
+    if status == 'SUCCESS':
+        badge = 'label-success'
+    elif status == 'STARTED' or status == 'RUNNING':
+        badge = 'label-primary'
+    elif status == 'RETRY':
+        badge = 'label-default'
+    elif status == 'FAILURE':
+        badge = 'label-danger'
+    elif status == 'PENDING':
+        badge = 'label-default'
+    else:
+        badge = 'label-default'
+
+    return badge

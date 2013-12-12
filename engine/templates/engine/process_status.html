@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extrahead %}
+      <script type="text/javascript">
+       jQuery(document).ready(function(){
+
+
+
+    </script>
+{% endblock extrahead %}
+
+{% block container %}
+<div class="row row-offcanvas row-offcanvas-right">
+
+<div class="col-md-12 col-md-9">
+          <div class="row">
+            <h1>Process status</h1>
+            <div class="col-6">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+            </div>
+            {% endfor %}
+            {% endif %}
+{#              <h3>Tasks information</h3>#}
+{#                <table class="table table-striped table-hover">#}
+{#                    <thead>#}
+{#                      <tr>#}
+{#                        <th>UUID</th>#}
+{#                        <th>Status</th>#}
+{#                        <th>Timestamp</th>#}
+{#                        <th>Result</th>#}
+{#                      </tr>#}
+{#                    </thead>#}
+{#                    <tr>#}
+{#                        <td>{{ task.id }}</td>#}
+{#                        <td><span class="label {{ badge }}"><strong>{{ task.status }}</strong></span></td>#}
+{#                        <td>{{ ts }}</td>#}
+{#                        <td>{{ task.info }}</td>#}
+{#                    </tr>#}
+{#                </table>#}
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h3 class="panel-title">Tasks information</h3>
+                  </div>
+                  <div class="panel-body">
+                      Some default panel content here. Nulla vitae elit libero, a pharetra augue.
+                      Aenean lacinia bibendum nulla sed consectetur. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum.
+                      Nullam id dolor id nibh ultricies vehicula ut id elit.
+                  </div>
+                  <table class="table">
+                      <tr>
+                          <td><strong>UUID:</strong></td>
+                          <td>{{ task.id }}</td>
+                      </tr>
+                      <tr>
+                          {% if runp %}
+                          <td><strong>Submited</strong></td>
+                          <td>
+                              {{ runp.submited }}
+                          </td>
+                          {% endif %}
+                      </tr>
+                      <tr>
+                          <td><strong>Status</strong></td>
+                          <td><span class="label {{ badge }}"><strong>{{ task.status }}</strong></span></td>
+                      </tr>
+                      <tr>
+                          {% if task.status == 'RUNNING' %}
+                              <td><strong>Actual action</strong></td>
+                              <td>{{ task.info }}</td>
+                          {% endif %}
+                      </tr>
+                  </table>
+                </div>
+
+                <hr/>
+
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h3 class="panel-title">Analysis results</h3>
+                  </div>
+                  <div class="panel-body">
+                      Some default panel content here. Nulla vitae elit libero, a pharetra augue.
+                      Aenean lacinia bibendum nulla sed consectetur. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum.
+                      Nullam id dolor id nibh ultricies vehicula ut id elit.
+                  </div>
+                  {% if task.status == 'SUCCESS' %}
+
+<table class="table table-striped">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Username</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Mark</td>
+            <td>Otto</td>
+            <td>@mdo</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Jacob</td>
+            <td>Thornton</td>
+            <td>@fat</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Larry</td>
+            <td>the Bird</td>
+            <td>@twitter</td>
+          </tr>
+        </tbody>
+      </table>
+                    {% endif %}
+                </div>
+
+            </div><!--/span-->
+          </div><!--/row-->
+        </div><!--/span-->
+        {% include "navigation.html" %}
+      </div><!--/row-->
+{% endblock container %}
+
+
+
