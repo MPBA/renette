@@ -102,7 +102,6 @@ class NetDist:
             for i in range(len(self.res)):
                 myfname = os.path.join(filepath, 
                                        names(self.res)[i] + '_distance.tsv')
-                print len(self.res[i])
                 try :
                     ll = len(self.res[i]) 
                     if (ll == 1):
