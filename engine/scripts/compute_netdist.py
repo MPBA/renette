@@ -102,11 +102,15 @@ class NetDist:
             for i in range(len(self.res)):
                 myfname = os.path.join(filepath, 
                                        names(self.res)[i] + '_distance.tsv')
-                
+                print len(self.res[i])
                 try :
-                    len(self.res[i])
-                    colnames = robjects.NA_Integer
-                    rownames = True
+                    ll = len(self.res[i]) 
+                    if (ll == 1):
+                        colnames = False
+                        rownames = False
+                    else:
+                        colnames = robjects.NA_Integer
+                        rownames = True
                 except:
                     colnames = False
                     rownames = False
