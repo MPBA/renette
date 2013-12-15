@@ -9,25 +9,30 @@ import os.path
 
 class Mat2Adj:
     
-    def __init__(self, filelist,param = {}):
+    def __init__(self, filelist, param={}):
+
         """
         Import the needed functions and packages to be available for computation
         """
+        
         self.filelist = filelist
         self.mylist = rlc.TaggedList([])
         self.nfiles = len(filelist)
         self.param = param
         
     def loadfiles(self):
+        
         """
         Load files into R environment
         """
-        rcount = 0
+        
         self.listname = []
+        rcount = 0
         names = robjects.r['names'] 
         
         # Set the default parameter for reading from csv
-        param = {'sep':'\t', 'header': True, 'as_is':True, 'row.names': ri.NULL}
+        param = {'sep':'\t', 'header': True, 'as_is':True, 
+                 'row.names': ri.NULL}
         # Check the correct parameter and set the default        
         for p in param.keys():
             if p in self.param:
@@ -43,7 +48,7 @@ class Mat2Adj:
                                                  as_is=param['as_is'],
                                                  row_names=param['row.names'])
                 self.mylist.append(tmpdata)
-                self.listname.append('file'+str(rcount))
+                self.listname.append('adj_mat_'+str(rcount))
                 rcount += 1
             except IOError:
                 print "Can't load file %s" %f
@@ -55,9 +60,11 @@ class Mat2Adj:
             
     
     def compute(self):
+        
         """
         Compute adjacency matrices using package nettools
         """
+        
         nettools = importr('nettools')
         lapply = robjects.r['lapply']
         
@@ -83,14 +90,14 @@ class Mat2Adj:
         return return_value
 
     def get_results(self, filepath='.'):
+        
+        """
+        Get the results and write to a file
+        """
+
         lapply = robjects.r['lapply']
-        write_table = robjects.r['write.table']
-        names = robjects.r['names'] 
-        col_names = robjects.r['colnames']
-        row_names = robjects.r['rownames']
-        
-        print self.param
-        
+        write_table = robjects.r['write.csv2']
+                
         if self.computed:
             for i in range(len(self.res)):
                 myfname = os.path.join(filepath,
@@ -101,20 +108,59 @@ class Mat2Adj:
                         colnames = False
                         rownames = False
                     else:
-                        colnames = True#robjects.NA_Integer
+                        colnames = robjects.NA_Logical
                         rownames = True
                 except:
                     colnames = False
                     rownames = False
-                
-                print col_names(self.res[i])
-                print row_names(self.res[i])
-                write_table(self.res[i],myfname, sep=self.param['sep'], 
-                            quote=False,
-                            **{'col.names': colnames,
-                               'row.names': rownames})
+                    
+                # Write files csv ; separated
+                write_table(self.res[i],myfname,
+                            quote=False)
             return True
         else:
-            print "No adjacency matrix computed, please run the compute method before."
+            print 'No adjacency matrix computed, please run the compute method before.'
+    
+    def save_RData(self, filepath='.', filename='adj.RData'):
+
+        """
+        Store the variables just computed in the globalenv to an RData
+        """
+        
+        # Varname contains the names of the variables stored in the RData
+        varname = ri.StrSexpVector(self.listname)
+        ri.globalenv['varname'] = varname
+        save_image = robjects.r['save.image']
+        
+        try:
+            for i,f in enumerate(self.listname):
+                # Register the current result to the global environment
+                ri.globalenv[f] = self.res[i]
+            save_image(file=os.path.join(filepath,filename))
+            return True
+        except IOError, e:
+            print 'No results found: %s' % str(e)
+            return False
+        except RRuntimeError, e:
+            print 'No results found: %s' % str(e)
+            return False
             
-            
+    def get_results_fromRData(self, filepath=".", filename='adj.RData'):
+        
+        """
+        Get the results from a previously stored RData
+        """
+        
+        try: 
+            robjects.r.load(os.path.join(filepath, filename))
+            varname = ri.globalenv.get('varname')
+            for i in varname:
+                myres = ri.globalenv.get(i)
+                print 'Found variable %s, with dim= %s' % (i, np.array(myres).shape)
+            return True
+        except IOError, e:
+            print 'No objects found in the %s file' % filename
+            return False
+        except RRuntimeError, e:
+            print 'No oject found in this %s: %s' % (filename, str(e))
+            return False
