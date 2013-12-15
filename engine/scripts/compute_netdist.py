@@ -80,8 +80,6 @@ class NetDist:
                                         d=param['d'],
                                         components=param['components'],
                                         ga=param['ga'], **{'n.cores': 1})
-            print len(self.res)
-            
             return_value = True
         except ValueError, e:
             print 'Error in computing network distance: %s' % str(e)
@@ -94,6 +92,11 @@ class NetDist:
         return return_value
 
     def get_results(self, filepath='.'):
+        
+        """
+        Get the results and save to csv files
+        """
+        
         lapply = robjects.r['lapply']
         write_table = robjects.r['write.table']
         names = robjects.r['names'] 
@@ -122,3 +125,31 @@ class NetDist:
         else:
             print "No distance computed"
             return False
+
+    def save_RData(self, filepath='.', filename='dists.RData'):
+
+        """
+        Store the variables just computed in the globalenv to an RData
+        """
+        
+        names = robjects.r['names']
+        
+        # Varname contains the names of the variables stored in the RData
+        resname = names(self.res)
+        varname = ri.StrSexpVector(resname)
+        ri.globalenv['varname'] = varname
+        save_image = robjects.r['save.image']
+        
+        try:
+            for i,f in enumerate(resname):
+                # Register the current result to the global environment
+                ri.globalenv[f] = self.res[i]
+            save_image(file=os.path.join(filepath,filename))
+            return True
+        except IOError, e:
+            print 'No results found: %s' % str(e)
+            return False
+        except RRuntimeError, e:
+            print 'No results found: %s' % str(e)
+            return False
+
