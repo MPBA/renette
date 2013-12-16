@@ -7,7 +7,7 @@ from django.views.generic.base import View
 from django.shortcuts import redirect, render
 from django.db import DatabaseError
 from django.http import Http404
-from .utils import handle_uploads, document_validator, get_bootsrap_badge
+from .utils import handle_uploads, document_validator, get_bootsrap_badge, read_csv_results
 from .models import RunningProcess
 from django.contrib import messages
 from engine.tasks import test_netdist
@@ -68,11 +68,11 @@ class NetworkDistanceStep3Class(View):
         files = []
         for file in request.POST.getlist('file'):
             files.append(os.path.join(settings.MEDIA_ROOT, file))
-
+        components = request.POST.get("components", 'True')
         param = {
             'd': request.POST.get("distance", "HIM"),
             'ga': float(request.POST.get("ga")) if request.POST.get("ga", False) else None,
-            'components': bool(request.POST.get("components", True)),
+            'components': True if components == 'True' else False,
             'rho':  float(request.POST.get("rho")) if request.POST.get("rho", False) else None,
             'sep': request.POST.get("sep", "\t"),
             'header': True if request.POST.get("col", False) else False,
@@ -122,4 +122,9 @@ class ProcessStatus(View):
             'badge': get_bootsrap_badge(task.status),
             'runp': runp
         }
+
+        if task.status == 'SUCCESS':
+            tables = read_csv_results(task.result)
+            context['tables'] = tables
+
         return render(request, self.template_name, context)

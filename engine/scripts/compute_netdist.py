@@ -6,6 +6,7 @@ import rpy2.rlike.container as rlc
 from rpy2.robjects.numpy2ri import numpy2ri
 import rpy2.rinterface as ri
 import numpy as np
+import os.path
 
 
 class NetDist:
@@ -18,8 +19,8 @@ class NetDist:
             print "Not enough file loaded"
             
         self.filelist = filelist
-        self.mylist = rlc.TaggedList([])
         self.param = param
+        self.mylist = rlc.TaggedList([])
         
     def loadfiles(self):
         """
@@ -27,6 +28,7 @@ class NetDist:
         """
         rcount = 0
         asmatrix = robjects.r['as.matrix']
+
         
         ## Set the default parameter for reading from csv
         param = {'sep': '\t', 'header': True, 'as_is': True, 'row.names': ri.NULL}
@@ -36,6 +38,7 @@ class NetDist:
             if p in self.param:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
+
         for f in self.filelist:
             try:
                 dataf = DataFrame.from_csvfile(f,
@@ -65,17 +68,21 @@ class NetDist:
         nettools = importr('nettools')
         ## robjects.conversion.py2ri = numpy2ri
         param = {'d': 'HIM', 'ga': ri.NULL, 'components': True, 'rho': 1}
-
+        
         ## Check the correct parameter and set the default
         for p in param.keys():
             if p in self.param:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
+
+        print len(self.mylist)
         try:
             self.res = nettools.netdist(self.mylist,
                                         d=param['d'],
                                         components=param['components'],
                                         ga=param['ga'], **{'n.cores': 1})
+
+            print len(self.res)
 
             return_value = True
         except ValueError, e:
@@ -88,9 +95,32 @@ class NetDist:
         self.computed = return_value
         return return_value
 
-    def get_results(self):
+    def get_results(self, filepath='.'):
+        lapply = robjects.r['lapply']
+        write_table = robjects.r['write.table']
+        names = robjects.r['names'] 
+        filenames = []
+
         if self.computed:
-            #return self.res
-            return 'COMPUTED'
+            for i in range(len(self.res)):
+                myfname = os.path.join(filepath,
+                                       names(self.res)[i] + '_distance.tsv')
+                filenames.append(names(self.res)[i] + '_distance.tsv')
+                try:
+                    len(self.res[i])
+                    colnames = ri.StrSexpVector([os.path.basename(f) for f in self.filelist])
+                    rownames = ri.StrSexpVector([os.path.basename(f) for f in self.filelist])
+                except:
+                    colnames = False
+                    rownames = False
+                    
+                write_table(self.res[i], myfname, sep=self.param['sep'],
+                            quote=False,
+                            **{'col.names': colnames,
+                               'row.names': rownames}
+                            )
+            print filenames
+            return filenames
         else:
             print "No distance computed"
+            return False
