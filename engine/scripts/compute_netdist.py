@@ -38,7 +38,7 @@ class NetDist:
             if p in self.param:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
-        
+
         for f in self.filelist:
             try:
                 dataf = DataFrame.from_csvfile(f,
@@ -50,7 +50,7 @@ class NetDist:
                 dataf = asmatrix(dataf)
                 self.mylist.append(dataf)
                 rcount += 1
-            except IOError:
+            except IOError, RRuntimeError:
                 print "Can't load file %s" % f
 
         if rcount == self.nfiles:
@@ -75,11 +75,17 @@ class NetDist:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
 
+        print len(self.mylist)
+        print self.param
+        print param
+
         try:
             self.res = nettools.netdist(self.mylist,
                                         d=param['d'],
                                         components=param['components'],
                                         ga=param['ga'], **{'n.cores': 1})
+            print len(self.res)
+
             return_value = True
         except ValueError, e:
             print 'Error in computing network distance: %s' % str(e)
@@ -99,29 +105,45 @@ class NetDist:
         
         lapply = robjects.r['lapply']
         write_table = robjects.r['write.table']
-        names = robjects.r['names'] 
-        
+        names = robjects.r['names']
+        rlist = robjects.r['list']
+        rmat = robjects.r['as.matrix']
+
+        filenames = []
+
+
+
         if self.computed:
             for i in range(len(self.res)):
-                myfname = os.path.join(filepath, 
+                myfname = os.path.join(filepath,
                                        names(self.res)[i] + '_distance.tsv')
-                try :
-                    ll = len(self.res[i]) 
-                    if (ll == 1):
-                        colnames = False
-                        rownames = False
-                    else:
-                        colnames = robjects.NA_Integer
-                        rownames = True
-                except:
-                    colnames = False
-                    rownames = False
-                    
-                write_table(self.res[i],myfname, sep=self.param['sep'], 
+
+                filenames.append(names(self.res)[i] + '_distance.tsv')
+                try:
+                    len(self.res[i][1])
+                    tmp = self.res[i]
+                    colnames = ri.StrSexpVector([os.path.basename(f) for f in self.filelist])
+                    rownames = ri.StrSexpVector([os.path.basename(f) for f in self.filelist])
+
+                    tmp.do_slot_assign("dimnames", rlist(
+                        ri.StrSexpVector(colnames),
+                        ri.StrSexpVector(rownames)
+                    ))
+                except Exception:
+                    tmp = robjects.r.matrix(self.res[i], ncol=1, nrow=1)
+                    tmp.do_slot_assign("dimnames", rlist(
+                        ri.StrSexpVector([self.filelist[0]]),
+                        ri.StrSexpVector([self.filelist[1]])
+                    ))
+
+                write_table(tmp, myfname, sep=self.param['sep'],
                             quote=False,
-                            **{'col.names': colnames,
-                               'row.names': rownames})
-            return True
+                            **{
+                                'col.names': ri.NA_Logical,
+                                'row.names': True
+                            })
+            print filenames
+            return filenames
         else:
             print "No distance computed"
             return False

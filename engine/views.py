@@ -5,11 +5,15 @@ __author__ = 'ernesto'
 from django.views.generic import TemplateView
 from django.views.generic.base import View
 from django.shortcuts import redirect, render
-from .utils import handle_uploads, document_validator
+from django.db import DatabaseError
+from django.http import Http404
+from .utils import handle_uploads, document_validator, get_bootsrap_badge, read_csv_results
+from .models import RunningProcess
 from django.contrib import messages
 from engine.tasks import test_netdist
 from django.conf import settings
-import rpy2.rinterface as ri
+import djcelery
+from datetime import datetime
 import os
 
 class NetworkDistanceClass(View):
@@ -64,24 +68,63 @@ class NetworkDistanceStep3Class(View):
         files = []
         for file in request.POST.getlist('file'):
             files.append(os.path.join(settings.MEDIA_ROOT, file))
-        print request.POST
+        components = request.POST.get("components", 'True')
         param = {
             'd': request.POST.get("distance", "HIM"),
             'ga': float(request.POST.get("ga")) if request.POST.get("ga", False) else None,
-            'components': bool(request.POST.get("components", True)),
+            'components': True if components == 'True' else False,
             'rho':  float(request.POST.get("rho")) if request.POST.get("rho", False) else None,
             'sep': request.POST.get("sep", "\t"),
             'header': True if request.POST.get("col", False) else False,
             'row.names': 1 if request.POST.get("row", False) else None
         }
         try:
+            runp = RunningProcess(
+                process_name='network_distance',
+                inputs=param,
+                submited=datetime.now()
+            )
             t = test_netdist.delay(files, param)
-        except Exception, e:
-            messages.add_message(self.request, messages.ERROR, 'Error')
+            runp.task_id = t.id
 
-        context = {'files': files, 'task': t}
-        print t
-        print param
-        print files
+        except Exception, e:
+            messages.add_message(self.request, messages.ERROR, 'Error: %s' % str(e))
+
+        try:
+            runp.save()
+        except DatabaseError, e:
+            t.revoke(terminate=True)
+            messages.add_message(self.request, messages.ERROR, 'Error: %s' % str(e))
+
+        context = {'files': files, 'task': t, 'uuid': t.id}
+
         messages.add_message(self.request, messages.SUCCESS, 'Process submitted with success!!!')
+        return render(request, self.template_name, context)
+
+
+
+
+class ProcessStatus(View):
+    template_name = 'engine/process_status.html'
+
+    def get(self, request, uuid, **kwargs):
+        task = djcelery.celery.AsyncResult(uuid)
+
+        try:
+            runp = RunningProcess.objects.get(task_id=uuid)
+        except RunningProcess.DoesNotExist:
+            runp = None
+            messages.add_message(self.request, messages.ERROR, 'Alcune info non disponibili')
+
+        context = {
+            'uuid': uuid,
+            'task': task,
+            'badge': get_bootsrap_badge(task.status),
+            'runp': runp
+        }
+
+        if task.status == 'SUCCESS':
+            tables = read_csv_results(task.result)
+            context['tables'] = tables
+
         return render(request, self.template_name, context)

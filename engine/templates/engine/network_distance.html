@@ -51,7 +51,7 @@
                         <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
             </div>
             {% endfor %}
-        {% endif %}
+            {% endif %}
               <h3>Load your files</h3>
               <form method="POST" enctype="multipart/form-data" role="form" class="form-horizontal" action="{% url 'network_distance_2' %}">
                   {% csrf_token %}
@@ -105,7 +105,7 @@
           </div><!--/row-->
         </div><!--/span-->
         {% include "navigation.html" %}
-      </div><!--/row-->
+</div><!--/row-->
 {% endblock container %}
 
 

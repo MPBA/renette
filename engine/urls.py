@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, include, url
 
 from django.contrib import admin
-from .views import NetworkDistanceClass, NetworkDistanceStep2Class, NetworkDistanceStep3Class
+from .views import NetworkDistanceClass, NetworkDistanceStep2Class, NetworkDistanceStep3Class, ProcessStatus
 admin.autodiscover()
 
 urlpatterns = patterns('engine.views',
@@ -17,4 +17,9 @@ urlpatterns = patterns('engine.views',
                        url(regex='^network/distance/3$',
                            view=NetworkDistanceStep3Class.as_view(),
                            name='network_distance_3'),
+
+
+                       url(regex='^process/status/(.+)$',
+                           view=ProcessStatus.as_view(),
+                           name='process_status'),
                        )

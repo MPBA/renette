@@ -2,6 +2,7 @@ from datetime import date
 import os
 import csv
 from django.conf import settings
+import numpy as np
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
@@ -53,3 +54,35 @@ def document_validator(document, ex_col, ex_row):
 
     return return_value
 
+
+def get_bootsrap_badge(status):
+    if status == 'SUCCESS':
+        badge = 'label-success'
+    elif status == 'STARTED' or status == 'RUNNING':
+        badge = 'label-primary'
+    elif status == 'RETRY':
+        badge = 'label-default'
+    elif status == 'FAILURE':
+        badge = 'label-danger'
+    elif status == 'PENDING':
+        badge = 'label-default'
+    else:
+        badge = 'label-default'
+
+    return badge
+
+
+def read_csv_results(files):
+    result = []
+    for f in files:
+        pathabs = os.path.join(settings.MEDIA_ROOT, f)
+
+        with open(pathabs, 'rb') as csvfile:
+            reader = csv.reader(csvfile, delimiter='\t')
+            rowdata = []
+            for row in reader:
+                rowdata.append(row)
+        result.append(rowdata)
+        csvfile.close()
+
+    return result

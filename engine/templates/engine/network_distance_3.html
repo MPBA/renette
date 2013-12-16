@@ -34,12 +34,14 @@
                 <div class="well well-sm">
                     <p>Distance Method: <strong>{{ request.POST.distance }}</strong></p>
 
-                    <p>ga: <strong>{% if request.POST.ga %}{{ request.POST.ga }}{% else %}Not available{% endif %}</strong></p>
-                    <p>rho: <strong>{% if request.POST.rho %}{{ request.POST.rho }}{% else %}Not available{% endif %}</strong></p>
-                    <p>rho: <strong>{% if request.POST.components %}{{ request.POST.components }}{% else %}Not available{% endif %}</strong></p></p>
+                    <p>ga: <strong>{% if request.POST.ga %}{{ request.POST.ga }}{% else %}Not selected{% endif %}</strong></p>
+                    <p>rho: <strong>{% if request.POST.rho %}{{ request.POST.rho }}{% else %}Not selected{% endif %}</strong></p>
+                    <p>components: <strong>{% if request.POST.components %}{{ request.POST.components }}{% else %}Not selected{% endif %}</strong></p></p>
                 </div>
-                <h4>Estimated completion time <span class="label label-info">3 hour and 34 minutes</span></h4>
-
+                <p>Estimated completion time: <span class="label label-info">3 hour and 34 minutes.</span>
+                    Don't forget your unique process id is <span class="label label-info">{{ uuid }}</span>.
+                    The page will automatically redirect to the status page, or you can visit this
+                    <a href="{% url 'process_status' uuid %}">address</a></p>
             </div><!--/span-->
 
 
