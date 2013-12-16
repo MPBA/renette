@@ -33,11 +33,17 @@ def test_netdist(self, files, param):
     nd.compute()
 
     self.update_state(state='RUNNING', meta={'current': 'fetching result'})
-    filenames = nd.get_results(filepath=result_path_full)
+    result = nd.get_results(filepath=result_path_full, )
 
-    # calc relative path
-    result_path_relative = []
-    for f in filenames:
-        result_path_relative.append(os.path.join(settings.RESULT_PATH, tmpdir, f))
+    ## calc relative path
+    #result_path_relative = []
+    #for f in filenames:
+    #    result_path_relative.append(os.path.join(settings.RESULT_PATH, tmpdir, f))
 
-    return result_path_relative
+    for key in result.keys():
+        val = result.get(key)
+        val['csv_files'] = [os.path.join(settings.RESULT_PATH, tmpdir, f) for f in val['csv_files']]
+        val['img_files'] = [os.path.join(settings.RESULT_PATH, tmpdir, f) for f in val['img_files']]
+        val['rdata'] = os.path.join(settings.RESULT_PATH, tmpdir, val['rdata']) if val['rdata'] else None
+        result.update({key: val})
+    return result

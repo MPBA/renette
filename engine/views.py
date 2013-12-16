@@ -4,17 +4,19 @@ __author__ = 'ernesto'
 
 from django.views.generic import TemplateView
 from django.views.generic.base import View
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, render_to_response
 from django.db import DatabaseError
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from .utils import handle_uploads, document_validator, get_bootsrap_badge, read_csv_results
 from .models import RunningProcess
 from django.contrib import messages
 from engine.tasks import test_netdist
 from django.conf import settings
 import djcelery
-from datetime import datetime
 import os
+import StringIO
+import zipfile
+from datetime import datetime
 
 class NetworkDistanceClass(View):
     template_name = 'engine/network_distance.html'
@@ -124,7 +126,59 @@ class ProcessStatus(View):
         }
 
         if task.status == 'SUCCESS':
-            tables = read_csv_results(task.result)
-            context['tables'] = tables
+            result =  task.result
+            for key in result.keys():
+                print key
+                val = result.get(key)
+                val['csv_tables'] = read_csv_results(val['csv_files'])
+
+                result.update({key: val})
+            context['result'] = result
 
         return render(request, self.template_name, context)
+
+
+def download_zip_file(request, pk):
+    try:
+        runp = RunningProcess.objects.get(pk=pk)
+    except RunningProcess.DoesNotExist:
+        raise Http404
+
+    result = runp.result
+    print result
+    file_list = []
+    for key in result.keys():
+        val = result.get(key)
+        file_list += val['csv_files']
+        file_list += val['img_files']
+    print file_list
+    # Folder name in ZIP archive which contains the above files
+    # E.g [thearchive.zip]/somefiles/file2.txt
+    # FIXME: Set this to something better
+    zip_basename = "result"
+    zip_filename = "%s.zip" % zip_basename
+
+    # Open StringIO to grab in-memory ZIP contents
+    s = StringIO.StringIO()
+
+    # The zip compressor
+    zf = zipfile.ZipFile(s, "w")
+
+    for fpath in file_list:
+        # Calculate path for file in zip
+        fdir, fname = os.path.split(fpath)
+        print fpath
+        zip_path = os.path.join("./", fname)
+
+        # Add file, at correct path
+        zf.write(os.path.join(settings.MEDIA_ROOT,fpath), zip_path)
+
+    # Must close zip for all contents to be written
+    zf.close()
+
+    # Grab ZIP file from in-memory, make response with correct MIME-type
+    # ..and correct content-disposition
+    resp = HttpResponse(s.getvalue(), mimetype="application/x-zip-compressed")
+
+    resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
+    return resp

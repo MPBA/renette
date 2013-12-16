@@ -27,9 +27,14 @@ class RunningProcess(models.Model):
     #    return self.celery_task.status
     #
     ## Returns the result of the task
-    #@property
-    #def result(self):
-    #    return self.celery_task.get()
+    @property
+    def result(self):
+        if self.celery_task.status == 'SUCCESS':
+            res = self.celery_task.result
+            print res
+        else:
+            res = None
+        return res
 
     # Returns the time when the task has finished
     @property

@@ -15,7 +15,7 @@ import compute_netstab as cs
 
 print 'Test Network Distance'
 myparam = {'d': 'HIM','components': True, 'rho': None,'sep': '\t','row.names': 1}
-nd = cd.NetDist(['test_adj.tsv', 'test_adj.tsv'], myparam)
+nd = cd.NetDist(['data/test_data_1.csv', 'data/test_data_2.csv', 'data/test_data_3.csv', 'data/test_data_4.csv'], myparam)
 nd.loadfiles()
 nd.compute()
 nd.get_results()

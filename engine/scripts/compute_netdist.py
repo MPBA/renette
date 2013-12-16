@@ -109,19 +109,24 @@ class NetDist:
         rlist = robjects.r['list']
         rmat = robjects.r['as.matrix']
 
-        filenames = []
-
-
+        results = {}
 
         if self.computed:
             for i in range(len(self.res)):
                 myfname = os.path.join(filepath,
                                        names(self.res)[i] + '_distance.tsv')
 
-                filenames.append(names(self.res)[i] + '_distance.tsv')
+                results[names(self.res)[i]] = {
+                    'csv_files': [names(self.res)[i] + '_distance.tsv'],
+                    'img_files': [],
+                    'desc': '%s is bla bla bla bla' % names(self.res)[i],
+                    'rdata': None,
+                }
+
                 try:
-                    len(self.res[i][1])
+                    len(self.res[i])
                     tmp = self.res[i]
+
                     colnames = ri.StrSexpVector([os.path.basename(f) for f in self.filelist])
                     rownames = ri.StrSexpVector([os.path.basename(f) for f in self.filelist])
 
@@ -132,8 +137,8 @@ class NetDist:
                 except Exception:
                     tmp = robjects.r.matrix(self.res[i], ncol=1, nrow=1)
                     tmp.do_slot_assign("dimnames", rlist(
-                        ri.StrSexpVector([self.filelist[0]]),
-                        ri.StrSexpVector([self.filelist[1]])
+                        ri.StrSexpVector([os.path.basename(self.filelist[0])]),
+                        ri.StrSexpVector([os.path.basename(self.filelist[1])])
                     ))
 
                 write_table(tmp, myfname, sep=self.param['sep'],
@@ -142,8 +147,7 @@ class NetDist:
                                 'col.names': ri.NA_Logical,
                                 'row.names': True
                             })
-            print filenames
-            return filenames
+            return results
         else:
             print "No distance computed"
             return False
