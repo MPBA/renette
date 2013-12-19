@@ -34,35 +34,39 @@ class NetworkDistanceStep2Class(View):
 
     def post(self, request):
         files = []
-        to_save = []
+        removed_files = []
         dim = []
-        if len(request.FILES.getlist('files')) < 2:
+        if len(request.POST.getlist('uploaded')) < 2:
             messages.add_message(self.request, messages.ERROR, 'You must upload at least 2 files!!!')
             return redirect('network_distance')
 
-        for file in request.FILES.getlist('files'):
+        for file in request.POST.getlist('uploaded'):
             ex_col = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
             ex_row = request.POST['exclude_row_header'] if 'exclude_row_header' in request.POST else None
-            valid = document_validator(file, ex_col, ex_row)
+            valid, ret_file = document_validator(file, ex_col, ex_row)
+
             if valid['is_valid'] and valid['is_cubic']:
                 dim.append(valid['nrow'])
                 max_ga = valid['nrow']
-                separ = valid['separator']
-                files.append({'name': file.name, 'type': file.content_type, 'file_to_save': file.read(), 'prop': valid})
-                to_save.append(file)
+                files.append({'name': ret_file.name,
+                              'type': ret_file.content_type,
+                              'file_to_save': ret_file.read(),
+                              'prop': valid})
+            else:
+                removed_files.append(ret_file)
+
         if len(files) < 2:
             messages.add_message(self.request, messages.ERROR, 'Your files properties are not .....')
             return redirect('network_distance')
         elif not all(x == dim[0] for x in dim):
             messages.add_message(self.request, messages.ERROR, 'Your files dim are not equal')
             return redirect('network_distance')
-        else:
-            f = handle_uploads(self.request, to_save)
+
         context = {'posted_files': request.FILES.getlist('files'),
                    'uploaded_files': files,
                    'max_ga': max_ga,
-                   'handled': f,
-                   'sep': separ}
+                   'removed_files': removed_files
+                   }
         return render(request, self.template_name, context)
 
 

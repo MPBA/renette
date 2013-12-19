@@ -42,7 +42,15 @@
             });
 
            $("#reset_form").click(function(){
-               $("#output").find('li').remove();
+               $("#files").find('p').remove();
+               $("#uploaded-files").find('input').remove();
+               $('#progress .progress-bar').css(
+                        'width',
+                        0 + '%'
+                    );
+               $('#btn-go').attr('disabled','disabled');
+               $('#reset_form').attr('disabled', 'disabled');
+
             });
 
         });
@@ -66,6 +74,7 @@
                 done: function (e, data) {
                     $.each(data.result.files, function (index, file) {
                         $('<p/>').text(file.name + " [" + humanFileSize(file.size, 1024) + "]").appendTo('#files');
+                        $('#uploaded-files').append("<input type='hidden' name='" + 'uploaded' + "' value='" + file.url + "'>" );
                     });
 
                 },
@@ -81,7 +90,13 @@
               .bind('fileuploadfail', function (e, data){
                         console.log(data)
                          $('<p/>').text(data.errorThrown + ': ' + data.jqXHR.responseText).appendTo('#files');
-                    });
+                    }
+
+               )
+              .bind('fileuploadstop', function (e, data) {
+                  $('#btn-go').removeAttr('disabled');
+                  $('#reset_form').removeAttr('disabled');
+              })
         });
     </script>
 {% endblock extrahead %}
@@ -126,13 +141,15 @@
                       </div>
                   </div>
                   <!-- The global progress bar -->
-                    <div id="progress" class="progress">
+                    <div id="progress" class="progress progress-striped">
                         <div class="progress-bar progress-bar-success"></div>
                     </div>
+                    <div id="uploaded-files">
 
+                    </div>
 
-                  <input type="submit" class="btn btn-go" name="Upload" value="Go >>">
-                  <input type="reset" value="Reset" class="btn btn-danger" id="reset_form">
+                  <input type="submit" class="btn btn-go" name="Upload" value="Go >>" id="btn-go" disabled>
+                  <input type="reset" value="Reset" class="btn btn-danger" id="reset_form" disabled>
               </form>
 
             </div><!--/span-->
