@@ -1,3 +1,4 @@
+from rpy2.rinterface._rinterface import RRuntimeError
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
 from rpy2.robjects.vectors import DataFrame
@@ -11,41 +12,47 @@ import json
 
 class Mat2Adj:
     
-    def __init__(self, filelist, param={}):
-
+    def __init__(self, filelist, seplist, param={}):
         """
         Import the needed functions and packages to be available for computation
         """
-        
-        self.filelist = filelist
-        self.mylist = rlc.TaggedList([])
         self.nfiles = len(filelist)
+        print len(filelist)
+        if self.nfiles < 2:
+            raise ValueError("Not enough file loaded")
+
+        self.filelist = filelist
+        self.seplist = seplist
         self.param = param
+        self.mylist = rlc.TaggedList([])
+        self.listname = []
         
     def loadfiles(self):
-        
         """
         Load files into R environment
         """
-        
-        self.listname = []
         rcount = 0
-        names = robjects.r['names'] 
+        names = robjects.r['names']
         
         # Set the default parameter for reading from csv
         param = {'sep':'\t', 'header': True, 'as_is':True, 
                  'row.names': ri.NULL}
+
+
         # Check the correct parameter and set the default        
         for p in param.keys():
             if p in self.param:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
-        
+        print param
+        print self.param
         # Read all the files in the R-environment
-        for f in self.filelist:
+        for f, s in zip(self.filelist, self.seplist):
             try:
+                print f
+                print s
                 tmpdata = DataFrame.from_csvfile(f,
-                                                 sep=param['sep'],
+                                                 sep=str(s),
                                                  header=param['header'],
                                                  as_is=param['as_is'],
                                                  row_names=param['row.names'])
@@ -98,14 +105,28 @@ class Mat2Adj:
         """
 
         lapply = robjects.r['lapply']
-        write_table = robjects.r['write.csv2']
-                
+        write_table = robjects.r['write.table']
+        names = robjects.r['names']
+        rlist = robjects.r['list']
+        rmat = robjects.r['as.matrix']
+
+        results = {}
+
         if self.computed:
             for i in range(len(self.res)):
                 myfname = os.path.join(filepath,
                                        self.listname[i] + '_adj.tsv')
-                try :
-                    ll = len(self.res[i]) 
+
+                results[self.listname[i]] = {
+                    'csv_files': [self.listname[i] + '_adj.tsv'],
+                    'img_files': [],
+                    'desc': '%s is bla bla bla bla' % self.listname[i],
+                    'rdata': None,
+                }
+
+                try:
+                    len(self.res[i])
+                    ll = len(self.res[i])
                     if (ll == 1):
                         colnames = False
                         rownames = False
@@ -117,11 +138,16 @@ class Mat2Adj:
                     rownames = False
                     
                 # Write files csv ; separated
-                write_table(self.res[i],myfname,
-                            quote=False)
-            return True
+                write_table(self.res[i], myfname, sep='\t',
+                            quote=False,
+                            **{
+                                'col.names': colnames,
+                                'row.names': rownames
+                            })
+            return results
         else:
             print 'No adjacency matrix computed, please run the compute method before.'
+            return False
     
     def save_RData(self, filepath='.', filename='adj.RData'):
 

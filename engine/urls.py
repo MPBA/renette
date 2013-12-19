@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 
 from django.contrib import admin
 from .views import (NetworkDistanceClass, NetworkDistanceStep2Class, NetworkDistanceStep3Class, ProcessStatus,
-                    download_zip_file, NetworkInferenceClass, NetworkInferenceStep2Class)
+                    download_zip_file, NetworkInferenceClass, NetworkInferenceStep2Class, NetworkInferenceStep3Class)
 admin.autodiscover()
 
 urlpatterns = patterns('engine.views',
@@ -34,6 +34,10 @@ urlpatterns = patterns('engine.views',
                        url(regex='^network/inference/2/$',
                            view=NetworkInferenceStep2Class.as_view(),
                            name='network_inference_2'),
+
+                       url(regex='^network/inference/3/$',
+                           view=NetworkInferenceStep3Class.as_view(),
+                           name='network_inference_3'),
 
                        url(r'^multiuploader/$', 'multiuploader'),
 

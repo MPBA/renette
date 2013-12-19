@@ -13,7 +13,6 @@ class NetDist:
     
     def __init__(self, filelist, seplist, param={}):
         self.nfiles = len(filelist)
-
         print len(filelist)
         if self.nfiles < 2:
             raise ValueError("Not enough file loaded")

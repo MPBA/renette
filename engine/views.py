@@ -11,7 +11,7 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from .utils import document_validator, get_bootsrap_badge, read_csv_results, handle_upload
 from .models import RunningProcess
 from django.contrib import messages
-from engine.tasks import test_netdist
+from engine.tasks import test_netdist, test_netinf
 from django.conf import settings
 import djcelery
 import os
@@ -73,6 +73,52 @@ class NetworkInferenceStep2Class(View):
         return render(request, self.template_name, context)
 
 
+class NetworkInferenceStep3Class(View):
+    template_name = 'engine/network_inference_3.html'
+
+    def post(self, request):
+        files = []
+        for file in request.POST.getlist('file'):
+            files.append(os.path.join(settings.MEDIA_ROOT, file))
+
+        components = request.POST.get("components", 'True')
+        sep = request.POST.getlist('sep')
+
+        param = {
+            'methods': request.POST.get("methods", "cor"),
+            'p': float(request.POST.get("p")) if request.POST.get("p", False) else 6,
+            'fdr': float(request.POST.get("fdr")) if request.POST.get("fdr", False) else float(1e-3),
+            'alpha': float(request.POST.get("alpha")) if request.POST.get("alpha", False) else 0.6,
+            'c': float(request.POST.get("c")) if request.POST.get("c", False) else 15,
+            'measure': request.POST.get("measure", None),
+            'header': True if request.POST.get("col", False) else False,
+            'row.names': 1 if request.POST.get("row", False) else None
+        }
+        print param
+        try:
+            runp = RunningProcess(
+                process_name='network_inference',
+                inputs=param,
+                submited=datetime.now()
+            )
+            t = test_netinf.delay(files, sep, param)
+            runp.task_id = t.id
+
+        except Exception, e:
+            messages.add_message(self.request, messages.ERROR, 'Error: %s' % str(e))
+
+        try:
+            runp.save()
+        except DatabaseError, e:
+            t.revoke(terminate=True)
+            messages.add_message(self.request, messages.ERROR, 'Error: %s' % str(e))
+
+        context = {'files': files, 'task': t, 'uuid': t.id}
+
+        messages.add_message(self.request, messages.SUCCESS, 'Process submitted with success!!!')
+        return render(request, self.template_name, context)
+
+
 class NetworkDistanceClass(View):
     template_name = 'engine/network_distance.html'
 
@@ -131,6 +177,7 @@ class NetworkDistanceStep3Class(View):
         files = []
         for file in request.POST.getlist('file'):
             files.append(os.path.join(settings.MEDIA_ROOT, file))
+
         components = request.POST.get("components", 'True')
         sep = request.POST.getlist('sep')
         param = {
@@ -186,11 +233,15 @@ class ProcessStatus(View):
         }
 
         if task.status == 'SUCCESS':
-            result =  task.result
+            result = task.result
             for key in result.keys():
-                print key
                 val = result.get(key)
-                val['csv_tables'] = read_csv_results(val['csv_files'])
+                #csvlist = read_csv_results(val['csv_files'])
+                csvlist = False
+                if csvlist:
+                    val['csv_tables'] = csvlist
+                else:
+                    messages.add_message(self.request, messages.ERROR, 'Impossibile trovare i file dei risultati')
 
                 result.update({key: val})
             context['result'] = result

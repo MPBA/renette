@@ -102,14 +102,16 @@ def get_bootsrap_badge(status):
 def read_csv_results(files):
     result = []
     for f in files:
-        pathabs = os.path.join(settings.MEDIA_ROOT, f)
+        try:
+            pathabs = os.path.join(settings.MEDIA_ROOT, f)
 
-        with open(pathabs, 'rb') as csvfile:
-            reader = csv.reader(csvfile, delimiter='\t')
-            rowdata = []
-            for row in reader:
-                rowdata.append(row)
-        result.append(rowdata)
-        csvfile.close()
-
+            with open(pathabs, 'rb') as csvfile:
+                reader = csv.reader(csvfile, delimiter='\t')
+                rowdata = []
+                for row in reader:
+                    rowdata.append(row)
+            result.append(rowdata)
+            csvfile.close()
+        except Exception, e:
+            return False
     return result
