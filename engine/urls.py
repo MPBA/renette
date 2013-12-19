@@ -26,4 +26,7 @@ urlpatterns = patterns('engine.views',
                        url(regex='^process/download/zip/(?P<pk>\d+)$',
                            view=download_zip_file,
                            name='process_download_zip'),
+
+                       url(r'^multiuploader/$', 'multiuploader'),
+
                        )

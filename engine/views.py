@@ -5,9 +5,10 @@ __author__ = 'ernesto'
 from django.views.generic import TemplateView
 from django.views.generic.base import View
 from django.shortcuts import redirect, render, render_to_response
+from django.core.files.uploadedfile import UploadedFile
 from django.db import DatabaseError
-from django.http import Http404, HttpResponse
-from .utils import handle_uploads, document_validator, get_bootsrap_badge, read_csv_results
+from django.http import Http404, HttpResponse, HttpResponseBadRequest
+from .utils import handle_uploads, document_validator, get_bootsrap_badge, read_csv_results, handle_upload
 from .models import RunningProcess
 from django.contrib import messages
 from engine.tasks import test_netdist
@@ -16,7 +17,9 @@ import djcelery
 import os
 import StringIO
 import zipfile
+import json
 from datetime import datetime
+
 
 class NetworkDistanceClass(View):
     template_name = 'engine/network_distance.html'
@@ -182,3 +185,40 @@ def download_zip_file(request, pk):
 
     resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
     return resp
+
+
+def multiuploader(request):
+    if request.method == 'POST':
+        if request.FILES == None:
+            return HttpResponseBadRequest('No file uploaded')
+        try:
+            #getting file data for farther manipulations
+            file = request.FILES[u'files[]']
+            wrapped_file = UploadedFile(file)
+            filename = wrapped_file.name
+            file_size = wrapped_file.file.size
+
+            #getting file url here
+            file_url = handle_upload(request, file)
+
+            #getting thumbnail url using sorl-thumbnail
+            #generating json response array
+
+            result = []
+            result.append({"name": filename,
+                           "size": file_size,
+                           "url": str(file_url),
+                           "thumbnail_url": '',
+                           "delete_url": '',
+                           "delete_type": "POST"})
+            response_data = json.dumps({
+                'files': result
+            })
+            return HttpResponse(response_data, mimetype='application/json')
+        except Exception, e:
+
+            return HttpResponseBadRequest(str(e))
+    else: #GET
+        messages.add_message(request, messages.ERROR, 'Bad request')
+        context = {}
+        return render(request, 'engine/network_distance.html', context)
