@@ -30,7 +30,7 @@ def handle_uploads(request, files):
 
 def document_validator(document, ex_col, ex_row):
     try:
-        dialect = csv.Sniffer().sniff(document.read(4096), delimiters=[';', ',', '\t'])
+        dialect = csv.Sniffer().sniff(document.readline(), delimiters=[';', ',', '\t'])
         document.seek(0, 0)
         reader = csv.reader(document.read().splitlines(), dialect)
         temp_list = list(reader)

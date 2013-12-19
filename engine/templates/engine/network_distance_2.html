@@ -79,7 +79,13 @@
                             <td>{{f.type}}</td>
                             <td>{{f.prop.nrow}}</td>
                             <td>{{f.prop.ncol}}</td>
-                            <td>{{f.prop.separator}}</td>
+                            <td>
+                                {% if f.prop.separator == '	' %}
+                                    TAB
+                                {% else %}
+                                    {{f.prop.separator}}
+                                {% endif %}
+                            </td>
                         </tr>
 
                     {% endfor %}

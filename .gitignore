@@ -7,3 +7,4 @@
 renette/media
 renette/settings/local_settings.py
 *.csv
+renette/*.bk
