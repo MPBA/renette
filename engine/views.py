@@ -5,9 +5,10 @@ __author__ = 'ernesto'
 from django.views.generic import TemplateView
 from django.views.generic.base import View
 from django.shortcuts import redirect, render, render_to_response
+from django.core.files.uploadedfile import UploadedFile
 from django.db import DatabaseError
-from django.http import Http404, HttpResponse
-from .utils import handle_uploads, document_validator, get_bootsrap_badge, read_csv_results
+from django.http import Http404, HttpResponse, HttpResponseBadRequest
+from .utils import document_validator, get_bootsrap_badge, read_csv_results, handle_upload
 from .models import RunningProcess
 from django.contrib import messages
 from engine.tasks import test_netdist
@@ -16,13 +17,67 @@ import djcelery
 import os
 import StringIO
 import zipfile
+import json
 from datetime import datetime
+import magic
+
+
+class NetworkInferenceClass(View):
+    template_name = 'engine/network_inference.html'
+
+    def get(self, request, **kwargs):
+        context = {'step2': 'network_inference_2'}
+        return render(request, self.template_name, context)
+
+
+class NetworkInferenceStep2Class(View):
+    template_name = 'engine/network_inference_2.html'
+
+    def post(self, request):
+        files = []
+        removed_files = []
+        dim = []
+
+        if len(request.POST.getlist('uploaded')) < 2:
+            messages.add_message(self.request, messages.ERROR, 'You must upload at least 2 files!!!')
+            return redirect('network_inference')
+
+        for filepath in request.POST.getlist('uploaded'):
+            ex_col = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
+            ex_row = request.POST['exclude_row_header'] if 'exclude_row_header' in request.POST else None
+            valid, ret_file = document_validator(filepath, ex_col, ex_row)
+            ret_file.seek(0, 0)
+            if valid['is_valid']:
+                dim.append(valid['nrow'])
+                max_ga = valid['nrow']
+                files.append({'name': ret_file.name,
+                              'type': magic.from_buffer(ret_file.read(), mime=True),
+                              'prop': valid,
+                              'path': filepath
+                              })
+            else:
+                removed_files.append(ret_file)
+
+        if len(files) < 2:
+            messages.add_message(self.request, messages.ERROR, 'Your files properties are not .....')
+            return redirect('network_inference')
+        elif not all(x == dim[0] for x in dim):
+            messages.add_message(self.request, messages.WARNING, 'Your files are not equal. Probable sheet out!')
+            #return redirect('network_distance')
+
+        context = {
+                   'uploaded_files': files,
+                   'max_ga': max_ga,
+                   'removed_files': removed_files
+                   }
+        return render(request, self.template_name, context)
+
 
 class NetworkDistanceClass(View):
     template_name = 'engine/network_distance.html'
 
     def get(self, request, **kwargs):
-        context = {}
+        context = {'step2': 'network_distance_2'}
         return render(request, self.template_name, context)
 
 
@@ -31,35 +86,41 @@ class NetworkDistanceStep2Class(View):
 
     def post(self, request):
         files = []
-        to_save = []
+        removed_files = []
         dim = []
-        if len(request.FILES.getlist('files')) < 2:
+
+        if len(request.POST.getlist('uploaded')) < 2:
             messages.add_message(self.request, messages.ERROR, 'You must upload at least 2 files!!!')
             return redirect('network_distance')
 
-        for file in request.FILES.getlist('files'):
+        for filepath in request.POST.getlist('uploaded'):
             ex_col = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
             ex_row = request.POST['exclude_row_header'] if 'exclude_row_header' in request.POST else None
-            valid = document_validator(file, ex_col, ex_row)
+            valid, ret_file = document_validator(filepath, ex_col, ex_row)
+            ret_file.seek(0, 0)
             if valid['is_valid'] and valid['is_cubic']:
                 dim.append(valid['nrow'])
                 max_ga = valid['nrow']
-                separ = valid['separator']
-                files.append({'name': file.name, 'type': file.content_type, 'file_to_save': file.read(), 'prop': valid})
-                to_save.append(file)
+                files.append({'name': ret_file.name,
+                              'type': magic.from_buffer(ret_file.read(), mime=True),
+                              'prop': valid,
+                              'path': filepath
+                              })
+            else:
+                removed_files.append(ret_file)
+
         if len(files) < 2:
             messages.add_message(self.request, messages.ERROR, 'Your files properties are not .....')
             return redirect('network_distance')
         elif not all(x == dim[0] for x in dim):
             messages.add_message(self.request, messages.ERROR, 'Your files dim are not equal')
             return redirect('network_distance')
-        else:
-            f = handle_uploads(self.request, to_save)
-        context = {'posted_files': request.FILES.getlist('files'),
+
+        context = {
                    'uploaded_files': files,
                    'max_ga': max_ga,
-                   'handled': f,
-                   'sep': separ}
+                   'removed_files': removed_files
+                  }
         return render(request, self.template_name, context)
 
 
@@ -71,12 +132,13 @@ class NetworkDistanceStep3Class(View):
         for file in request.POST.getlist('file'):
             files.append(os.path.join(settings.MEDIA_ROOT, file))
         components = request.POST.get("components", 'True')
+        sep = request.POST.getlist('sep')
         param = {
             'd': request.POST.get("distance", "HIM"),
             'ga': float(request.POST.get("ga")) if request.POST.get("ga", False) else None,
             'components': True if components == 'True' else False,
             'rho':  float(request.POST.get("rho")) if request.POST.get("rho", False) else None,
-            'sep': request.POST.get("sep", "\t"),
+            #'sep': request.POST.get("sep", "\t"),
             'header': True if request.POST.get("col", False) else False,
             'row.names': 1 if request.POST.get("row", False) else None
         }
@@ -86,7 +148,7 @@ class NetworkDistanceStep3Class(View):
                 inputs=param,
                 submited=datetime.now()
             )
-            t = test_netdist.delay(files, param)
+            t = test_netdist.delay(files, sep, param)
             runp.task_id = t.id
 
         except Exception, e:
@@ -102,8 +164,6 @@ class NetworkDistanceStep3Class(View):
 
         messages.add_message(self.request, messages.SUCCESS, 'Process submitted with success!!!')
         return render(request, self.template_name, context)
-
-
 
 
 class ProcessStatus(View):
@@ -182,3 +242,40 @@ def download_zip_file(request, pk):
 
     resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
     return resp
+
+
+def multiuploader(request):
+    if request.method == 'POST':
+        if request.FILES == None:
+            return HttpResponseBadRequest('No file uploaded')
+        try:
+            #getting file data for farther manipulations
+            file = request.FILES[u'files[]']
+            wrapped_file = UploadedFile(file)
+            filename = wrapped_file.name
+            file_size = wrapped_file.file.size
+
+            #getting file url here
+            file_url = handle_upload(request, file)
+
+            #getting thumbnail url using sorl-thumbnail
+            #generating json response array
+
+            result = []
+            result.append({"name": filename,
+                           "size": file_size,
+                           "url": str(file_url),
+                           "thumbnail_url": '',
+                           "delete_url": '',
+                           "delete_type": "POST"})
+            response_data = json.dumps({
+                'files': result
+            })
+            return HttpResponse(response_data, mimetype='application/json')
+        except Exception, e:
+
+            return HttpResponseBadRequest(str(e))
+    else: #GET
+        messages.add_message(request, messages.ERROR, 'Bad request')
+        context = {}
+        return render(request, 'engine/network_distance.html', context)

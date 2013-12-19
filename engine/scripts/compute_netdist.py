@@ -11,14 +11,15 @@ import os.path
 
 class NetDist:
     
-    def __init__(self, filelist, param={}):
+    def __init__(self, filelist, seplist, param={}):
         self.nfiles = len(filelist)
-        try:
-            self.nfiles > 2
-        except ValueError:
-            print "Not enough file loaded"
-            
+
+        print len(filelist)
+        if self.nfiles < 2:
+            raise ValueError("Not enough file loaded")
+
         self.filelist = filelist
+        self.seplist = seplist
         self.param = param
         self.mylist = rlc.TaggedList([])
         
@@ -31,7 +32,7 @@ class NetDist:
 
         
         ## Set the default parameter for reading from csv
-        param = {'sep': '\t', 'header': True, 'as_is': True, 'row.names': ri.NULL}
+        param = {'header': True, 'as_is': True, 'row.names': ri.NULL}
         
         ## Check the correct parameter and set the default        
         for p in param.keys():
@@ -39,10 +40,11 @@ class NetDist:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
 
-        for f in self.filelist:
+        #for f in self.filelist:
+        for f, s in zip(self.filelist, self.seplist):
             try:
                 dataf = DataFrame.from_csvfile(f,
-                                               sep=param['sep'],
+                                               sep=str(s),
                                                header=param['header'],
                                                as_is=param['as_is'],
                                                row_names=param['row.names'])
@@ -141,7 +143,7 @@ class NetDist:
                         ri.StrSexpVector([os.path.basename(self.filelist[1])])
                     ))
 
-                write_table(tmp, myfname, sep=self.param['sep'],
+                write_table(tmp, myfname, sep='\t',
                             quote=False,
                             **{
                                 'col.names': ri.NA_Logical,

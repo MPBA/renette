@@ -2,6 +2,7 @@ from django.db import models
 import jsonfield
 import djcelery
 
+
 # Create your models here.
 class RunningProcess(models.Model):
     process_name = models.CharField(max_length=40)

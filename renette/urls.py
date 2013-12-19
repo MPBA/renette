@@ -6,9 +6,13 @@ from .views import MainView
 admin.autodiscover()
 
 urlpatterns = patterns('',
+    # Examples:
+    # url(r'^$', 'renette.views.home', name='home'),
+    # url(r'^blog/', include('blog.urls')),
 
-    #(r'^pages/', include('django.contrib.flatpages.urls')),
-    # base app urls
+    url(r'^admin/', include(admin.site.urls)),
+    (r'^pages/', include('django.contrib.flatpages.urls')),
+    (r'^engine/', include('engine.urls')),
     url(regex='^$', view=MainView.as_view(), name='home'),
     url(r'^sendmail/$', 'renette.views.contact', name='sendmail'),
     # engine urls

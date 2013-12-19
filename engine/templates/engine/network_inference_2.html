@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extrahead %}
+     <script type="text/javascript" src="{% static 'js/jquery.numeric.js' %}"></script>
+     <script type="text/javascript" src="{% static 'js/jquery-ui.js' %}"></script>
+     <script type="text/javascript" src="{% static 'js/validate.js' %}"></script>
+     <script type="text/javascript">
+       jQuery(document).ready(function(){
+
+          $("#id_methods").change(function(){
+            $("#id_alpha").prop('disabled', true);
+            $("#id_p").prop('disabled', true);
+            $("#id_c").prop('disabled', true);
+            $("#id_measure").prop('disabled', true);
+            $("#id_fdr").prop('disabled', true);
+            var conceptName = $('#id_methods').find(":selected").val();
+            if (conceptName=='WGCNA') {
+                $("#id_p").removeAttr('disabled');
+            }
+            if (conceptName=='WGCNAFDR') {
+                $("#id_fdr").removeAttr('disabled');
+
+            }
+            if (conceptName=='bicorFDR') {
+                $("#id_fdr").removeAttr('disabled');
+            }
+            if (conceptName=='TOM') {
+                $("#id_p").removeAttr('disabled');
+            }
+            if (conceptName=='MINE') {
+                $("#id_alpha").removeAttr('disabled');
+                $("#id_c").removeAttr('disabled');
+                $("#id_measure").removeAttr('disabled');
+            }
+            if (conceptName=='MINEFDR') {
+                $("#id_alpha").removeAttr('disabled');
+                $("#id_c").removeAttr('disabled');
+                $("#id_measure").removeAttr('disabled');
+                $("#id_fdr").removeAttr('disabled');
+            }
+            if (conceptName=='') {
+                $("#id_alpha").prop('disabled', true);
+                $("#id_c").prop('disabled', true);
+                $("#id_measure").prop('disabled', true);
+                $("#id_fdr").prop('disabled', true);
+            }
+          });
+            max_ga = {{ max_ga }}
+            $("#myform").validate();
+            $('#id_p').rules('add', {
+                required: false,
+                digits: false,
+                min: 1
+            });
+            $('#id_fdr').rules('add', {
+                required: false,
+                digits: false,
+                max: 1,
+                min: 1e-40
+            });
+            $('#id_alpha').rules('add', {
+                required: false,
+                digits: false,
+                max: 1,
+                min: 0
+            });
+            $('#id_c').rules('add', {
+                required: false,
+                digits: false,
+                max: max_ga
+            });
+
+
+        });
+
+    </script>
+{% endblock %}
+{% block container %}
+<div class="row row-offcanvas row-offcanvas-right">
+        <div class="col-md-12 col-md-9">
+
+
+          <div class="row">
+            <h1>Network Inference [Step 2/3]</h1>
+            <div class="col-6">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+            </div>
+            {% endfor %}
+            {% endif %}
+               {% if removed_files %}
+               <h3>Dropped Files</h3>
+
+                <table class="table table-striped table-hover">
+                    <thead>
+                      <tr>
+                        <th>Filename</th>
+                      </tr>
+                    </thead>
+                    {% for f in removed_files %}
+                        <tr><td>{{f}}</td></tr>
+                    {% endfor %}
+                </table>
+                {% else %}
+                    <h3>All selected files uploaded with success</h3>
+                {% endif %}
+              <h3>Uploaded Files</h3>
+                  <table class="table table-striped table-hover">
+                    <thead>
+                      <tr>
+                        <th>Filename</th>
+                        <th>Type</th>
+                        <th># Rows</th>
+                        <th># Cols</th>
+                        <th>Separator</th>
+                      </tr>
+                    </thead>
+                    {% for f in uploaded_files %}
+                        <tr>
+                            <td>{{f.name}}</td>
+                            <td>{{f.type}}</td>
+                            <td>{{f.prop.nrow}}</td>
+                            <td>{{f.prop.ncol}}</td>
+                            <td>{{f.prop.separator}}</td>
+                        </tr>
+
+                    {% endfor %}
+                </table>
+                <div class="col-md-6">
+                <form method="POST" role="form" class="form-horizontal" id="myform" action="{% url 'network_distance_3' %}">
+                  {% csrf_token %}
+                  <fieldset>
+
+                    <div class="form-group">
+                      <label for="id_methods">Methods</label>
+                      <select id="id_methods" class="form-control" name="methods" required>
+                        <option value="">--------</option>
+                        <option value="cor">cor</option>
+                        <option value="WGCNA">WGCNA</option>
+                        <option value="WGCNAFDR">WGCNAFDR</option>
+                        <option value="bicor">bicor</option>
+                        <option value="bicorFDR">bicorFDR</option>
+                        <option value="TOM">TOM</option>
+                        <option value="ARACNE">ARACNE</option>
+                        <option value="CLR">CLR</option>
+                        <option value="MINE">MINE</option>
+                        <option value="MINEFDR">MINEFDR</option>
+                        <option value="DTWMIC">DTWMIC</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="id_p">P</label>
+                      <input type="text" class="positive form-control" name="p" id="id_p" value="6" disabled required>
+                    </div>
+                    <div class="form-group">
+                      <label for="id_fdr">FDR</label>
+                      <input type="text" class="positive form-control" name="fdr" id="id_fdr" value="1e-3" disabled>
+                    </div>
+                    <div class="form-group">
+                      <label for="id_alpha">alpha</label>
+                      <input type="text" class="positive form-control" name="alpha" id="id_alpha" value="0.6" disabled>
+                    </div>
+                    <div class="form-group">
+                      <label for="id_c">C</label>
+                      <input type="text" class="positive form-control" name="c" id="id_c" value="15" disabled>
+                    </div>
+                    <div class="form-group">
+                      <label for="id_measure">Measure</label>
+                      <select id="id_measure" class="form-control" name="measure" disabled>
+                        <option value='' selected>-------</option>
+                        <option value='MIC'>MIC</option>
+                        <option value='MAS'>MAS</option>
+                        <option value='MCN'>MCN</option>
+                        <option value='MEV'>MEV</option>
+                        <option value='MICR2'>MICR2</option>
+                      </select>
+                    </div>
+                      {% for f in uploaded_files %}
+                        <input type="hidden" name="file" value="{{ f.path }}">
+                        <input type="hidden" name="sep" value={{ f.prop.separator }}>
+                      {% endfor %}
+                        <input type="hidden" name="col" value="{{ request.POST.exclude_col_header }}">
+                        <input type="hidden" name="row" value="{{ request.POST.exclude_row_header }}">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                  </fieldset>
+                </form>
+                <script type="text/javascript">
+                     $(".numeric").numeric();
+                     $(".integer").numeric(false, function() { alert("Integers only"); this.value = ""; this.focus(); });
+                     $(".positive").numeric({ negative: false }, function() { alert("No negative values"); this.value = ""; this.focus(); });
+                     $(".positive-integer").numeric({ decimal: false, negative: false }, function() { alert("Positive integers only"); this.value = ""; this.focus(); });
+                     $("#remove").click(
+                        function(e)
+                        {
+                            e.preventDefault();
+                            $(".numeric,.integer,.positive").removeNumeric();
+                        }
+                     );
+                </script>
+                </div>
+            </div><!--/span-->
+
+
+          </div><!--/row-->
+        </div><!--/span-->
+        {% include "navigation.html" %}
+      </div><!--/row-->
+{% endblock container %}
+
+
+
