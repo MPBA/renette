@@ -4,7 +4,9 @@
      <script type="text/javascript" src="{% static 'js/jquery.numeric.js' %}"></script>
      <script type="text/javascript" src="{% static 'js/jquery-ui.js' %}"></script>
      <script type="text/javascript" src="{% static 'js/validate.js' %}"></script>
+     <script type="text/javascript" src="{% static 'js/regex.js' %}"></script>
      <script type="text/javascript">
+
        jQuery(document).ready(function(){
 
           $("#id_methods").change(function(){
@@ -69,6 +71,7 @@
                 digits: false,
                 max: max_ga
             });
+
 
 
         });
@@ -157,7 +160,7 @@
                     </div>
                     <div class="form-group">
                       <label for="id_fdr">FDR</label>
-                      <input type="text" class="positive form-control" name="fdr" id="id_fdr" value="1e-3" disabled>
+                      <input type="text" class="form-control" name="fdr" id="id_fdr" value="1e-3" disabled>
                     </div>
                     <div class="form-group">
                       <label for="id_alpha">alpha</label>
