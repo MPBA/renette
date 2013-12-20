@@ -41,14 +41,14 @@
                       </tr>
                       <tr>
                           {% if runp %}
-                          <td><strong>Submited</strong></td>
+                          <td><strong>Submited:</strong></td>
                           <td>
                               {{ runp.submited }}
                           </td>
                           {% endif %}
                       </tr>
                       <tr>
-                          <td><strong>Status</strong></td>
+                          <td><strong>Status:</strong></td>
                           <td><span class="label {{ badge }}"><strong>{{ task.status }}</strong></span></td>
                       </tr>
                       <tr>
@@ -62,8 +62,8 @@
                           {% endif %}
                       </tr>
                       {% if task.status == 'SUCCESS' %}
-                          <tr>
-                          <td><strong>Action</strong></td>
+                      <tr>
+                          <td><strong>Action:</strong></td>
                           <td>
                               <a  href="{% url 'process_download_zip' runp.pk %}" class="btn btn-success btn-xs" role="button">
                                 Download all files
@@ -73,6 +73,21 @@
 {#                              </a>#}
                           </td>
                       </tr>
+                      <tr>
+                          <td><strong>Note:</strong></td>
+                          <td>
+                                {% if tomanyresult %}
+                                    Too many result
+                                {% else %}
+                                    No warning for process result.
+                                {%  endif %}
+                                {% for key, value in result.items %}
+                                    {% if value.tomanyfile %}
+                                        Too many file for {{ key }} result
+                                    {% endif %}
+                                {% endfor %}
+                          </td>
+                      </tr>
                       {% endif %}
                   </table>
                 </div>
@@ -80,6 +95,7 @@
 
                 {% if task.status == 'SUCCESS' %}
                 <hr/>
+                <h3>Result preview</h1>
                 {% for key, value in result.items %}
                     <div class="panel panel-default">
                         <div class="panel-heading">
@@ -101,12 +117,15 @@
 {#                        Ciclo su tutte le tabelle dell'output             #}
                         {% for t in value.csv_tables  %}
                             <table class="table table-striped">
-                            {% for rows in t %}
+                            {% for rows in t.rowdata %}
                                 {% if forloop.first %}
                                 <thead>
                                     <tr>
                                     {% for r in rows %}
                                       <th>{{ r }}</th>
+                                      {% if forloop.last and t.tomanycol %}
+                                          <th><strong> ... </strong></th>
+                                      {% endif %}
                                     {% endfor %}
                                     </tr>
                                 </thead>
@@ -119,10 +138,21 @@
                                        {% else %}
                                           <td>{{ r|floatformat:3 }}</td>
                                        {% endif %}
+                                       {% if forloop.last and t.tomanycol %}
+                                          <td><strong> ... </strong></td>
+                                       {% endif %}
                                     {% endfor %}
                                     </tr>
                                 {% endif %}
-                            </tbody>
+                                {% if forloop.last and t.tomanyrow %}
+                                    <tr>
+                                    {% for r in rows %}
+                                          <td><strong> ... </strong></td>
+                                    {% endfor %}
+                                          <td><strong> ... </strong></td>
+                                    </tr>
+                                {% endif %}
+                                </tbody>
                            {% endfor %}
                             </table>
                         {% endfor %}

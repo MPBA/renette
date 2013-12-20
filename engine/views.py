@@ -46,12 +46,10 @@ class NetworkInferenceStep2Class(View):
             ex_col = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
             ex_row = request.POST['exclude_row_header'] if 'exclude_row_header' in request.POST else None
             valid, ret_file = document_validator(filepath, ex_col, ex_row)
-            ret_file.seek(0, 0)
             if valid['is_valid']:
                 dim.append(valid['nrow'])
                 max_ga = valid['nrow']
                 files.append({'name': ret_file.name,
-                              'type': magic.from_buffer(ret_file.read(), mime=True),
                               'prop': valid,
                               'path': filepath
                               })
@@ -143,12 +141,10 @@ class NetworkDistanceStep2Class(View):
             ex_col = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
             ex_row = request.POST['exclude_row_header'] if 'exclude_row_header' in request.POST else None
             valid, ret_file = document_validator(filepath, ex_col, ex_row)
-            ret_file.seek(0, 0)
             if valid['is_valid'] and valid['is_cubic']:
                 dim.append(valid['nrow'])
                 max_ga = valid['nrow']
                 files.append({'name': ret_file.name,
-                              'type': magic.from_buffer(ret_file.read(), mime=True),
                               'prop': valid,
                               'path': filepath
                               })
@@ -203,11 +199,12 @@ class NetworkDistanceStep3Class(View):
 
         try:
             runp.save()
+            context = {'files': files, 'task': t, 'uuid': t.id}
         except DatabaseError, e:
             t.revoke(terminate=True)
             messages.add_message(self.request, messages.ERROR, 'Error: %s' % str(e))
 
-        context = {'files': files, 'task': t, 'uuid': t.id}
+        #context = {'files': files, 'task': t, 'uuid': t.id}
 
         messages.add_message(self.request, messages.SUCCESS, 'Process submitted with success!!!')
         return render(request, self.template_name, context)
@@ -234,18 +231,24 @@ class ProcessStatus(View):
 
         if task.status == 'SUCCESS':
             result = task.result
+            idx = 0
             for key in result.keys():
+                if idx == 3:
+                    context['tomanyresult'] = True
+                    break
+                idx += 1
+
                 val = result.get(key)
-                #csvlist = read_csv_results(val['csv_files'])
-                csvlist = False
+                csvlist, tomanyfile = read_csv_results(val['csv_files'])
                 if csvlist:
                     val['csv_tables'] = csvlist
+                    val['tomanyfile'] = tomanyfile
                 else:
                     messages.add_message(self.request, messages.ERROR, 'Impossibile trovare i file dei risultati')
-
                 result.update({key: val})
-            context['result'] = result
 
+            context['result'] = result
+            print context
         return render(request, self.template_name, context)
 
 

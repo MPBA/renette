@@ -11,7 +11,7 @@
             {% if messages %}
             {% for message in messages %}
             <div class="alert alert-{{ message.tags }}">
-                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
                         <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
             </div>
             {% endfor %}
@@ -23,12 +23,10 @@
             <hr>
             <div class="col-6">
               <h3>Run tasks with Example Data</h3>
-              <form role="form" class="form-horizontal">
+              <form method="POST" enctype="multipart/form-data" role="form" class="form-horizontal" action="{% url step2 %}">
                   <div class="form-group">
                     <label for="exampleInputEmail1"></label>
                     <div class="col-sm-9">
-{#                        <textarea class="form-control" id="exampleData1" placeholder="Enter data ..." rows="5"></textarea>#}
-{#                        <textarea class="form-control" id="exampleData2" placeholder="Enter data ..." rows="5"></textarea>#}
                     <table class="table table-striped table-hover">
                     <thead>
                       <tr>
@@ -63,7 +61,12 @@
                         </p>
                     </div>
                   </div>
-                    <a href="#" role="button" class="btn btn-go">Go >></a>
+                  {% csrf_token %}
+                  <input type="hidden" name="exclude_col_header" value="on">
+                  <input type="hidden" name="exclude_row_header" value="on">
+                  <input type="hidden" name="uploaded" value="example/netdist_test_data_1.csv">
+                  <input type="hidden" name="uploaded" value="example/netdist_test_data_2.csv">
+                  <input type="submit" class="btn btn-go" value="Go &gt;&gt;">
               </form>
             </div><!--/span-->
 
@@ -73,6 +76,7 @@
         {% include "navigation.html" %}
 </div><!--/row-->
 {% endblock container %}
+
 
 
 
