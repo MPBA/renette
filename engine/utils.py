@@ -1,4 +1,5 @@
 from datetime import date
+from django.core.files.uploadedfile import UploadedFile
 import os
 import csv
 from django.conf import settings
@@ -28,11 +29,34 @@ def handle_uploads(request, files):
     return saved
 
 
-def document_validator(document, ex_col, ex_row):
+def handle_upload(request, file):
+    upload_dir = date.today().strftime(settings.UPLOAD_PATH)
+    upload_full_path = os.path.join(settings.MEDIA_ROOT, upload_dir)
+    saved = ""
+    if not os.path.exists(upload_full_path):
+        os.makedirs(upload_full_path)
+
+    if file:
+        upload = file
+        while os.path.exists(os.path.join(upload_full_path, upload.name)):
+            upload.name = '_' + upload.name
+        dest = open(os.path.join(upload_full_path, upload.name), 'wb')
+        for chunk in upload.chunks():
+            dest.write(chunk)
+        dest.close()
+        saved = os.path.join(upload_dir, upload.name)
+    return saved
+
+
+def document_validator(filepath, ex_col, ex_row):
     try:
-        dialect = csv.Sniffer().sniff(document.read(4096), delimiters=[';', ',', '\t'])
-        document.seek(0, 0)
-        reader = csv.reader(document.read().splitlines(), dialect)
+
+        file2 = open(os.path.join(settings.MEDIA_ROOT, filepath), 'r')
+        file = UploadedFile(file2)
+        dialect = csv.Sniffer().sniff(file.readline(), delimiters=[';', ',', '\t'])
+        file.seek(0, 0)
+        reader = csv.reader(file.read().splitlines(), dialect)
+
         temp_list = list(reader)
 
         # check char in first row and first col
@@ -47,12 +71,15 @@ def document_validator(document, ex_col, ex_row):
         return_value = {'is_valid': True, 'nrow': nrow, 'ncol': ncol, 'separator': dialect.delimiter, 'is_cubic': is_cubic}
     except csv.Error:
         return_value = {'is_valid': False}
+        file = None
     except Exception:
         return_value = {'is_valid': False}
+        file = None
     except ValueError:
         return_value = {'is_valid': False}
+        file = None
 
-    return return_value
+    return return_value, file
 
 
 def get_bootsrap_badge(status):
@@ -75,14 +102,16 @@ def get_bootsrap_badge(status):
 def read_csv_results(files):
     result = []
     for f in files:
-        pathabs = os.path.join(settings.MEDIA_ROOT, f)
+        try:
+            pathabs = os.path.join(settings.MEDIA_ROOT, f)
 
-        with open(pathabs, 'rb') as csvfile:
-            reader = csv.reader(csvfile, delimiter='\t')
-            rowdata = []
-            for row in reader:
-                rowdata.append(row)
-        result.append(rowdata)
-        csvfile.close()
-
+            with open(pathabs, 'rb') as csvfile:
+                reader = csv.reader(csvfile, delimiter='\t')
+                rowdata = []
+                for row in reader:
+                    rowdata.append(row)
+            result.append(rowdata)
+            csvfile.close()
+        except Exception, e:
+            return False
     return result

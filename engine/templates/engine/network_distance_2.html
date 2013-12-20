@@ -49,7 +49,8 @@
           <div class="row">
             <h1>Network Distance [Step 2/3]</h1>
             <div class="col-6">
-               <h3>Posted Files</h3>
+               {% if removed_files %}
+               <h3>Dropped Files</h3>
 
                 <table class="table table-striped table-hover">
                     <thead>
@@ -57,11 +58,13 @@
                         <th>Filename</th>
                       </tr>
                     </thead>
-                    {% for f in posted_files %}
+                    {% for f in removed_files %}
                         <tr><td>{{f}}</td></tr>
                     {% endfor %}
                 </table>
-
+                {% else %}
+                    <h3>All selected files uploaded with success</h3>
+                {% endif %}
               <h3>Uploaded Files</h3>
                   <table class="table table-striped table-hover">
                     <thead>
@@ -79,7 +82,13 @@
                             <td>{{f.type}}</td>
                             <td>{{f.prop.nrow}}</td>
                             <td>{{f.prop.ncol}}</td>
-                            <td>{{f.prop.separator}}</td>
+                            <td>
+                                {% if f.prop.separator == '	' %}
+                                    TAB
+                                {% else %}
+                                    {{f.prop.separator}}
+                                {% endif %}
+                            </td>
                         </tr>
 
                     {% endfor %}
@@ -113,10 +122,10 @@
                         <option value='False'>False</option>
                       </select>
                     </div>
-                      {% for f in handled %}
-                        <input type="hidden" name="file" value="{{ f.1 }}">
-                     {% endfor %}
-                        <input type="hidden" name="sep" value="{{ sep }}">
+                      {% for f in uploaded_files %}
+                        <input type="hidden" name="file" value="{{ f.path }}">
+                        <input type="hidden" name="sep" value={{ f.prop.separator }}>
+                      {% endfor %}
                         <input type="hidden" name="col" value="{{ request.POST.exclude_col_header }}">
                         <input type="hidden" name="row" value="{{ request.POST.exclude_row_header }}">
                     <button type="submit" class="btn btn-primary">Submit</button>

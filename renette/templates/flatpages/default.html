@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block container %}
+<div class="row row-offcanvas row-offcanvas-right">
+
+<div class="col-md-12 col-md-9">
+          <div class="row">
+            <h1>{{ flatpage.title }}</h1>
+            <div class="col-6">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            {{ flatpage.content }}
+
+            </div><!--/span-->
+
+          </div><!--/row-->
+        </div><!--/span-->
+        {% include "navigation.html" %}
+      </div><!--/row-->
+{% endblock container %}

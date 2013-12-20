@@ -6,7 +6,7 @@
 
         <div class="col-md-12 col-md-9">
           <div class="row">
-            <h1>Network Distance [Step 1/3]</h1>
+            <h1>Network Inference [Step 1/3]</h1>
             <div class="col-6">
             {% if messages %}
             {% for message in messages %}
@@ -27,43 +27,16 @@
                   <div class="form-group">
                     <label for="exampleInputEmail1"></label>
                     <div class="col-sm-9">
-{#                        <textarea class="form-control" id="exampleData1" placeholder="Enter data ..." rows="5"></textarea>#}
-{#                        <textarea class="form-control" id="exampleData2" placeholder="Enter data ..." rows="5"></textarea>#}
-                    <table class="table table-striped table-hover">
-                    <thead>
-                      <tr>
-                        <th>Filename</th>
-                        <th>Type</th>
-                        <th># Rows</th>
-                        <th># Cols</th>
-                        <th>Separator</th>
-                      </tr>
-                    </thead>
-
-                        <tbody><tr>
-                            <td>test_data_1.csv</td>
-                            <td>text/csv</td>
-                            <td>1000</td>
-                            <td>1000</td>
-                            <td>TAB</td>
-                        </tr>
-                        <tr>
-                            <td>test_data_2.csv</td>
-                            <td>text/csv</td>
-                            <td>1000</td>
-                            <td>1000</td>
-                            <td>TAB</td>
-                        </tr>
-                    </tbody></table>
+                        <textarea class="form-control" id="exampleData" placeholder="Enter data ..." rows="7"></textarea>
                     </div>
                     <div class="col-sm-offset-6">
                         <p style="text-align: justify">
-                        You can run this tasks whit demo data. #TODO: long desc
+                        You can copy and paste your source data into the textarea or click <a href="#" id="load_ex_data">here</a> to load demo data.
                         <br>Start the task just clicking the Go button! Enjoy
                         </p>
                     </div>
                   </div>
-                    <a href="#" role="button" class="btn btn-go">Go >></a>
+                    <button type="submit" class="btn btn-go">Go >></button>
               </form>
             </div><!--/span-->
 
