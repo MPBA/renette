@@ -167,35 +167,35 @@ class Mat2Adj:
             print 'No oject found in this %s: %s' % (filename, str(e))
             return False
 
-    def export_to_json(self, perc=90):
+    def export_to_json(self, filepath=".", perc=90):
         """
         Create the json for d3js visualization
         """
-        
         # Write a graph file for each result
         for i,r in enumerate(self.res):
-            response = [{'nodes': [], 'links': []}]
+            response = {'nodes': [], 'links': []}
             tmp = np.triu(np.array(self.res[i]))
             thr = np.percentile(tmp[tmp>0.0],100-perc)
             
             # Write nodes specifications
             for n in range(tmp.shape[1]):
-                response[0]['nodes'].append({'name': str(n), 'group':0})
+                response['nodes'].append({'name': str(n), 'group':0})
             
             # Write links specifications
             N = tmp.shape[1]
             for n in range(tmp.shape[1]):
                 for j in range(n+1,N):
                     if (tmp[n,j] >= thr):
-                        print 'n %d, j%d' % (n,j)
-                        response[0]['links'].append({'source': str(n), 
-                                                     'target':str(j), 
-                                                     'values':tmp[n,j]})
+                        ## print 'n %d, j%d' % (n,j)
+                        response['links'].append({'source': n, 
+                                                     'target': j, 
+                                                     'values': tmp[n,j]})
                 
             # Write json file for d3js
             try:
-                f = open('graph_' + str(i) + '.json','w')
-                json.dump(response,f)
+                myfname = 'graph_' + str(i) + '.json'
+                f = open(os.path.join(filepath, myfname),'w')
+                json.dump(response,f,ensure_ascii=False)
                 f.close()
             except IOError, e:
                 print "Error writing the file %s" % e
