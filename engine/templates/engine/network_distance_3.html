@@ -18,8 +18,14 @@
             {% endif %}
             <h1>Network Distance [Step 3/3]</h1>
             <div class="col-6">
-               <h3>Processed Files</h3>
-
+               {% if task %}
+               <h3>Summary</h3>
+               <p>Estimated completion time: <span class="label label-info">3 hour and 34 minutes.</span>
+               Don't forget your unique process id is <span class="label label-info">{{ uuid }}</span>.
+               </p>
+               <p>
+                   <a href="{% url 'process_status' uuid %}" role="button" type="button" class="btn btn-info btn-lg btn-block">Go to status page</a>
+               </p>
                 <table class="table table-striped table-hover">
                     <thead>
                       <tr>
@@ -38,10 +44,8 @@
                     <p>rho: <strong>{% if request.POST.rho %}{{ request.POST.rho }}{% else %}Not selected{% endif %}</strong></p>
                     <p>components: <strong>{% if request.POST.components %}{{ request.POST.components }}{% else %}Not selected{% endif %}</strong></p></p>
                 </div>
-                <p>Estimated completion time: <span class="label label-info">3 hour and 34 minutes.</span>
-                    Don't forget your unique process id is <span class="label label-info">{{ uuid }}</span>.
-                    The page will automatically redirect to the status page, or you can visit this
-                    <a href="{% url 'process_status' uuid %}">address</a></p>
+
+                {% endif %}
             </div><!--/span-->
 
 

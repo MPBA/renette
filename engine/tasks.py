@@ -7,14 +7,6 @@ from django.conf import settings
 from engine.scripts import compute_netdist, compute_adj
 
 
-
-@celery.task
-def test_process():
-    print "here"
-    time.sleep(15)
-    return True
-
-
 @celery.task(bind=True)
 def test_netdist(self, files, sep, param):
     nd = compute_netdist.NetDist(files, sep, param)

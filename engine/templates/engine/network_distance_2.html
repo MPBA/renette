@@ -79,7 +79,7 @@
                     {% for f in uploaded_files %}
                         <tr>
                             <td>{{f.name}}</td>
-                            <td>{{f.type}}</td>
+                            <td>{{f.prop.mimetype}}</td>
                             <td>{{f.prop.nrow}}</td>
                             <td>{{f.prop.ncol}}</td>
                             <td>

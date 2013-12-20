@@ -35,7 +35,7 @@ class Mat2Adj:
         names = robjects.r['names']
         
         # Set the default parameter for reading from csv
-        param = {'sep':'\t', 'header': True, 'as_is':True, 
+        param = {'sep': '\t', 'header': True, 'as_is': True,
                  'row.names': ri.NULL}
 
 

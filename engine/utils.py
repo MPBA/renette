@@ -3,16 +3,14 @@ from django.core.files.uploadedfile import UploadedFile
 import os
 import csv
 from django.conf import settings
-import numpy as np
-from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _
+import magic
 
 
 def handle_uploads(request, files):
     saved = []
     upload_dir = date.today().strftime(settings.UPLOAD_PATH)
     upload_full_path = os.path.join(settings.MEDIA_ROOT, upload_dir)
-
+    print "DEPRECATED!"
     if not os.path.exists(upload_full_path):
         os.makedirs(upload_full_path)
 
@@ -50,14 +48,22 @@ def handle_upload(request, file):
 
 def document_validator(filepath, ex_col, ex_row):
     try:
+        with open(os.path.join(settings.MEDIA_ROOT, filepath), 'r') as f:
+            file = UploadedFile(f)
+            dialect = csv.Sniffer().sniff(file.readline(), delimiters=[';', ',', '\t'])
+            mimetype = magic.from_buffer(file.readline(), mime=True)
+            file.seek(0)
 
-        file2 = open(os.path.join(settings.MEDIA_ROOT, filepath), 'r')
-        file = UploadedFile(file2)
-        dialect = csv.Sniffer().sniff(file.readline(), delimiters=[';', ',', '\t'])
-        file.seek(0, 0)
-        reader = csv.reader(file.read().splitlines(), dialect)
+            reader = csv.reader(file, dialect)
 
-        temp_list = list(reader)
+            temp_list = []
+            for line in iter(reader):
+                if reader.line_num == 1:
+                    print line
+                    # save first row
+                    temp_list.append(line)
+            # save last row
+            temp_list.append(line)
 
         # check char in first row and first col
         if not ex_row and not temp_list[0][-1].isdigit():
@@ -66,9 +72,10 @@ def document_validator(filepath, ex_col, ex_row):
             raise ValueError
 
         ncol = (len(temp_list[0]) - 1) if ex_row else len(temp_list[0])
-        nrow = (len(temp_list) - 1) if ex_col else len(temp_list)
+        nrow = (reader.line_num - 1) if ex_col else reader.line_num
         is_cubic = True if (ncol == nrow) else False
-        return_value = {'is_valid': True, 'nrow': nrow, 'ncol': ncol, 'separator': dialect.delimiter, 'is_cubic': is_cubic}
+        return_value = {'is_valid': True, 'nrow': nrow, 'ncol': ncol, 'separator': dialect.delimiter,
+                        'mimetype': mimetype, 'is_cubic': is_cubic}
     except csv.Error:
         return_value = {'is_valid': False}
         file = None
@@ -101,17 +108,38 @@ def get_bootsrap_badge(status):
 
 def read_csv_results(files):
     result = []
+    tomanyfile = False
+
+    idx = 0
     for f in files:
         try:
+            if idx == 3:
+                tomanyfile = True
+                break
+
             pathabs = os.path.join(settings.MEDIA_ROOT, f)
 
             with open(pathabs, 'rb') as csvfile:
                 reader = csv.reader(csvfile, delimiter='\t')
                 rowdata = []
+                tomanyrow = False
+                tomanycol = False
                 for row in reader:
-                    rowdata.append(row)
-            result.append(rowdata)
-            csvfile.close()
+                    if reader.line_num == 10:
+                        tomanyrow = True
+                        break
+                    if len(row) > 7:
+                        tomanycol = True
+                        rowdata.append(row[:9])
+                    else:
+                        rowdata.append(row)
+                print rowdata
+            result.append({
+                'tomanyrow': tomanyrow,
+                'tomanycol': tomanycol,
+                'rowdata': rowdata
+            })
         except Exception, e:
             return False
-    return result
+
+    return result, tomanyfile
