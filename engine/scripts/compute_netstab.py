@@ -138,7 +138,8 @@ class NetStability:
                 
                 # Write matrices given by resampling
                 for j, a in enumerate(tmp.rx2('ADJlist')):
-                    myfname = os.path.join(filepath, '%s_ADJ_res%d.tsv' % (self.listname[i], j) )
+                    myfname = os.path.join(filepath, '%s_ADJ_res%d.tsv' 
+                                           % (self.listname[i], j) )
                     results[self.listname[i]]['csv_files'] += ['%s_ADJ_res%d.tsv' % (self.listname[i], j)]
                     write_table(tmp.rx2('ADJ'),myfname,
                                 sep='\t', quote=False, 
@@ -146,7 +147,6 @@ class NetStability:
                                    'row.names': True})
             return True
         else:
-            #raise ValueError('No stability computed')
             return False
 
 
