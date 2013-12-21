@@ -72,7 +72,7 @@ class NetStability:
         param = {'indicator': 'all', 'd': 'HIM', 'adj_method': 'cor', 
                  'method': 'montecarlo', 'k': 3, 'h': 20, 'FDR': 1e-3, 
                  'P': 6, 'measure': ri.NULL, 'alpha': 0.6, 'C': 15, 'DP': 1, 
-                 'save': False}
+                 'save': True}
         for p in param.keys():
             if p in self.param:
                 if self.param[p] is not None:
@@ -109,13 +109,46 @@ class NetStability:
             print 'Error during the computation of the stability indicators: %s' % str(e)
     
     def get_results(self, filepath='.'):
-        
-        # write_table = robjects.r['write.table']
+        """
+        Write the results on the file system
+        """
+                
         names = robjects.r['names']
-        print self.computed
+        write_table = robjects.r['write.table']
+        results = {}
+        
         if self.computed:
-            print names(self.res[0])
+            for i in range(len(self.res)):
+                
+                tmp = self.res[i]
+                myfname = os.path.join(filepath, '%s_ADJ.tsv' % self.listname[i] )
+                # Write result dictionary
+                results[self.listname[i]] = {
+                    'csv_files': ['%s_ADJ.tsv' % self.listname[i]],
+                    'img_files': [],
+                    'desc': '%s is bla bla bla bla' % self.listname[i],
+                    'rdata': None,
+                }
+                
+                # Write adjacency matrix on the whole dataset
+                write_table(tmp.rx2('ADJ'),myfname,
+                            sep='\t', quote=False, 
+                            **{'col.names': robjects.NA_Logical, 
+                               'row.names': True})
+                
+                # Write matrices given by resampling
+                for j, a in enumerate(tmp.rx2('ADJlist')):
+                    myfname = os.path.join(filepath, '%s_ADJ_res%d.tsv' % (self.listname[i], j) )
+                    results[self.listname[i]]['csv_files'] += ['%s_ADJ_res%d.tsv' % (self.listname[i], j)]
+                    write_table(tmp.rx2('ADJ'),myfname,
+                                sep='\t', quote=False, 
+                                **{'col.names': robjects.NA_Logical, 
+                                   'row.names': True})
             return True
         else:
             #raise ValueError('No stability computed')
             return False
+
+
+
+    
