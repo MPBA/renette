@@ -17,12 +17,15 @@ class Mat2Adj:
         Import the needed functions and packages to be available for computation
         """
         self.nfiles = len(filelist)
-        print len(filelist)
         if self.nfiles < 2:
             raise ValueError("Not enough file loaded")
 
         self.filelist = filelist
         self.seplist = seplist
+        # Check if the number of separators are equal to the numberr of file passed
+        if len(self.filelist) != len(self.seplist):
+            raise IOError('Not enough separators!')
+            
         self.param = param
         self.mylist = rlc.TaggedList([])
         self.listname = []
@@ -44,13 +47,10 @@ class Mat2Adj:
             if p in self.param:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
-        print param
-        print self.param
+
         # Read all the files in the R-environment
         for f, s in zip(self.filelist, self.seplist):
             try:
-                print f
-                print s
                 tmpdata = DataFrame.from_csvfile(f,
                                                  sep=str(s),
                                                  header=param['header'],
@@ -123,7 +123,7 @@ class Mat2Adj:
                     'desc': '%s is bla bla bla bla' % self.listname[i],
                     'rdata': None,
                 }
-
+                
                 try:
                     len(self.res[i])
                     ll = len(self.res[i])

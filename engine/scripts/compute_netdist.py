@@ -13,12 +13,14 @@ class NetDist:
     
     def __init__(self, filelist, seplist, param={}):
         self.nfiles = len(filelist)
-        print len(filelist)
         if self.nfiles < 2:
-            raise ValueError("Not enough file loaded")
+            raise IOError("Not enough file loaded")
 
         self.filelist = filelist
         self.seplist = seplist
+        # Check if the number of separators are equal to the numberr of file passed
+        if len(self.filelist) != len(self.seplist):
+            raise IOError('Not enough separators!')
         self.param = param
         self.mylist = rlc.TaggedList([])
         
@@ -76,16 +78,11 @@ class NetDist:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
 
-        print len(self.mylist)
-        print self.param
-        print param
-
         try:
             self.res = nettools.netdist(self.mylist,
                                         d=param['d'],
                                         components=param['components'],
                                         ga=param['ga'], **{'n.cores': 1})
-            print len(self.res)
 
             return_value = True
         except ValueError, e:

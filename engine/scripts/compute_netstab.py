@@ -10,9 +10,13 @@ import os.path
 
 class NetStability:
     
-    def __init__(self, filelist, param={}):
+    def __init__(self, filelist, seplist, param={}):
         
         self.filelist = filelist
+        self.seplist = seplist
+        if len(self.filelist) != len(self.seplist):
+            raise IOError('Not conformable arrays')
+                    
         self.mylist = rlc.TaggedList([])
         self.nfiles = len(filelist)
         self.param = param
@@ -37,15 +41,15 @@ class NetStability:
                     param[p] = self.param[p]
         
         # Read all the files in the R-environment
-        for f in self.filelist:
+        for f, s in zip(self.filelist, self.seplist):
             try:
                 tmpdata = DataFrame.from_csvfile(f,
-                                                 sep=param['sep'],
+                                                 sep=str(s),
                                                  header=param['header'],
                                                  as_is=param['as_is'],
                                                  row_names=param['row.names'])
                 self.mylist.append(tmpdata)
-                self.listname.append('adj_mat_'+str(rcount))
+                self.listname.append('stab_'+str(rcount))
                 rcount += 1
             except IOError:
                 print "Can't load file %s" %f
@@ -57,7 +61,6 @@ class NetStability:
 
             
     def compute(self): 
-        
         """
         Method for the computation of network stability
         """
