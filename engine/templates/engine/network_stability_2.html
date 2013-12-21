@@ -1,0 +1,349 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extrahead %}
+    <script type="text/javascript" src="{% static 'js/jquery.numeric.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-ui.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/validate.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/regex.js' %}"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function () {
+            $("#id_resmethods").change(function () {
+                var conceptName = $('#id_resmethods').find(":selected").val();
+                $("#id_k").prop('disabled', true);
+                if (conceptName == 'montecarlo') {
+                    $("#id_k").removeAttr('disabled');
+                }
+                if (conceptName == 'LOO') {
+                    $("#id_k").removeAttr('disabled');
+                }
+            });
+            $("#id_distance").change(function () {
+                var conceptName = $('#id_distance').find(":selected").val();
+                if (conceptName == 'HIM') {
+                    $("#id_rho").removeAttr('disabled');
+                    $("#id_ga").removeAttr('disabled');
+                    $("#id_components").removeAttr('disabled');
+                }
+                if (conceptName == 'IM') {
+                    $("#id_rho").prop('disabled', true);
+                    $("#id_ga").removeAttr('disabled');
+                    $("#id_components").prop('disabled', true);
+                }
+                if (conceptName == 'H') {
+                    $("#id_rho").prop('disabled', true);
+                    $("#id_ga").prop('disabled', true);
+                    $("#id_components").prop('disabled', true);
+                }
+                if (conceptName == '') {
+                    $("#id_rho").prop('disabled', true);
+                    $("#id_ga").prop('disabled', true);
+                    $("#id_components").prop('disabled', true);
+                }
+            });
+            $("#id_methods").change(function () {
+                $("#id_alpha").prop('disabled', true);
+                $("#id_p").prop('disabled', true);
+                $("#id_c").prop('disabled', true);
+                $("#id_measure").prop('disabled', true);
+                $("#id_fdr").prop('disabled', true);
+                var conceptName = $('#id_methods').find(":selected").val();
+                if (conceptName == 'WGCNA') {
+                    $("#id_p").removeAttr('disabled');
+                }
+                if (conceptName == 'WGCNAFDR') {
+                    $("#id_fdr").removeAttr('disabled');
+
+                }
+                if (conceptName == 'bicorFDR') {
+                    $("#id_fdr").removeAttr('disabled');
+                }
+                if (conceptName == 'TOM') {
+                    $("#id_p").removeAttr('disabled');
+                }
+                if (conceptName == 'MINE') {
+                    $("#id_alpha").removeAttr('disabled');
+                    $("#id_c").removeAttr('disabled');
+                    $("#id_measure").removeAttr('disabled');
+                }
+                if (conceptName == 'MINEFDR') {
+                    $("#id_alpha").removeAttr('disabled');
+                    $("#id_c").removeAttr('disabled');
+                    $("#id_measure").removeAttr('disabled');
+                    $("#id_fdr").removeAttr('disabled');
+                }
+                if (conceptName == '') {
+                    $("#id_alpha").prop('disabled', true);
+                    $("#id_c").prop('disabled', true);
+                    $("#id_measure").prop('disabled', true);
+                    $("#id_fdr").prop('disabled', true);
+                }
+            });
+            $('#id_p').rules('add', {
+                required: false,
+                digits: false,
+                min: 1
+            });
+            $('#id_fdr').rules('add', {
+                required: false,
+                digits: false,
+                max: 1,
+                min: 1e-40
+            });
+            $('#id_alpha').rules('add', {
+                required: false,
+                digits: false,
+                max: 1,
+                min: 0
+            });
+            $('#id_c').rules('add', {
+                required: false,
+                digits: false,
+                max: max_ga
+            });
+
+            max_ga = {{ max_ga }}
+                    $("#myform").validate();
+            $('#id_ga').rules('add', {
+                required: false,
+                digits: false,
+                max: max_ga
+            });
+
+        });
+
+    </script>
+{% endblock %}
+{% block container %}
+    <div class="row row-offcanvas row-offcanvas-right">
+    <div class="col-md-12 col-md-9">
+
+
+    <div class="row">
+    <h1>Network Stability [Step 2/3]</h1>
+
+    <div class="col-6">
+    {% if removed_files %}
+        <h3>Dropped Files</h3>
+
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th>Filename</th>
+            </tr>
+            </thead>
+            {% for f in removed_files %}
+                <tr>
+                    <td>{{ f }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <h3>All selected files uploaded with success</h3>
+    {% endif %}
+    <h3>Uploaded Files</h3>
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th>Filename</th>
+            <th>Type</th>
+            <th># Rows</th>
+            <th># Cols</th>
+            <th>Separator</th>
+        </tr>
+        </thead>
+        {% for f in uploaded_files %}
+            <tr>
+                <td>{{ f.name }}</td>
+                <td>{{ f.prop.mimetype }}</td>
+                <td>{{ f.prop.nrow }}</td>
+                <td>{{ f.prop.ncol }}</td>
+                <td>
+                    {% if f.prop.separator == '	' %}
+                        TAB
+                    {% else %}
+                        {{ f.prop.separator }}
+                    {% endif %}
+                </td>
+            </tr>
+
+        {% endfor %}
+    </table>
+    <div class="row">
+        <form method="POST" role="form" class="form-horizontal" id="myform"
+              action="{% url 'network_stability_3' %}">
+            {% csrf_token %}
+            <fieldset>
+                <div class="col-md-12" >
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Stability parameters</div>
+                        <div class="panel-body" style="margin: 10px;">
+                            <div class="form-group">
+                                <label for="id_resmethods">Resampling methods</label>
+                                <select id="id_resmethods" class="form-control" name="resmethods" required>
+                                    <option value="" selected>--------</option>
+                                    <option value="montecarlo">Montecarlo</option>
+                                    <option value="kCV">k-fold Cross Validation</option>
+                                    <option value="LOO">Leave One Out</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="id_k">K</label>
+                                <input type="text" class="positive form-control" name="k" id="id_k"
+                                       value="3" disabled required>
+                            </div>
+                            <div class="form-group">
+                                <label for="h">h</label>
+                                <input type="text" class="positive form-control" name="h" id="id_h" value="20">
+                            </div>
+                            {% for f in uploaded_files %}
+                                <input type="hidden" name="file" value="{{ f.path }}">
+                                <input type="hidden" name="sep" value={{ f.prop.separator }}>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Select inference parameters</div>
+                        <div class="panel-body" style="margin: 10px;">
+                            <div class="form-group">
+                                <label for="id_methods">Methods</label>
+                                <select id="id_methods" class="form-control" name="methods" required>
+                                    <option value="">--------</option>
+                                    <option value="cor">cor</option>
+                                    <option value="WGCNA">WGCNA</option>
+                                    <option value="WGCNAFDR">WGCNAFDR</option>
+                                    <option value="bicor">bicor</option>
+                                    <option value="bicorFDR">bicorFDR</option>
+                                    <option value="TOM">TOM</option>
+                                    <option value="ARACNE">ARACNE</option>
+                                    <option value="CLR">CLR</option>
+                                    <option value="MINE">MINE</option>
+                                    <option value="MINEFDR">MINEFDR</option>
+                                    <option value="DTWMIC">DTWMIC</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="id_p">P</label>
+                                <input type="text" class="positive form-control" name="p" id="id_p"
+                                       value="6"
+                                       disabled required>
+                            </div>
+                            <div class="form-group">
+                                <label for="id_fdr">FDR</label>
+                                <input type="text" class="form-control" name="fdr" id="id_fdr"
+                                       value="1e-3"
+                                       disabled>
+                            </div>
+                            <div class="form-group">
+                                <label for="id_alpha">alpha</label>
+                                <input type="text" class="positive form-control" name="alpha"
+                                       id="id_alpha"
+                                       value="0.6" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label for="id_c">C</label>
+                                <input type="text" class="positive form-control" name="c" id="id_c"
+                                       value="15"
+                                       disabled>
+                            </div>
+                            <div class="form-group">
+                                <label for="id_measure">Measure</label>
+                                <select id="id_measure" class="form-control" name="measure" disabled>
+                                    <option value='' selected>-------</option>
+                                    <option value='MIC'>MIC</option>
+                                    <option value='MAS'>MAS</option>
+                                    <option value='MCN'>MCN</option>
+                                    <option value='MEV'>MEV</option>
+                                    <option value='MICR2'>MICR2</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Select distance parameters</div>
+                        <div class="panel-body" style="margin: 10px;">
+                            <div class="form-group">
+                                <label for="id_distance">Distance</label>
+                                <select id="id_distance" class="form-control" name="distance" required>
+                                    <option value="">--------</option>
+                                    <option value="HIM">HIM</option>
+                                    <option value="IM">Ipsen Mikhailov</option>
+                                    <option value="H">Hamming</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="id_rho">rho</label>
+                                <input type="text" class="positive form-control" name="rho" id="id_rho"
+                                       value="1" disabled required>
+                            </div>
+                            <div class="form-group">
+                                <label for="id_ga">ga</label>
+                                <input type="text" class="positive form-control" name="ga" id="id_ga"
+                                       value=""
+                                       disabled>
+                            </div>
+                            <div class="form-group">
+                                <label for="id_components">Components</label>
+                                <select id="id_components" class="form-control" name="components"
+                                        disabled>
+                                    <option value='True'>True</option>
+                                    <option value='False'>False</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-md-12">
+                    {% for f in uploaded_files %}
+                        <input type="hidden" name="file" value="{{ f.path }}">
+                        <input type="hidden" name="sep" value={{ f.prop.separator }}>
+                    {% endfor %}
+                    <input type="hidden" name="col" value="{{ request.POST.exclude_col_header }}">
+                    <input type="hidden" name="row" value="{{ request.POST.exclude_row_header }}">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </fieldset>
+        </form>
+        <script type="text/javascript">
+            $(".numeric").numeric();
+            $(".integer").numeric(false, function () {
+                alert("Integers only");
+                this.value = "";
+                this.focus();
+            });
+            $(".positive").numeric({ negative: false }, function () {
+                alert("No negative values");
+                this.value = "";
+                this.focus();
+            });
+            $(".positive-integer").numeric({ decimal: false, negative: false }, function () {
+                alert("Positive integers only");
+                this.value = "";
+                this.focus();
+            });
+            $("#remove").click(
+                    function (e) {
+                        e.preventDefault();
+                        $(".numeric,.integer,.positive").removeNumeric();
+                    }
+            );
+        </script>
+    </div>
+    </div>
+    <!--/span-->
+
+
+    </div>
+    <!--/row-->
+    </div>
+    <!--/span-->
+    {% include "navigation.html" %}
+    </div><!--/row-->
+{% endblock container %}
+
+
+

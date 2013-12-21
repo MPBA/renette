@@ -69,16 +69,19 @@ class NetStability:
         param = {'indicator': 'all', 'd': 'HIM', 'adj_method': 'cor', 
                  'method': 'montecarlo', 'k': 3, 'h': 20, 'FDR': 1e-3, 
                  'P': 6, 'measure': ri.NULL, 'alpha': 0.6, 'C': 15, 'DP': 1}
+        print param
+        print self.param
         for p in param.keys():
             if p in self.param:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
-        
+
         # Start the computation
         try:
             self.res = []
             
             for i in self.mylist:
+                print i
                 self.res.append(nettools.netSI(i,
                                                indicator=param['indicator'],
                                                d=param['d'],
@@ -106,11 +109,10 @@ class NetStability:
         
         # write_table = robjects.r['write.table']
         names = robjects.r['names']
+        print self.computed
         if self.computed:
             print names(self.res[0])
             return True
         else:
-            raise ValueError('No stability computed')
+            #raise ValueError('No stability computed')
             return False
-        
-            

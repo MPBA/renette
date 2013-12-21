@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extrahead %}
+
+{% endblock %}
+{% block container %}
+<div class="row row-offcanvas row-offcanvas-right">
+        <div class="col-md-12 col-md-9">
+
+
+          <div class="row">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                 <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+            </div>
+            {% endfor %}
+            {% endif %}
+            <h1>Network Distance [Step 3/3]</h1>
+            <div class="col-6">
+               {% if task %}
+               <h3>Summary</h3>
+               <p>Estimated completion time: <span class="label label-info">3 hour and 34 minutes.</span>
+               Don't forget your unique process id is <span class="label label-info">{{ uuid }}</span>.
+               </p>
+               <p>
+                   <a href="{% url 'process_status' uuid %}" role="button" type="button" class="btn btn-info btn-lg btn-block">Go to status page</a>
+               </p>
+                <table class="table table-striped table-hover">
+                    <thead>
+                      <tr>
+                        <th>Filename Path</th>
+                      </tr>
+                    </thead>
+                    {% for f in files %}
+                        <tr><td>{{f}}</td></tr>
+                    {% endfor %}
+                </table>
+
+                <div class="well well-sm">
+                    <p>Distance Method: <strong>{{ request.POST.distance }}</strong></p>
+
+                    <p>ga: <strong>{% if request.POST.ga %}{{ request.POST.ga }}{% else %}Not selected{% endif %}</strong></p>
+                    <p>rho: <strong>{% if request.POST.rho %}{{ request.POST.rho }}{% else %}Not selected{% endif %}</strong></p>
+                    <p>components: <strong>{% if request.POST.components %}{{ request.POST.components }}{% else %}Not selected{% endif %}</strong></p></p>
+                </div>
+
+                {% endif %}
+            </div><!--/span-->
+
+
+          </div><!--/row-->
+        </div><!--/span-->
+        {% include "navigation.html" %}
+      </div><!--/row-->
+{% endblock container %}
+
+
+
