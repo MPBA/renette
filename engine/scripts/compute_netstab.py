@@ -97,6 +97,7 @@ class NetStability:
                                                C=param['C'],
                                                DP=param['DP'],
                                                save=param['save'],
+                                               tol=0,
                                                **{'adj.method': param['adj_method'],
                                                   'n.cores': 1}))
             return_value = True
@@ -145,7 +146,7 @@ class NetStability:
                                 sep='\t', quote=False, 
                                 **{'col.names': robjects.NA_Logical, 
                                    'row.names': True})
-            return True
+            return results
         else:
             return False
 

@@ -313,14 +313,17 @@ class ProcessStatus(View):
         if task.status == 'SUCCESS':
             result = task.result
             idx = 0
-            if isinstance(result, list):
+            if isinstance(result, dict):
+                context['download_btn'] = True
+                print result
                 for key in result.keys():
                     if idx == 3:
-                        context['tomanyresult'] = True
+                        context['tomanyresult'] = True #todo too
                         break
                     idx += 1
 
                     val = result.get(key)
+                    print val['csv_files']
                     csvlist, tomanyfile = read_csv_results(val['csv_files'])
                     if csvlist:
                         val['csv_tables'] = csvlist

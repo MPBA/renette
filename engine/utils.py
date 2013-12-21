@@ -110,20 +110,22 @@ def read_csv_results(files):
     result = []
     tomanyfile = False
 
-    idx = 0
-    for f in files:
+    for idx, f in enumerate(files):
+        print f
         try:
-            if idx == 3:
+            if idx == 1:
                 tomanyfile = True
                 break
 
             pathabs = os.path.join(settings.MEDIA_ROOT, f)
 
             with open(pathabs, 'rb') as csvfile:
+                print csvfile
                 reader = csv.reader(csvfile, delimiter='\t')
                 rowdata = []
                 tomanyrow = False
                 tomanycol = False
+
                 for row in reader:
                     if reader.line_num == 10:
                         tomanyrow = True
@@ -140,6 +142,6 @@ def read_csv_results(files):
                 'rowdata': rowdata
             })
         except Exception, e:
-            return False
+            return result, tomanyfile
 
     return result, tomanyfile

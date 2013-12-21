@@ -65,9 +65,11 @@
                       <tr>
                           <td><strong>Action:</strong></td>
                           <td>
+                              {% if download_btn %}
                               <a  href="{% url 'process_download_zip' runp.pk %}" class="btn btn-success btn-xs" role="button">
                                 Download all files
                               </a>
+                              {% endif %}
 {#                              <a href="#" role="button" class="btn btn-default btn-xs" >#}
 {#                                Select files to download#}
 {#                              </a>#}
