@@ -73,7 +73,7 @@ def test_netinf(self, files, sep, param):
 
 @celery.task(bind=True)
 def test_netstab(self, files, sep, param):
-    ad = compute_netstab.NetStability(files, param)
+    ad = compute_netstab.NetStability(files, sep, param)
 
     tmpdir = str(uuid.uuid4())
     result_path = os.path.join(settings.MEDIA_ROOT, settings.RESULT_PATH)
@@ -91,11 +91,11 @@ def test_netstab(self, files, sep, param):
     self.update_state(state='RUNNING', meta={'current': 'fetching result'})
     result = ad.get_results(filepath=result_path_full, )
 
-    #if result:
-    #    for key in result.keys():
-    #        val = result.get(key)
-    #        val['csv_files'] = [os.path.join(settings.RESULT_PATH, tmpdir, f) for f in val['csv_files']]
-    #        val['img_files'] = [os.path.join(settings.RESULT_PATH, tmpdir, f) for f in val['img_files']]
-    #        val['rdata'] = os.path.join(settings.RESULT_PATH, tmpdir, val['rdata']) if val['rdata'] else None
-    #        result.update({key: val})
+    if result:
+        for key in result.keys():
+            val = result.get(key)
+            val['csv_files'] = [os.path.join(settings.RESULT_PATH, tmpdir, f) for f in val['csv_files']]
+            val['img_files'] = [os.path.join(settings.RESULT_PATH, tmpdir, f) for f in val['img_files']]
+            val['rdata'] = os.path.join(settings.RESULT_PATH, tmpdir, val['rdata']) if val['rdata'] else None
+            result.update({key: val})
     return result
