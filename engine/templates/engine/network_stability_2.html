@@ -195,10 +195,6 @@
                                 <label for="h">h</label>
                                 <input type="text" class="positive form-control" name="h" id="id_h" value="20">
                             </div>
-                            {% for f in uploaded_files %}
-                                <input type="hidden" name="file" value="{{ f.path }}">
-                                <input type="hidden" name="sep" value={{ f.prop.separator }}>
-                            {% endfor %}
                         </div>
                     </div>
                 </div>
