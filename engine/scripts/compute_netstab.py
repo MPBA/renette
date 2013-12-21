@@ -77,7 +77,7 @@ class NetStability:
             if p in self.param:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
-        
+
         # Start the computation
         try:
             # Test if the computation is ok
@@ -112,11 +112,10 @@ class NetStability:
         
         # write_table = robjects.r['write.table']
         names = robjects.r['names']
+        print self.computed
         if self.computed:
             print names(self.res[0])
             return True
         else:
-            raise ValueError('No stability computed')
+            #raise ValueError('No stability computed')
             return False
-        
-            
