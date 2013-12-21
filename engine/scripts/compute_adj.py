@@ -16,6 +16,8 @@ class Mat2Adj:
         """
         Import the needed functions and packages to be available for computation
         """
+        self.nfiles = len(filelist)
+
         self.filelist = filelist
         self.seplist = seplist
         # Check if the number of separators are equal to the numberr of file passed
