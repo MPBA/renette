@@ -68,10 +68,11 @@ class NetStability:
         nettools = importr('nettools')
         lapply = robjects.r['lapply']
         
-        # Get patameter and set default
+        # Get parameter and set default
         param = {'indicator': 'all', 'd': 'HIM', 'adj_method': 'cor', 
                  'method': 'montecarlo', 'k': 3, 'h': 20, 'FDR': 1e-3, 
-                 'P': 6, 'measure': ri.NULL, 'alpha': 0.6, 'C': 15, 'DP': 1}
+                 'P': 6, 'measure': ri.NULL, 'alpha': 0.6, 'C': 15, 'DP': 1, 
+                 'save': False}
         for p in param.keys():
             if p in self.param:
                 if self.param[p] is not None:
@@ -79,10 +80,11 @@ class NetStability:
         
         # Start the computation
         try:
+            # Test if the computation is ok
             self.res = []
             
-            for i in self.mylist:
-                self.res.append(nettools.netSI(i,
+            for x in self.mylist:
+                self.res.append(nettools.netSI(x,
                                                indicator=param['indicator'],
                                                d=param['d'],
                                                method=param['method'],
@@ -93,7 +95,8 @@ class NetStability:
                                                measure=param['measure'],
                                                alpha=param['alpha'],
                                                C=param['C'],
-                                               DP=param['DP'], 
+                                               DP=param['DP'],
+                                               save=param['save'],
                                                **{'adj.method': param['adj_method'],
                                                   'n.cores': 1}))
             return_value = True
