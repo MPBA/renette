@@ -17,9 +17,6 @@ class Mat2Adj:
         Import the needed functions and packages to be available for computation
         """
         self.nfiles = len(filelist)
-        if self.nfiles < 2:
-            raise ValueError("Not enough file loaded")
-
         self.filelist = filelist
         self.seplist = seplist
         # Check if the number of separators are equal to the numberr of file passed

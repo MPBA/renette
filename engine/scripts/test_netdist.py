@@ -27,7 +27,7 @@ print 'Test Stability'
 myparam = {'d': 'HIM', 'rho': None,'sep': '\t','row.names': 1,
           'adj_method': 'ARACNE'}
 
-ns = cs.NetStability(filelist=['test_data_1.csv'], seplist=['\t'], param=myparam)
+ns = cs.NetStability(filelist=['test.tsv'], seplist=['\t'], param=myparam)
 ns.loadfiles()
 ns.compute()
 print ns.get_results()
