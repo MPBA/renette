@@ -6,7 +6,8 @@ from rpy2.robjects.numpy2ri import numpy2ri
 import rpy2.rinterface as ri
 import numpy as np
 import os.path
-
+import csv
+import rutils as ru
 
 class NetStability:
     
@@ -78,6 +79,8 @@ class NetStability:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
 
+        self.met = param['adj_method']
+        
         # Start the computation
         try:
             # Test if the computation is ok
@@ -114,24 +117,60 @@ class NetStability:
         Write the results on the file system
         """
                 
-        names = robjects.r['names']
+        names = robjects.r['colnames']
         write_table = robjects.r['write.table']
         results = {}
         
         if self.computed:
-            for i in range(len(self.res)):
-                
+            for i in xrange(len(self.res)):
+                csvlist = []
                 tmp = self.res[i]
-                myfname = os.path.join(filepath, '%s_ADJ.tsv' % self.listname[i] )
-                # Write result dictionary
+                
+                print tmp.rx2('S')
+                print tmp.rx2('SI')
+                
+                # Initialize result dictionary
                 results[self.listname[i]] = {
-                    'csv_files': ['%s_ADJ.tsv' % self.listname[i]],
+                    'csv_files': [],
                     'img_files': [],
-                    'desc': '%s is bla bla bla bla' % self.listname[i],
+                    'desc': 'Stability indicators for file %s' % self.listname[i],
                     'rdata': None,
                 }
                 
+                # Write S and SI stability indicators
+                myfname = os.path.join(filepath, '%s_%s_S-SI.tsv' % (self.listname[i], self.met) )
+                csvlist += ['%s_%s_S-SI.tsv' % (self.listname[i], self.met)]
+                try:
+                    f = open(myfname, 'wb')
+                    fw = csv.writer(f, delimiter='\t', lineterminator='\n')
+                    fw.writerow(['S', 'SI'])
+                    fw.writerow([np.mean(tmp.rx2('S')),np.mean(tmp.rx2('SI'))])
+                    f.close()
+                except IOError, e:
+                    print '%s' % e
+                
+                
+                Sd = np.array(tmp.rx2('Sd'))
+                Sw = np.array(tmp.rx2('Sw'))
+                
+                # Compute the degree stability indicator
+                myfname = os.path.join(filepath,'%s_%s_Sd.tsv' 
+                                       % (self.listname[i], self.met))
+                sdw = ru.write_Sd(Sd, myfname)
+                if sdw:
+                    csvlist += ['%s_%s_Sd.tsv' % (self.listname[i], self.met)]
+                
+                # Compute the edge stability indicator
+                myfname = os.path.join(filepath,'%s_%s_Sw.tsv' % (self.listname[i], self.met))
+                # Write file for edge stability indicator
+                sww = ru.write_Sw(Sw, myfname)
+                if sww:
+                    csvlist += ['%s_%s_Sw.tsv' % (self.listname[i], self.met)]
+
+
                 # Write adjacency matrix on the whole dataset
+                myfname = os.path.join(filepath, '%s_%s.tsv' % (self.listname[i], self.met) )
+                csvlist += ['%s_%s.tsv' % (self.listname[i], self.met)]
                 write_table(tmp.rx2('ADJ'),myfname,
                             sep='\t', quote=False, 
                             **{'col.names': robjects.NA_Logical, 
@@ -139,13 +178,18 @@ class NetStability:
                 
                 # Write matrices given by resampling
                 for j, a in enumerate(tmp.rx2('ADJlist')):
-                    myfname = os.path.join(filepath, '%s_ADJ_res%d.tsv' 
-                                           % (self.listname[i], j) )
-                    results[self.listname[i]]['csv_files'] += ['%s_ADJ_res%d.tsv' % (self.listname[i], j)]
+                    myfname = os.path.join(filepath, '%s_%s_res%d.tsv' 
+                                        % (self.listname[i], self.met, j) )
+                    csvlist += ['%s_%s_res%d.tsv' % (self.listname[i], self.met, j)]
+                    #results[self.listname[i]]['csv_files'] += ['%s_%s_res%d.tsv' 
+                    #                                          % (self.listname[i], self.met, j)]
                     write_table(tmp.rx2('ADJ'),myfname,
                                 sep='\t', quote=False, 
                                 **{'col.names': robjects.NA_Logical, 
                                    'row.names': True})
+
+                # Append the list of the files producted to the result dictionary    
+                results[self.listname[i]]['csv_files'] += csvlist
             return results
         else:
             return False
