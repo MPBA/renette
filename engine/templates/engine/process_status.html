@@ -40,6 +40,10 @@
                           <td>{{ task.id }}</td>
                       </tr>
                       <tr>
+                          <td><strong>Type:</strong></td>
+                          <td>{{ runp.process_name }}</td>
+                      </tr>
+                      <tr>
                           {% if runp %}
                           <td><strong>Submited:</strong></td>
                           <td>
@@ -97,7 +101,7 @@
 
                 {% if task.status == 'SUCCESS' %}
                 <hr/>
-                <h3>Result preview</h1>
+                <h3>Result preview</h3>
                 {% for key, value in result.items %}
                     <div class="panel panel-default">
                         <div class="panel-heading">

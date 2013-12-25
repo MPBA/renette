@@ -18,19 +18,15 @@ def test_netdist(self, files, sep, param):
     if not os.path.exists(result_path_full):
         os.makedirs(result_path_full)
 
-    self.update_state(state='RUNNING', meta={'current_action': 'load files...'})
+    self.update_state(state='RUNNING', meta='Load files...')
     nd.loadfiles()
 
-    self.update_state(state='RUNNING', meta={'current_action': 'compute distance'})
+    self.update_state(state='RUNNING', meta='Compute distance...')
     nd.compute()
 
-    self.update_state(state='RUNNING', meta={'current': 'fetching result'})
+    self.update_state(state='RUNNING', meta='Fetching result...')
     result = nd.get_results(filepath=result_path_full, )
 
-    ## calc relative path
-    #result_path_relative = []
-    #for f in filenames:
-    #    result_path_relative.append(os.path.join(settings.RESULT_PATH, tmpdir, f))
     if result:
         for key in result.keys():
             val = result.get(key)
@@ -52,13 +48,13 @@ def test_netinf(self, files, sep, param):
     if not os.path.exists(result_path_full):
         os.makedirs(result_path_full)
 
-    self.update_state(state='RUNNING', meta={'current_action': 'load files...'})
+    self.update_state(state='RUNNING', meta='Load files...')
     ad.loadfiles()
 
-    self.update_state(state='RUNNING', meta={'current_action': 'compute adj'})
+    self.update_state(state='RUNNING', meta='Compute inference...')
     ad.compute()
 
-    self.update_state(state='RUNNING', meta={'current': 'fetching result'})
+    self.update_state(state='RUNNING', meta='Fetching result...')
     result = ad.get_results(filepath=result_path_full, )
 
     if result:
@@ -82,13 +78,13 @@ def test_netstab(self, files, sep, param):
     if not os.path.exists(result_path_full):
         os.makedirs(result_path_full)
 
-    self.update_state(state='RUNNING', meta={'current_action': 'load files...'})
+    self.update_state(state='RUNNING', meta='Load files...')
     ad.loadfiles()
 
-    self.update_state(state='RUNNING', meta={'current_action': 'compute adj'})
+    self.update_state(state='RUNNING', meta='Compute stability...')
     ad.compute()
 
-    self.update_state(state='RUNNING', meta={'current': 'fetching result'})
+    self.update_state(state='RUNNING', meta='Fetching result...')
     result = ad.get_results(filepath=result_path_full, )
 
     if result:

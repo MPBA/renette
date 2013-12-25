@@ -54,5 +54,6 @@ urlpatterns = patterns('engine.views',
                            name='network_stability_3'),
 
                        url(r'^multiuploader/$', 'multiuploader'),
+                       url(r'^process/list/$', 'process_list', name="process_list"),
 
                        )

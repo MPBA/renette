@@ -11,7 +11,7 @@ from django.contrib import messages
 from django.conf import settings
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from .forms import ContactForm
-
+import random
 
 #class based view for home page rendering
 class MainView(TemplateView):

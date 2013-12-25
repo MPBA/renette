@@ -92,7 +92,7 @@ class NetworkStabilityStep3Class(View):
         }
         try:
             runp = RunningProcess(
-                process_name='network_distance',
+                process_name='Network stability',
                 inputs=param,
                 submited=datetime.now()
             )
@@ -105,6 +105,11 @@ class NetworkStabilityStep3Class(View):
         try:
             runp.save()
             context = {'files': files, 'task': t, 'uuid': t.id}
+
+            session = self.request.session.get('runp',[])
+            session.append(runp.pk)
+            self.request.session['runp'] = session
+            print self.request.session
         except DatabaseError, e:
             t.revoke(terminate=True)
             messages.add_message(self.request, messages.ERROR, 'Error: %s' % str(e))
@@ -176,7 +181,7 @@ class NetworkInferenceStep3Class(View):
         print param
         try:
             runp = RunningProcess(
-                process_name='network_inference',
+                process_name='Network inference',
                 inputs=param,
                 submited=datetime.now()
             )
@@ -188,11 +193,16 @@ class NetworkInferenceStep3Class(View):
 
         try:
             runp.save()
+            context = {'files': files, 'task': t, 'uuid': t.id}
+
+            session = self.request.session.get('runp',[])
+            session.append(runp.pk)
+            self.request.session['runp'] = session
         except DatabaseError, e:
             t.revoke(terminate=True)
             messages.add_message(self.request, messages.ERROR, 'Error: %s' % str(e))
 
-        context = {'files': files, 'task': t, 'uuid': t.id}
+
 
         messages.add_message(self.request, messages.SUCCESS, 'Process submitted with success!!!')
         return render(request, self.template_name, context)
@@ -268,7 +278,7 @@ class NetworkDistanceStep3Class(View):
         }
         try:
             runp = RunningProcess(
-                process_name='network_distance',
+                process_name='Network distance',
                 inputs=param,
                 submited=datetime.now()
             )
@@ -281,11 +291,13 @@ class NetworkDistanceStep3Class(View):
         try:
             runp.save()
             context = {'files': files, 'task': t, 'uuid': t.id}
+
+            session = self.request.session.get('runp',[])
+            session.append(runp.pk)
+            self.request.session['runp'] = session
         except DatabaseError, e:
             t.revoke(terminate=True)
             messages.add_message(self.request, messages.ERROR, 'Error: %s' % str(e))
-
-        #context = {'files': files, 'task': t, 'uuid': t.id}
 
         messages.add_message(self.request, messages.SUCCESS, 'Process submitted with success!!!')
         return render(request, self.template_name, context)
@@ -304,9 +316,9 @@ class ProcessStatus(View):
             messages.add_message(self.request, messages.ERROR, 'Alcune info non disponibili')
 
         context = {
-            'uuid': uuid,
-            'task': task,
-            'badge': get_bootsrap_badge(task.status),
+            'uuid': uuid, ### TODO: e' nei models, riferirsi a quello
+            'task': task, ### TODO: e' nei models, riferirisi a quello
+            'badge': get_bootsrap_badge(task.status), ### TODO: e' nei model, riferirsi a quello
             'runp': runp
         }
 
@@ -314,7 +326,7 @@ class ProcessStatus(View):
             result = task.result
             idx = 0
             if isinstance(result, dict):
-                context['download_btn'] = True
+                context['download_btn'] = True  ### TODO: e' nei models
                 for key in result.keys():
                     if idx == 3:
                         context['tomanyresult'] = True #todo too
@@ -322,7 +334,6 @@ class ProcessStatus(View):
                     idx += 1
 
                     val = result.get(key)
-                    print val['csv_files']
                     csvlist, tomanyfile = read_csv_results(val['csv_files'])
                     if csvlist:
                         val['csv_tables'] = csvlist
@@ -332,7 +343,6 @@ class ProcessStatus(View):
                     result.update({key: val})
 
             context['result'] = result
-            print context
         return render(request, self.template_name, context)
 
 
@@ -417,3 +427,21 @@ def multiuploader(request):
         messages.add_message(request, messages.ERROR, 'Bad request')
         context = {}
         return render(request, 'engine/network_distance.html', context)
+
+
+def process_list(request):
+    try:
+        session = request.session.get('runp', [])
+        print session
+        if len(session):
+            runp = RunningProcess.objects.filter(pk__in=session)
+        else:
+            runp = []
+
+        context = {
+            'runp': runp
+        }
+
+        return render(request, 'engine/my_process_list.html', context)
+    except Exception, e:
+        return HttpResponseBadRequest(str(e))
