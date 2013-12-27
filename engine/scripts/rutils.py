@@ -2,6 +2,7 @@ from itertools import combinations
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
 from rpy2.robjects.numpy2ri import numpy2ri
+from rpy2.robjects.vectors import DataFrame
 import numpy as np
 import os.path
 import csv
@@ -74,7 +75,7 @@ def export_graph(reslist, i, filepath='.',format='gml'):
         
     return myfname
 
-def export_to_json(reslist, i, filepath=".", perc=90):
+def export_to_json(reslist, i, filepath=".", perc=10):
     """
     Create the json for d3js visualization
     """
@@ -109,5 +110,30 @@ def export_to_json(reslist, i, filepath=".", perc=90):
         print "Error writing the file %s" % e
             
     return myfname
+
+    
+def csv2graph(csvfiles, seplist=[], param={},filepath='.', graph_format='gml'):
+    """
+    Utility to convert from csv file to igraph format file
+    """
+    
+    igraph = importr('igraph')
+    gadj = igraph.graph_adjacency
+    wgraph = igraph.write_graph
+
+    if len(seplist) != len(csvfiles):
+        raise IOError('Not enought separators')
+        
+    for i,f in enumerate(csvfiles):
+        myfname = f + ".%s" % format
+        tmpdata = DataFrame.from_csvfile(f,
+                                         sep=seplist[i],
+                                         header=param['header'] if param.has_key('header') else True,
+                                         as_is=True,
+                                         row_names=param['row.names'] if param.has_key('row_names') else False)
+        g = gadj(reslist, mode='undirected', weighted=True)
+        wgraph(g, file=os.path.join(filepath,myfname), format=format)
+        
+    return True
 
     
