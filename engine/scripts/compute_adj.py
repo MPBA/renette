@@ -9,6 +9,9 @@ import numpy as np
 import os.path
 import csv
 import json
+import igraph
+import rutils as ru
+
 
 class Mat2Adj:
     
@@ -19,6 +22,7 @@ class Mat2Adj:
         self.nfiles = len(filelist)
         self.filelist = filelist
         self.seplist = seplist
+        self.results = {}
         # Check if the number of separators are equal to the numberr of file passed
         if len(self.filelist) != len(self.seplist):
             raise IOError('Not enough separators!')
@@ -95,7 +99,7 @@ class Mat2Adj:
         self.computed = return_value
         return return_value
 
-    def get_results(self, filepath='.'):
+    def get_results(self, filepath='.', export_json=True, graph_format=False, perc=90):
         
         """
         Get the results and write to a file
@@ -107,16 +111,16 @@ class Mat2Adj:
         rlist = robjects.r['list']
         rmat = robjects.r['as.matrix']
 
-        results = {}
-
         if self.computed:
             for i in range(len(self.res)):
                 myfname = os.path.join(filepath,
                                        self.listname[i] + '_adj.tsv')
-
-                results[self.listname[i]] = {
+                
+                self.results[self.listname[i]] = {
                     'csv_files': [self.listname[i] + '_adj.tsv'],
                     'img_files': [],
+                    'json_files': [],
+                    'graph_files': [],
                     'desc': '%s is bla bla bla bla' % self.listname[i],
                     'rdata': None,
                 }
@@ -133,7 +137,7 @@ class Mat2Adj:
                 except:
                     colnames = False
                     rownames = False
-                    
+                
                 # Write files csv ; separated
                 write_table(self.res[i], myfname, sep='\t',
                             quote=False,
@@ -141,7 +145,17 @@ class Mat2Adj:
                                 'col.names': colnames,
                                 'row.names': rownames
                             })
-            return results
+                # Export to json
+                if export_json:
+                    jname = ru.export_to_json(self.res[i], i=i, filepath=filepath, perc=perc)
+                    self.results[self.listname[i]]['json_files'] += [jname]
+
+                # Export to graph format
+                if graph_format:
+                    gname = ru.export_graph(self.res[i], i=i, filepath=filepath, format=graph_format)
+                    self.results[self.listname[i]]['graph_files'] += [gname]
+                    
+            return self.results
         else:
             print 'No adjacency matrix computed, please run the compute method before.'
             return False
@@ -190,37 +204,58 @@ class Mat2Adj:
             print 'No oject found in this %s: %s' % (filename, str(e))
             return False
 
-    def export_to_json(self, filepath=".", perc=90):
-        """
-        Create the json for d3js visualization
-        """
-        # Write a graph file for each result
-        for i,r in enumerate(self.res):
-            response = {'nodes': [], 'links': []}
-            tmp = np.triu(np.array(self.res[i]))
-            thr = np.percentile(tmp[tmp>0.0],100-perc)
+    # def export_to_json(self, filepath=".", perc=90):
+    #     """
+    #     Create the json for d3js visualization
+    #     """
+    #     # Write a graph file for each result
+    #     for i,r in enumerate(self.res):
+    #         response = {'nodes': [], 'links': []}
+    #         tmp = np.triu(np.array(self.res[i]))
+    #         thr = np.percentile(tmp[tmp>0.0],100-perc)
             
-            # Write nodes specifications
-            for n in range(tmp.shape[1]):
-                response['nodes'].append({'name': str(n), 'group':0})
+    #         # Write nodes specifications
+    #         for n in range(tmp.shape[1]):
+    #             response['nodes'].append({'name': str(n), 'group':0})
             
-            # Write links specifications
-            N = tmp.shape[1]
-            for n in range(tmp.shape[1]):
-                for j in range(n+1,N):
-                    if (tmp[n,j] >= thr):
-                        ## print 'n %d, j%d' % (n,j)
-                        response['links'].append({'source': n, 
-                                                     'target': j, 
-                                                     'values': tmp[n,j]})
+    #         # Write links specifications
+    #         N = tmp.shape[1]
+    #         for n in range(tmp.shape[1]):
+    #             for j in range(n+1,N):
+    #                 if (tmp[n,j] >= thr):
+    #                     ## print 'n %d, j%d' % (n,j)
+    #                     response['links'].append({'source': n, 
+    #                                                  'target': j, 
+    #                                                  'values': tmp[n,j]})
                 
-            # Write json file for d3js
-            try:
-                myfname = 'graph_' + str(i) + '.json'
-                f = open(os.path.join(filepath, myfname),'w')
-                json.dump(response,f,ensure_ascii=False)
-                f.close()
-            except IOError, e:
-                print "Error writing the file %s" % e
+    #         # Write json file for d3js
+    #         try:
+    #             myfname = 'graph_' + str(i) + '.json'
+    #             f = open(os.path.join(filepath, myfname),'w')
+    #             json.dump(response,f,ensure_ascii=False)
+    #             f.close()
+    #         except IOError, e:
+    #             print "Error writing the file %s" % e
         
-        return True
+    #     return True
+    
+    # def export_graph(self, filepath='.',format='gml'):
+    #     """
+    #     Export to the desired graph format
+    #     """
+    #     lapply = robjects.r['lapply']
+    #     igraph = importr('igraph')
+    #     gadj = igraph.graph_adjacency
+    #     wgraph = igraph.write_graph
+        
+    #     for i,r in enumerate(self.res):
+    #         myfname = 'graph_' + str(i) + '.%s' % format  
+    #         g = gadj(r, mode='undirected', weighted=True)
+    #         wgraph(g, file=os.path.join(filepath,myfname), format=format)
+    #         # tmp = np.array(r)
+    #         # tmp = tmp.tolist()
+    #         # ## print tmp
+    #         # gg = igraph.Graph.Adjacency(tmp, mode=igraph.ADJ_UNDIRECTED)
+    #         # print gg.get_adjacency()
+            
+    #     return 0

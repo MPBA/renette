@@ -126,8 +126,8 @@ class NetStability:
                 csvlist = []
                 tmp = self.res[i]
                 
-                print tmp.rx2('S')
-                print tmp.rx2('SI')
+                # print tmp.rx2('S')
+                # print tmp.rx2('SI')
                 
                 # Initialize result dictionary
                 results[self.listname[i]] = {
@@ -194,6 +194,14 @@ class NetStability:
         else:
             return False
 
-
+    
 
     
+    def get_S (self):
+        res = []
+        for i in xrange(len(self.res)):
+            csvlist = []
+            tmp = self.res[i]
+            res += tmp.rx2('S')
+        
+        return res
