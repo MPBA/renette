@@ -1,7 +1,11 @@
 from itertools import combinations
+import rpy2.robjects as robjects
+from rpy2.robjects.packages import importr
+from rpy2.robjects.numpy2ri import numpy2ri
 import numpy as np
 import os.path
 import csv
+import json
 
 def write_Sw (Sw, filename='Sw.csv'):
     """
@@ -55,5 +59,55 @@ def write_Sd(Sd, filename='Sd.csv'):
     return True
 
 
+def export_graph(reslist, i, filepath='.',format='gml'):
+    """
+    Export to the desired graph format
+    """
+    igraph = importr('igraph')
+    gadj = igraph.graph_adjacency
+    wgraph = igraph.write_graph
+    
+    #for i,r in enumerate(reslist):
+    myfname = 'graph_' + str(i) + '.%s' % format  
+    g = gadj(reslist, mode='undirected', weighted=True)
+    wgraph(g, file=os.path.join(filepath,myfname), format=format)
+        
+    return myfname
+
+def export_to_json(reslist, i, filepath=".", perc=90):
+    """
+    Create the json for d3js visualization
+    """
+    
+    # Write a graph file for each result
+    #for i,r in enumerate(reslist):
+    response = {'nodes': [], 'links': []}
+    tmp = np.triu(np.array(reslist))
+    thr = np.percentile(tmp[tmp>0.0],100-perc)
+        
+        # Write nodes specifications
+    for n in range(tmp.shape[1]):
+        response['nodes'].append({'name': str(n), 'group':0})
+            
+    # Write links specifications
+    N = tmp.shape[1]
+    for n in range(tmp.shape[1]):
+        for j in range(n+1,N):
+            if (tmp[n,j] >= thr):
+                ## print 'n %d, j%d' % (n,j)
+                response['links'].append({'source': n, 
+                                          'target': j, 
+                                          'values': tmp[n,j]})
+                
+    # Write json file for d3js
+    try:
+        myfname = 'graph_' + str(i) + '.json'
+        f = open(os.path.join(filepath, myfname),'w')
+        json.dump(response,f,ensure_ascii=False)
+        f.close()
+    except IOError, e:
+        print "Error writing the file %s" % e
+            
+    return myfname
 
     
