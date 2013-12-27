@@ -21,7 +21,25 @@ class RunningProcess(models.Model):
     # From id returns task result
     @property
     def celery_task(self):
-        return djcelery.celery.AsyncResult(self.task_id)
+        try:
+            return djcelery.celery.AsyncResult(self.task_id)
+        except Exception:
+            return None
+
+    @property
+    def to_pretty_inputs(self):
+        res = []
+        for key, value in self.inputs.items():
+            if value == None:
+                value = 'NA'
+            if key == 'header':
+                key = 'with_col_header'
+            if key == 'row.names':
+                key = 'with_row_header'
+                value = bool(value)
+            tmp = '<li><strong>%s</strong>=%s</li>' % (key, value)
+            res.append(tmp)
+        return ', '.join(res)
 
     @property
     def badge_status(self):

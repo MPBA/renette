@@ -39,7 +39,10 @@
                           {% for r in runp %}
                           <tr>
                               <td>{{ r.pk }}</td>
-                              <td>{{ r.task_id }}</td>
+                              <td>
+                                  <p>{{ r.task_id }}</p>
+                                  <p>{{ r.submited }}</p>
+                              </td>
                               <td>{{ r.process_name }}</td>
                               <td>{{ r.badge_status|safe }}</td>
                               <td>

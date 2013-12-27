@@ -432,7 +432,7 @@ def multiuploader(request):
 def process_list(request):
     try:
         session = request.session.get('runp', [])
-        print session
+
         if len(session):
             runp = RunningProcess.objects.filter(pk__in=session)
         else:
