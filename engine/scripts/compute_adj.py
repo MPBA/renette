@@ -9,7 +9,6 @@ import numpy as np
 import os.path
 import csv
 import json
-import igraph
 import rutils as ru
 
 

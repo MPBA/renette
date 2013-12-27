@@ -61,6 +61,8 @@ def test_netinf(self, files, sep, param):
         for key in result.keys():
             val = result.get(key)
             val['csv_files'] = [os.path.join(settings.RESULT_PATH, tmpdir, f) for f in val['csv_files']]
+            val['json_files'] = [os.path.join(settings.RESULT_PATH, tmpdir, f) for f in val['json_files']]
+            val['graph_files'] = [os.path.join(settings.RESULT_PATH, tmpdir, f) for f in val['graph_files']]
             val['img_files'] = [os.path.join(settings.RESULT_PATH, tmpdir, f) for f in val['img_files']]
             val['rdata'] = os.path.join(settings.RESULT_PATH, tmpdir, val['rdata']) if val['rdata'] else None
             result.update({key: val})
@@ -91,6 +93,8 @@ def test_netstab(self, files, sep, param):
         for key in result.keys():
             val = result.get(key)
             val['csv_files'] = [os.path.join(settings.RESULT_PATH, tmpdir, f) for f in val['csv_files']]
+            val['json_files'] = [os.path.join(settings.RESULT_PATH, tmpdir, f) for f in val['json_files']]
+            val['graph_files'] = [os.path.join(settings.RESULT_PATH, tmpdir, f) for f in val['graph_files']]
             val['img_files'] = [os.path.join(settings.RESULT_PATH, tmpdir, f) for f in val['img_files']]
             val['rdata'] = os.path.join(settings.RESULT_PATH, tmpdir, val['rdata']) if val['rdata'] else None
             result.update({key: val})

@@ -343,6 +343,7 @@ class ProcessStatus(View):
                     result.update({key: val})
 
             context['result'] = result
+            print result
         return render(request, self.template_name, context)
 
 
@@ -358,6 +359,8 @@ def download_zip_file(request, pk):
     for key in result.keys():
         val = result.get(key)
         file_list += val['csv_files']
+        file_list += val['json_files']
+        file_list += val['graph_files']
         file_list += val['img_files']
     print file_list
     # Folder name in ZIP archive which contains the above files
