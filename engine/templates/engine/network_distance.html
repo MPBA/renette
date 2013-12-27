@@ -17,8 +17,6 @@
                         'width',
                         100 + '%'
                     );
-{#               $('#btn-go').attr('disabled','disabled');#}
-{#               $('#reset_form').attr('disabled', 'disabled');#}
                 $('#btn-go').removeAttr('disabled')
                 $('#reset_form').removeAttr('disabled')
             });
@@ -86,11 +84,6 @@
                         </p>
                     </div>
                   </div>
-{#                  {% csrf_token %}#}
-{#                  <input type="hidden" name="exclude_col_header" value="on">#}
-{#                  <input type="hidden" name="exclude_row_header" value="on">#}
-{#                  <input type="hidden" name="uploaded" value="example/netdist_test_data_1.csv">#}
-{#                  <input type="hidden" name="uploaded" value="example/netdist_test_data_2.csv">#}
                   <a id="load-example" role="button" class="btn btn-go" >Load example data &gt;&gt;</a>
               </form>
             </div><!--/span-->

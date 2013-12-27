@@ -1,6 +1,29 @@
 {% extends 'base.html' %}
 {% load static %}
+{% block extrahead %}
+    <script type="text/javascript">
 
+       jQuery(document).ready(function(){
+           $("#load-example").click(function(){
+               $("#files").find('p').remove();
+               $("#uploaded-files").find('input').remove();
+               $('<p/>').text('test_data_1.csv [2.1 MB]').appendTo('#files');
+               $('<p/>').text('test_data_2.csv [2.1 MB]').appendTo('#files');
+                $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/netdist_test_data_1.csv">');
+                $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/netdist_test_data_2.csv">');
+               $('input[name=exclude_col_header]').attr('checked', true)
+               $('input[name=exclude_row_header]').attr('checked', true)
+               $('#progress .progress-bar').css(
+                        'width',
+                        100 + '%'
+                    );
+                $('#btn-go').removeAttr('disabled')
+                $('#reset_form').removeAttr('disabled')
+            });
+
+        });
+    </script>
+{% endblock %}
 {% block container %}
 <div class="row row-offcanvas row-offcanvas-right">
 
@@ -61,12 +84,8 @@
                         </p>
                     </div>
                   </div>
-                  {% csrf_token %}
-                  <input type="hidden" name="exclude_col_header" value="on">
-                  <input type="hidden" name="exclude_row_header" value="on">
-                  <input type="hidden" name="uploaded" value="example/netdist_test_data_1.csv">
-                  <input type="hidden" name="uploaded" value="example/netdist_test_data_2.csv">
-                  <input type="submit" class="btn btn-go" value="Go &gt;&gt;">
+                  <a id="load-example" role="button" class="btn btn-go" >Load example data &gt;&gt;</a>
+
               </form>
             </div><!--/span-->
 

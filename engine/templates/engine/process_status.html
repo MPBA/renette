@@ -14,7 +14,7 @@
 
 <div class="col-md-12 col-md-9">
           <div class="row">
-            <h1>Process status</h1>
+            <h1>Process status </h1>
             <div class="col-6">
             {% if messages %}
             {% for message in messages %}
@@ -36,12 +36,16 @@
                   </div>
                   <table class="table">
                       <tr>
-                          <td><strong>UUID:</strong></td>
+                          <td style="width: 150px;"><strong>UUID:</strong></td>
                           <td>{{ task.id }}</td>
                       </tr>
                       <tr>
                           <td><strong>Type:</strong></td>
                           <td>{{ runp.process_name }}</td>
+                      </tr>
+                      <tr>
+                          <td><strong>Selected params:</strong></td>
+                          <td><ul class="list-inline">{{ runp.to_pretty_inputs|safe }}</ul></td>
                       </tr>
                       <tr>
                           {% if runp %}
@@ -57,7 +61,7 @@
                       </tr>
                       <tr>
                           {% if task.status == 'RUNNING' %}
-                              <td><strong>Actual action</strong></td>
+                              <td><strong>Actual action:</strong></td>
                               <td>{{ task.info }}</td>
                           {% endif %}
                           {% if task.status == 'FAILURE' %}
