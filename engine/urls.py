@@ -21,7 +21,7 @@ urlpatterns = patterns('engine.views',
                            view=NetworkDistanceStep3Class.as_view(),
                            name='network_distance_3'),
 
-                       url(regex='^process/status/(.+)$',
+                       url(regex='^process/status/(.+)/$',
                            view=ProcessStatus.as_view(),
                            name='process_status'),
 
@@ -55,5 +55,7 @@ urlpatterns = patterns('engine.views',
 
                        url(r'^multiuploader/$', 'multiuploader'),
                        url(r'^process/list/$', 'process_list', name="process_list"),
-
+                       url(regex='^process/graph/(.+)/(.+)/(\d+)/$',
+                           view='process_graph',
+                           name='process_graph'),
                        )

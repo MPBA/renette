@@ -69,7 +69,6 @@ class Mat2Adj:
             
     
     def compute(self):
-        
         """
         Compute adjacency matrices using package nettools
         """
@@ -98,8 +97,7 @@ class Mat2Adj:
         self.computed = return_value
         return return_value
 
-    def get_results(self, filepath='.', export_json=True, graph_format=False, perc=10):
-        
+    def get_results(self, filepath='.', export_json=True, graph_format="gml", perc=10):
         """
         Get the results and write to a file
         """
