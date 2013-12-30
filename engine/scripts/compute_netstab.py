@@ -50,7 +50,8 @@ class NetStability:
                                                  as_is=param['as_is'],
                                                  row_names=param['row.names'])
                 self.mylist.append(tmpdata)
-                self.listname.append('stab_'+str(rcount))
+                fdir, fname = os.path.split(os.path.splitext(f)[0])
+                self.listname.append(fname)
                 rcount += 1
             except IOError:
                 print "Can't load file %s" %f
@@ -112,7 +113,7 @@ class NetStability:
             self.computed = False
             print 'Error during the computation of the stability indicators: %s' % str(e)
     
-    def get_results(self, filepath='.'):
+    def get_results(self, filepath='.', export_json=True, graph_format="gml", perc=10):
         """
         Write the results on the file system
         """
@@ -164,31 +165,46 @@ class NetStability:
                 
                 # Compute the edge stability indicator
                 myfname = os.path.join(filepath,'%s_%s_Sw.tsv' % (self.listname[i], self.met))
+                print Sd.shape[1]
                 # Write file for edge stability indicator
-                sww = ru.write_Sw(Sw, myfname)
+                sww = ru.write_Sw(Sw, N=Sd.shape[1], filename=myfname)
                 if sww:
                     csvlist += ['%s_%s_Sw.tsv' % (self.listname[i], self.met)]
 
-
                 # Write adjacency matrix on the whole dataset
-                myfname = os.path.join(filepath, '%s_%s.tsv' % (self.listname[i], self.met) )
+                myfname = os.path.join(filepath, '%s_%s_adj.tsv' % (self.listname[i], self.met) )
                 csvlist += ['%s_%s.tsv' % (self.listname[i], self.met)]
                 write_table(tmp.rx2('ADJ'),myfname,
                             sep='\t', quote=False, 
                             **{'col.names': robjects.NA_Logical, 
                                'row.names': True})
                 
+                # export to json for visualization
+                if export_json:
+                    jname = ru.export_to_json(tmp.rx2('ADJ'), i=i, 
+                                              filepath=filepath, perc=perc,
+                                              prefix="%s_%s_" % (self.listname[i], self.met))
+                    results[self.listname[i]]['json_files'] += [jname]
+                
+                # Export to graph format    
+                if graph_format:
+                    gname = ru.export_graph(tmp.rx2('ADJ'), i=i, filepath=filepath, 
+                                            format=graph_format, 
+                                            prefix="%s_%s_" % (self.listname[i], self.met))
+                    results[self.listname[i]]['graph_files'] += [gname]
+                
+                
                 # Write matrices given by resampling
-                for j, a in enumerate(tmp.rx2('ADJlist')):
-                    myfname = os.path.join(filepath, '%s_%s_res%d.tsv' 
-                                        % (self.listname[i], self.met, j) )
-                    csvlist += ['%s_%s_res%d.tsv' % (self.listname[i], self.met, j)]
-                    #results[self.listname[i]]['csv_files'] += ['%s_%s_res%d.tsv' 
-                    #                                          % (self.listname[i], self.met, j)]
-                    write_table(tmp.rx2('ADJ'),myfname,
-                                sep='\t', quote=False, 
-                                **{'col.names': robjects.NA_Logical, 
-                                   'row.names': True})
+                # for j, a in enumerate(tmp.rx2('ADJlist')):
+                #     myfname = os.path.join(filepath, '%s_%s_res%d.tsv' 
+                #                         % (self.listname[i], self.met, j) )
+                #     csvlist += ['%s_%s_res%d.tsv' % (self.listname[i], self.met, j)]
+                #     #results[self.listname[i]]['csv_files'] += ['%s_%s_res%d.tsv' 
+                #     #                                          % (self.listname[i], self.met, j)]
+                #     write_table(tmp.rx2('ADJ'),myfname,
+                #                 sep='\t', quote=False, 
+                #                 **{'col.names': robjects.NA_Logical, 
+                #                    'row.names': True})
 
                 # Append the list of the files producted to the result dictionary    
                 results[self.listname[i]]['csv_files'] += csvlist
