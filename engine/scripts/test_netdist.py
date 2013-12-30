@@ -4,7 +4,7 @@ import compute_netstab as cs
 
 print 'Test adjacency'
 myparam = {'method':'WGCNA','sep':'\t','row.names': None,'header': False, 'P':2}
-ad = ca.Mat2Adj(['test_noname.tsv','test_noname.tsv'], seplist=['\t','\t'], param = myparam)
+ad = ca.Mat2Adj(['test_noname.tsv','test_noname1.tsv'], seplist=['\t','\t'], param = myparam)
 ad.loadfiles()
 ad.compute()
 print ad.get_results(export_json=True, graph_format=False)

@@ -47,6 +47,8 @@ class Mat2Adj:
             if p in self.param:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
+        
+        self.param.update(param)
 
         # Read all the files in the R-environment
         for f, s in zip(self.filelist, self.seplist):
@@ -57,11 +59,12 @@ class Mat2Adj:
                                                  as_is=param['as_is'],
                                                  row_names=param['row.names'])
                 self.mylist.append(tmpdata)
-                self.listname.append('adj_mat_' + str(rcount))
+                fdir, fname = os.path.split(os.path.splitext(f)[0])
+                self.listname.append(fname)
                 rcount += 1
             except IOError:
                 print "Can't load file %s" %f
-        
+                
         if rcount == self.nfiles:
             return True
         else:
@@ -118,7 +121,7 @@ class Mat2Adj:
                     'img_files': [],
                     'json_files': [],
                     'graph_files': [],
-                    'desc': '%s is bla bla bla bla' % self.listname[i],
+                    'desc': '%s_%s computed with %s' % (self.listname[i], 'adj.tsv', self.param['method']) ,
                     'rdata': None,
                     'messages': [],
                     'status': []
