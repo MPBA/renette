@@ -83,13 +83,22 @@ def export_to_json(reslist, i, filepath=".", perc=10):
     # Write a graph file for each result
     #for i,r in enumerate(reslist):
     response = {'nodes': [], 'links': []}
-    tmp = np.triu(np.array(reslist))
-    thr = np.percentile(tmp[tmp>0.0],100-perc)
-        
-        # Write nodes specifications
+    tmpr = np.array(reslist)
+    tmp = np.triu(tmpr)
+    thr = np.percentile(tmp[tmp > 0.0], 100-perc)
+    
+    print reslist.colnames
+    
+    # Write nodes specifications
     for n in range(tmp.shape[1]):
-        response['nodes'].append({'name': str(n), 'group':0})
-            
+        try:
+            mynode = reslist.colnames[n]
+        except:
+            mynode = n
+        
+        response['nodes'].append({'label': '%s' % str(mynode), 'id': n, 
+                                  'size': '%.2f' % tmpr[n,:].sum()})
+    
     # Write links specifications
     N = tmp.shape[1]
     for n in range(tmp.shape[1]):
@@ -98,7 +107,7 @@ def export_to_json(reslist, i, filepath=".", perc=10):
                 ## print 'n %d, j%d' % (n,j)
                 response['links'].append({'source': n, 
                                           'target': j, 
-                                          'values': tmp[n,j]})
+                                          'values': tmp[n, j]})
                 
     # Write json file for d3js
     try:
