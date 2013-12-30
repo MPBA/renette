@@ -83,13 +83,22 @@ def export_to_json(reslist, i, filepath=".", perc=10):
     # Write a graph file for each result
     #for i,r in enumerate(reslist):
     response = {'nodes': [], 'links': []}
-    tmp = np.triu(np.array(reslist))
+    tmpr = np.array(reslist)
+    tmp = np.triu(tmpr)
     thr = np.percentile(tmp[tmp > 0.0], 100-perc)
-        
+    
+    print reslist.colnames
+    
     # Write nodes specifications
     for n in range(tmp.shape[1]):
-        response['nodes'].append({'label': 'Node %s' % str(n), 'id': n})
-            
+        try:
+            mynode = reslist.colnames[n]
+        except:
+            mynode = n
+        
+        response['nodes'].append({'label': '%s' % str(mynode), 'id': n, 
+                                  'size': '%.2f' % tmpr[n,:].sum()})
+    
     # Write links specifications
     N = tmp.shape[1]
     for n in range(tmp.shape[1]):
