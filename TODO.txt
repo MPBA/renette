@@ -20,3 +20,17 @@ Additional features
 9) Distance HIM components set default to False
 10) How about using wiki for tutorials?
 11) Linking tutorial step with automatical load example
+12) CHECK THE DIAGONAL IS ALL ZEROS FOR NETWORK DISTANCE PROCESS -> warnings
+13) Make database?
+
+
+TO SUBMIT:
+1) Viewable in the website
+2) tutorials for adj and stability
+3) example dataset (small) -> view through d3js
+4) email nel summary
+5) Chapter on testing the website
+6) FBK logo and license
+
+
+
