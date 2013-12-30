@@ -6,6 +6,31 @@
     <script type="application/javascript" src="/static/js/sigma.parseJson.js"></script>
     <script type="application/javascript">
     function init() {
+      sigma.publicPrototype.myCircularLayout = function() {
+        var R = 100,
+            i = 0,
+            L = this.getNodesCount();
+
+        this.iterNodes(function(n){
+          n.x = Math.cos(Math.PI*(i++)/L)*R;
+          n.y = Math.sin(Math.PI*(i++)/L)*R;
+        });
+
+        return this.position(0,0,1).draw();
+      };
+
+      sigma.publicPrototype.myRandomLayout = function() {
+        var W = 300,
+            H = 300;
+
+        this.iterNodes(function(n){
+          n.x = W*Math.random();
+          n.y = H*Math.random();
+        });
+
+        return this.position(0,0,1).draw();
+      };
+
   // Instanciate sigma.js and customize rendering :
       sigInst = sigma.init(document.getElementById('sigma-example')).drawingProperties({
         defaultLabelColor: '#fff',
@@ -27,9 +52,9 @@
       // Parse a GEXF encoded file to fill the graph
       // (requires "sigma.parseGexf.js" to be included)
       sigInst.parseJson('{% get_media_prefix %}{{ url }}');
-{##}
-{#      // Draw the graph :#}
-{#      sigInst.draw();#}
+
+      // Draw the graph :
+      sigInst.draw();
     }
 
     if (document.addEventListener) {
