@@ -13,8 +13,8 @@ class NetDist:
     
     def __init__(self, filelist, seplist, param={}):
         self.nfiles = len(filelist)
-        if self.nfiles < 2:
-            raise IOError("Not enough file loaded")
+        # if self.nfiles < 2:
+        #     raise IOError("Not enough file loaded")
         
         self.filelist = filelist
         self.seplist = seplist
@@ -87,7 +87,8 @@ class NetDist:
         """
         
         nettools = importr('nettools')
-        ## robjects.conversion.py2ri = numpy2ri
+        igraph = importr('igraph')
+        
         param = {'d': 'HIM', 'ga': ri.NULL, 'components': True, 'rho': 1}
         
         ## Check the correct parameter and set the default
@@ -95,6 +96,23 @@ class NetDist:
             if p in self.param:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
+        
+        ## If one file is passed, then compute the distance between empty and full network
+        if self.nfiles == 1:
+            tmp = np.array(self.mylist[0])
+            directed = True
+            if np.allclose(tmp.transpose(),tmp):
+                directed = False
+            
+            self.mylist.append(igraph.graph_empty(n=tmp.shape[0], directed=directed))
+            self.mylist.append(igraph.graph_full(n=tmp.shape[0], directed=directed))
+            self.filelist += ['empty','full']
+
+            if self.dflag:
+                self.e += 'Warning: one file provided: computing distance between %s, empty and full binary network' % self.filelist[0]
+            else:
+                self.e = 'Warning: one file provided: computing distance between %s,  empty and full binary network' % self.filelist[0]
+                self.dflag = True
 
         try:
             self.res = nettools.netdist(self.mylist,
