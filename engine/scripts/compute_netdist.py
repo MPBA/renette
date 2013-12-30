@@ -117,6 +117,8 @@ class NetDist:
                 results[names(self.res)[i]] = {
                     'csv_files': [names(self.res)[i] + '_distance.tsv'],
                     'img_files': [],
+                    'json_files': [],
+                    'graph_files': [],
                     'desc': '%s is bla bla bla bla' % names(self.res)[i],
                     'rdata': None,
                 }

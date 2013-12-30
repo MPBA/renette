@@ -354,17 +354,15 @@ def download_zip_file(request, pk):
         raise Http404
 
     result = runp.result
-    print result
     file_list = []
     for key in result.keys():
         val = result.get(key)
-        file_list += val['csv_files']
-        file_list += val['json_files']
-        file_list += val['graph_files']
-        file_list += val['img_files']
-    print file_list
+        val_keys = val.keys()
+        file_list += val['csv_files'] if 'csv_files' in val_keys else []
+        file_list += val['json_files'] if 'json_files' in val_keys else []
+        file_list += val['graph_files'] if 'graph_files' in val_keys else []
+        file_list += val['img_files'] if 'img_files' in val_keys else []
     # Folder name in ZIP archive which contains the above files
-    # E.g [thearchive.zip]/somefiles/file2.txt
     # FIXME: Set this to something better
     zip_basename = "result"
     zip_filename = "%s.zip" % zip_basename
@@ -378,7 +376,6 @@ def download_zip_file(request, pk):
     for fpath in file_list:
         # Calculate path for file in zip
         fdir, fname = os.path.split(fpath)
-        print fpath
         zip_path = os.path.join("./", fname)
 
         # Add file, at correct path
@@ -408,9 +405,6 @@ def multiuploader(request):
 
             #getting file url here
             file_url = handle_upload(request, file)
-
-            #getting thumbnail url using sorl-thumbnail
-            #generating json response array
 
             result = []
             result.append({"name": filename,
@@ -448,3 +442,22 @@ def process_list(request):
         return render(request, 'engine/my_process_list.html', context)
     except Exception, e:
         return HttpResponseBadRequest(str(e))
+
+
+def process_graph(request, uuid, key, idx):
+    try:
+        runp = RunningProcess.objects.get(task_id=uuid)
+    except RunningProcess.DoesNotExist:
+        raise Http404
+
+    result = runp.result
+    try:
+        url = result[key]['json_files'][int(idx)]
+        context = {
+            'url': url
+        }
+    except KeyError:
+        context = None
+        messages.add_message(request, messages.ERROR, 'No json available for graph visualization.')
+
+    return render(request, 'engine/json_preview.html', context)

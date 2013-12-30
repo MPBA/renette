@@ -133,6 +133,8 @@ class NetStability:
                 results[self.listname[i]] = {
                     'csv_files': [],
                     'img_files': [],
+                    'json_files': [],
+                    'graph_files': [],
                     'desc': 'Stability indicators for file %s' % self.listname[i],
                     'rdata': None,
                 }
