@@ -121,16 +121,22 @@
                               <ul class="dropdown-menu" role="menu">
                                 {% for d in value.json_files %}
                                 <li>
-{#                                    <button class="btn" data-toggle="modal" data-target="#myGraphModal" type="preview"#}
-{#                                        target_url="{% get_media_prefix %}{{ d }}">#}
-{#                                      Display network <span class="badge">JS CHART</span>#}
-{#                                    </button>#}
                                     <a role="button" href="{% url 'process_graph' runp.task_id key forloop.counter0 %}" target="_blank">
                                       Display network <span class="badge">JS CHART</span>
                                     </a>
                                 </li>
                                 {% endfor %}
 
+                              </ul>
+                            </div>
+                            <div class="btn-group">
+                              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                                Full Results <span class="caret"></span>
+                              </button>
+                              <ul class="dropdown-menu" role="menu">
+                                {% for d in value.csv_files %}
+                                <li><a href="{% url 'full_results_view' task.id key forloop.counter0 %}" target="_blank"> Results Table <span class="badge">Web View</span></a></li>
+                                {% endfor %}
                               </ul>
                             </div>
                             {{ value.desc }}

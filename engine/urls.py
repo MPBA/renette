@@ -58,4 +58,8 @@ urlpatterns = patterns('engine.views',
                        url(regex='^process/graph/(.+)/(.+)/(\d+)/$',
                            view='process_graph',
                            name='process_graph'),
+                       url(regex='^results/full_view/(.+)/(.+)/(\d+)/$',
+                           view='full_results_view',
+                           name='full_results_view'),
                        )
+

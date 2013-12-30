@@ -76,7 +76,12 @@
       <hr>
       {% block footer %}
           <footer>
-            <p>&copy; Company 2013</p>
+            <hr>
+            <p>
+                <a href="http://www.fbk.eu" target="_blank"><img src="{% static 'img/logo-small.gif' %}"></a>
+                - ReNette is released under <a href="http://www.gnu.org/licenses/gpl.html" target="_blank">GNU General Public License</a>
+            </p>
+            <p class="pull-right">Source Code [github] <a href="https://github.com/MPBA/renette">https://github.com/MPBA/renette</a></p>
           </footer>
       {% endblock footer %}
 
