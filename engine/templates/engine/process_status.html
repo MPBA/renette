@@ -1,16 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block extrahead %}
-      <script type="text/javascript">
-       jQuery(document).ready(function(){
-
-
-       })
-    </script>
-
-{% endblock extrahead %}
-
 {% block container %}
+
+{#{% include 'engine/json_preview.html' %}#}
+
 <div class="row row-offcanvas row-offcanvas-right">
 
 <div class="col-md-12 col-md-9">
@@ -78,13 +71,8 @@
                               <a  href="{% url 'process_download_zip' runp.pk %}" class="btn btn-success btn-xs" role="button">
                                 Download all files
                               </a>
-                              <button class="btn btn-primary btn-xs" data-toggle="modal" data-target="#myModal">
-                                  Graph preview
-                              </button>
                               {% endif %}
-{#                              <a href="#" role="button" class="btn btn-default btn-xs" >#}
-{#                                Select files to download#}
-{#                              </a>#}
+
                           </td>
                       </tr>
                       <tr>
@@ -126,27 +114,25 @@
                                 {% endfor %}
                               </ul>
                             </div>
-                            <button class="btn btn-primary" data-toggle="modal" data-target="#myModal{{ key }}">
-                                  Graph preview
-                            </button>
-{#                        my modal#}
-                            <div class="modal fade" id="myModal{{ key }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                              <div class="modal-dialog" style="width: 80%">
-                                <div class="modal-content">
-                                  <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                    <h4 class="modal-title" id="myModalLabel">Modal title</h4>
-                                  </div>
-                                  <div class="modal-body">
-                                    <iframe src="{% url 'process_graph' runp.task_id key 0 %}" style="zoom:0.60" width="99.6%" height="550" frameborder="0"></iframe>
-                                  </div>
-                                  <div class="modal-footer">
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                    <button type="button" class="btn btn-primary">Save changes</button>
-                                  </div>
-                                </div><!-- /.modal-content -->
-                              </div><!-- /.modal-dialog -->
-                            </div><!-- /.modal -->
+                            <div class="btn-group">
+                              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                                Network preview <span class="caret"></span>
+                              </button>
+                              <ul class="dropdown-menu" role="menu">
+                                {% for d in value.json_files %}
+                                <li>
+{#                                    <button class="btn" data-toggle="modal" data-target="#myGraphModal" type="preview"#}
+{#                                        target_url="{% get_media_prefix %}{{ d }}">#}
+{#                                      Display network <span class="badge">JS CHART</span>#}
+{#                                    </button>#}
+                                    <a role="button" href="{% url 'process_graph' runp.task_id key forloop.counter0 %}" target="_blank">
+                                      Display network <span class="badge">JS CHART</span>
+                                    </a>
+                                </li>
+                                {% endfor %}
+
+                              </ul>
+                            </div>
                             {{ value.desc }}
                         </div>
 {#                        Ciclo su tutte le tabelle dell'output             #}
