@@ -1,0 +1,36 @@
+Deploy @georun
+
+1) Install git, unzip, vim, python2.7, rpy2, mod_wsgi (apache)
+
+
+ 
+2) ln -s /usr/lib64/python2.6/site-packages/numpy VENV/lib/python2.6/site-packages/numpy
+3) 
+
+
+Additional features
+1) Allow the computation on the same data for the same user with different parameter
+2) Exporting network in different format (gephy, cytoscape, etc)
+3) Allow the simultaneous computation with different inference methods
+4) Showing networks in the interface d3js <Almost done>
+5) Make a whole example on biological data
+6) Test multi-user connections
+7) Add reading different input file format
+8) for network distance process, if one matrix is provided return the distance from empty and full grah
+9) Distance HIM components set default to False
+10) How about using wiki for tutorials?
+11) Linking tutorial step with automatical load example
+12) CHECK THE DIAGONAL IS ALL ZEROS FOR NETWORK DISTANCE PROCESS -> warnings
+13) Make database?
+
+
+TO SUBMIT:
+1) Viewable in the website
+2) tutorials for adj and stability
+3) example dataset (small) -> view through d3js
+4) email nel summary
+5) Chapter on testing the website
+6) FBK logo and license
+
+
+

@@ -13,9 +13,9 @@ class NetDist:
     
     def __init__(self, filelist, seplist, param={}):
         self.nfiles = len(filelist)
-        if self.nfiles < 2:
-            raise IOError("Not enough file loaded")
-
+        # if self.nfiles < 2:
+        #     raise IOError("Not enough file loaded")
+        
         self.filelist = filelist
         self.seplist = seplist
         # Check if the number of separators are equal to the numberr of file passed
@@ -23,6 +23,10 @@ class NetDist:
             raise IOError('Not enough separators!')
         self.param = param
         self.mylist = rlc.TaggedList([])
+        self.results = {}
+        ## Warning message: diagonal not 0
+        self.e = 'Warning: diagonal has values different from 0. \nSelf loop are not support in the current version.\nAutomatically set to 0 for the network computation in file: '
+        self.dflag = False
         
     def loadfiles(self):
         """
@@ -30,7 +34,8 @@ class NetDist:
         """
         rcount = 0
         asmatrix = robjects.r['as.matrix']
-
+        diag = robjects.r['diag']
+        names = robjects.r['names']
         
         ## Set the default parameter for reading from csv
         param = {'header': True, 'as_is': True, 'row.names': ri.NULL}
@@ -41,7 +46,7 @@ class NetDist:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
 
-        #for f in self.filelist:
+        
         for f, s in zip(self.filelist, self.seplist):
             try:
                 dataf = DataFrame.from_csvfile(f,
@@ -51,6 +56,19 @@ class NetDist:
                                                row_names=param['row.names'])
 
                 dataf = asmatrix(dataf)
+                
+                # Should be the diagonal set to 0?
+                # Do it for all the inputs, just to be sure
+                zcount = 0
+                for i in xrange(dataf.ncol):
+                    if (dataf.rx[i+1,i+1][0] - 0.0 >= 1e-8):
+                        zcount += 1
+                        dataf.rx[i+1,i+1] = 0
+                
+                if zcount:
+                    self.e += f
+                    self.dflag = True
+                    
                 self.mylist.append(dataf)
                 rcount += 1
             except IOError, RRuntimeError:
@@ -69,7 +87,8 @@ class NetDist:
         """
         
         nettools = importr('nettools')
-        ## robjects.conversion.py2ri = numpy2ri
+        igraph = importr('igraph')
+        
         param = {'d': 'HIM', 'ga': ri.NULL, 'components': True, 'rho': 1}
         
         ## Check the correct parameter and set the default
@@ -77,6 +96,23 @@ class NetDist:
             if p in self.param:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
+        
+        ## If one file is passed, then compute the distance between empty and full network
+        if self.nfiles == 1:
+            tmp = np.array(self.mylist[0])
+            directed = True
+            if np.allclose(tmp.transpose(),tmp):
+                directed = False
+            
+            self.mylist.append(igraph.graph_empty(n=tmp.shape[0], directed=directed))
+            self.mylist.append(igraph.graph_full(n=tmp.shape[0], directed=directed))
+            self.filelist += ['empty','full']
+
+            if self.dflag:
+                self.e += 'Warning: one file provided: computing distance between %s, empty and full binary network' % self.filelist[0]
+            else:
+                self.e = 'Warning: one file provided: computing distance between %s,  empty and full binary network' % self.filelist[0]
+                self.dflag = True
 
         try:
             self.res = nettools.netdist(self.mylist,
@@ -106,30 +142,31 @@ class NetDist:
         names = robjects.r['names']
         rlist = robjects.r['list']
         rmat = robjects.r['as.matrix']
-
         results = {}
 
         if self.computed:
             for i in range(len(self.res)):
                 myfname = os.path.join(filepath,
                                        names(self.res)[i] + '_distance.tsv')
-
+                
                 results[names(self.res)[i]] = {
                     'csv_files': [names(self.res)[i] + '_distance.tsv'],
                     'img_files': [],
                     'json_files': [],
                     'graph_files': [],
-                    'desc': '%s is bla bla bla bla' % names(self.res)[i],
+                    'desc': '%s network distance' % names(self.res)[i],
                     'rdata': None,
+                    'messages': [ self.e if self.dflag else ''],
+                    'status': [ 'Warning' if self.dflag else 'Success' ]
                 }
 
                 try:
                     len(self.res[i])
                     tmp = self.res[i]
-
+                    
                     colnames = ri.StrSexpVector([os.path.basename(f) for f in self.filelist])
                     rownames = ri.StrSexpVector([os.path.basename(f) for f in self.filelist])
-
+                    
                     tmp.do_slot_assign("dimnames", rlist(
                         ri.StrSexpVector(colnames),
                         ri.StrSexpVector(rownames)
