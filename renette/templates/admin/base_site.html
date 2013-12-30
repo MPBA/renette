@@ -1,0 +1,13 @@
+{% extends "admin/base.html" %}
+
+{% load i18n %}
+
+{% block title %}
+    {{ title }} | {% trans 'ReNette' %}
+{% endblock %}
+
+{% block branding %}
+<a href="/admin/" class="brand" id="site-name">ReNette Administration</a>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

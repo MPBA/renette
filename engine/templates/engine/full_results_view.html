@@ -1,0 +1,28 @@
+{% load static %}
+<!-- Bootstrap core CSS -->
+<link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+<script src="{% static 'js/bootstrap.js' %}"></script>
+{% load endless %}
+{% paginate r %}
+
+<p style="text-align: center">{% show_pages %}</p>
+    <table class="table table-striped">
+       {% for x in r %}
+        <tr>
+        {% if forloop.first %}
+            {% for y in x %}
+              <td><b>{{ y }}</b></td>
+            {% endfor %}
+        {% else %}
+            {% for y in x %}
+              {% if forloop.first %}
+                <td><b>{{ y }}</b></td>
+              {% else %}
+                <td>{{ y|floatformat:"-3" }}</td>
+              {% endif %}
+            {% endfor %}
+        {% endif %}
+        </tr>
+       {% endfor %}
+    </table>
+<p style="text-align: center">{% show_pages %}</p>

@@ -461,3 +461,39 @@ def process_graph(request, uuid, key, idx):
         messages.add_message(request, messages.ERROR, 'No json available for graph visualization.')
 
     return render(request, 'engine/json_preview.html', context)
+
+
+def full_results_view(request, uuid, key, idx):
+    import csv
+    try:
+        runp = RunningProcess.objects.get(task_id=uuid)
+    except RunningProcess.DoesNotExist:
+        raise Http404
+
+    result = runp.result
+    try:
+        filepath = result[key]['csv_files'][int(idx)]
+        f = open(os.path.join(settings.MEDIA_ROOT, filepath), 'r')
+        f.seek(0, 0)
+        dialect = csv.Sniffer().sniff(f.readline(), delimiters=[';', ',', '\t'])
+        f.seek(0, 0)
+        reader = csv.reader(f, dialect)
+        rows = ""
+        r=[]
+        for line in reader:
+            r.append(line)
+            rows += '<tr>'
+            for col in line:
+                rows += '<td>'+str(col)+'</td>'
+            rows += '</tr>'
+        context = {
+            'url': filepath,
+            'rows': rows,
+            'r': r
+        }
+
+    except KeyError:
+        context = None
+        messages.add_message(request, messages.ERROR, 'No json available for graph visualization.')
+
+    return render(request, 'engine/full_results_view.html', context)
