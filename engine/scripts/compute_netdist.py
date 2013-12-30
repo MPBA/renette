@@ -101,19 +101,23 @@ class NetDist:
         if self.nfiles == 1:
             tmp = np.array(self.mylist[0])
             directed = True
+            # Check if the graph is directed
             if np.allclose(tmp.transpose(),tmp):
                 directed = False
             
             self.mylist.append(igraph.graph_empty(n=tmp.shape[0], directed=directed))
             self.mylist.append(igraph.graph_full(n=tmp.shape[0], directed=directed))
+            
+            # Update the list of 'input' files
             self.filelist += ['empty','full']
-
+            
+            # Check if there are other warnings
             if self.dflag:
                 self.e += 'Warning: one file provided: computing distance between %s, empty and full binary network' % self.filelist[0]
             else:
                 self.e = 'Warning: one file provided: computing distance between %s,  empty and full binary network' % self.filelist[0]
                 self.dflag = True
-
+        
         try:
             self.res = nettools.netdist(self.mylist,
                                         d=param['d'],

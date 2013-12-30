@@ -57,7 +57,7 @@ class Mat2Adj:
                                                  as_is=param['as_is'],
                                                  row_names=param['row.names'])
                 self.mylist.append(tmpdata)
-                self.listname.append('adj_mat_'+str(rcount))
+                self.listname.append('adj_mat_' + str(rcount))
                 rcount += 1
             except IOError:
                 print "Can't load file %s" %f
@@ -122,6 +122,8 @@ class Mat2Adj:
                     'graph_files': [],
                     'desc': '%s is bla bla bla bla' % self.listname[i],
                     'rdata': None,
+                    'messages': [],
+                    'status': []
                 }
                 
                 try:
