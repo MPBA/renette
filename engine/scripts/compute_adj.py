@@ -150,12 +150,17 @@ class Mat2Adj:
                             })
                 # Export to json
                 if export_json:
-                    jname = ru.export_to_json(self.res[i], i=i, filepath=filepath, perc=perc)
+                    jname = ru.export_to_json(self.res[i], i=i, filepath=filepath, 
+                                              perc=perc, 
+                                              prefix='%s_%s_' % (self.listname[i], self.param['method']))
                     self.results[self.listname[i]]['json_files'] += [jname]
 
                 # Export to graph format
                 if graph_format:
-                    gname = ru.export_graph(self.res[i], i=i, filepath=filepath, format=graph_format)
+                    gname = ru.export_graph(self.res[i], i=i, 
+                                            filepath=filepath, 
+                                            format=graph_format,
+                                            prefix='%s_%s_' % (self.listname[i], self.param['method']))
                     self.results[self.listname[i]]['graph_files'] += [gname]
                     
             return self.results

@@ -113,13 +113,10 @@ class NetworkStabilityStep3Class(View):
             session = self.request.session.get('runp',[])
             session.append(runp.pk)
             self.request.session['runp'] = session
-            print self.request.session
         except DatabaseError, e:
             t.revoke(terminate=True)
             messages.add_message(self.request, messages.ERROR, 'Error: %s' % str(e))
 
-        #context = {'files': files, 'task': t, 'uuid': t.id}
-        print param
         messages.add_message(self.request, messages.SUCCESS, 'Process submitted with success!!!')
         return render(request, self.template_name, context)
 
@@ -153,7 +150,6 @@ class NetworkInferenceStep2Class(View):
                               })
             else:
                 removed_files.append(ret_file)
-
         context = {
                    'uploaded_files': files,
                    'max_ga': max_ga,
@@ -182,7 +178,6 @@ class NetworkInferenceStep3Class(View):
             'header': True if request.POST.get("col", False) else False,
             'row.names': 1 if request.POST.get("row", False) else None
         }
-        print param
         try:
             runp = RunningProcess(
                 process_name='Network inference',

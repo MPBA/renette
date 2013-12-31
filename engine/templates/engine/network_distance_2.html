@@ -124,7 +124,7 @@
                     </div>
                       {% for f in uploaded_files %}
                         <input type="hidden" name="file" value="{{ f.path }}">
-                        <input type="hidden" name="sep" value={{ f.prop.separator }}>
+                        <input type="hidden" name="sep" value="{{ f.prop.separator }}">
                       {% endfor %}
                         <input type="hidden" name="col" value="{{ request.POST.exclude_col_header }}">
                         <input type="hidden" name="row" value="{{ request.POST.exclude_row_header }}">

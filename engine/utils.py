@@ -73,8 +73,6 @@ def document_validator(filepath, ex_first_row, ex_first_col):
         ncol = (len(temp_list[0]) - 1) if ex_first_col else len(temp_list[0])
         nrow = (reader.line_num - 1) if ex_first_col else reader.line_num
 
-        print ncol
-        print nrow
         is_cubic = True if (ncol == nrow) else False
         return_value = {'is_valid': True, 'nrow': nrow, 'ncol': ncol, 'separator': dialect.delimiter,
                         'mimetype': mimetype, 'is_cubic': is_cubic}
