@@ -73,18 +73,21 @@ def document_validator(filepath, ex_first_row, ex_first_col):
         ncol = (len(temp_list[0]) - 1) if ex_first_col else len(temp_list[0])
         nrow = (reader.line_num - 1) if ex_first_col else reader.line_num
 
+        if nrow <= 2:
+            raise ValueError
+
         is_cubic = True if (ncol == nrow) else False
         return_value = {'is_valid': True, 'nrow': nrow, 'ncol': ncol, 'separator': dialect.delimiter,
                         'mimetype': mimetype, 'is_cubic': is_cubic}
     except csv.Error:
         return_value = {'is_valid': False}
-        file = None
+        file = file
     except Exception:
         return_value = {'is_valid': False}
-        file = None
+        file = file
     except ValueError:
         return_value = {'is_valid': False}
-        file = None
+        file = file
 
     return return_value, file
 
@@ -120,7 +123,6 @@ def read_csv_results(files):
             pathabs = os.path.join(settings.MEDIA_ROOT, f)
 
             with open(pathabs, 'rb') as csvfile:
-                print csvfile
                 reader = csv.reader(csvfile, delimiter='\t')
                 rowdata = []
                 tomanyrow = False
@@ -135,7 +137,6 @@ def read_csv_results(files):
                         rowdata.append(row[:9])
                     else:
                         rowdata.append(row)
-                print rowdata
             result.append({
                 'tomanyrow': tomanyrow,
                 'tomanycol': tomanycol,

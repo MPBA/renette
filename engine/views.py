@@ -342,7 +342,6 @@ class ProcessStatus(View):
                     result.update({key: val})
 
             context['result'] = result
-            print result
         return render(request, self.template_name, context)
 
 
@@ -356,6 +355,7 @@ def download_zip_file(request, pk):
     file_list = []
     for key in result.keys():
         val = result.get(key)
+        print val
         val_keys = val.keys()
         file_list += val['csv_files'] if 'csv_files' in val_keys else []
         file_list += val['json_files'] if 'json_files' in val_keys else []
@@ -417,7 +417,6 @@ def multiuploader(request):
             })
             return HttpResponse(response_data, mimetype='application/json')
         except Exception, e:
-
             return HttpResponseBadRequest(str(e))
     else: #GET
         messages.add_message(request, messages.ERROR, 'Bad request')
