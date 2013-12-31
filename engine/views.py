@@ -454,7 +454,10 @@ def process_graph(request, uuid, key, idx):
     try:
         url = result[key]['json_files'][int(idx)]
         context = {
-            'url': url
+            'url': url,
+            'key': key,
+            'idx': idx,
+            'runp':runp
         }
     except KeyError:
         context = None

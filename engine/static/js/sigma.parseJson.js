@@ -7,11 +7,16 @@
 sigma.publicPrototype.parseJson = function(jsonPath,callback) {
 	var sigmaInstance = this;
 	var edgeId = 0;
-    console.log('qui')
-    console.log(jsonPath)
+
 	jQuery.getJSON(jsonPath, function(data) {
-        console.log(data)
 		for (i=0; i<data.nodes.length; i++){
+            H=600
+            W=$("#sigma-example-parent").width()
+            data.nodes[i].x = W*Math.random();
+            data.nodes[i].y = H*Math.random();
+            data.nodes[i].color = 'rgb(49,163,84)';
+
+
 			var id=data.nodes[i].id;
 			sigmaInstance.addNode(id,data.nodes[i]);
 		}
@@ -21,11 +26,11 @@ sigma.publicPrototype.parseJson = function(jsonPath,callback) {
 			var source = edgeNode.source;
 			var target = edgeNode.target;
 
-            if ((data.links[j].values *100 ) > 0.5 ){
-                sigmaInstance.addEdge(edgeId++,source,target,edgeNode);
-            }
-//			sigmaInstance.addEdge(edgeId++,source,target,edgeNode);
+			sigmaInstance.addEdge(edgeId++,source,target,edgeNode);
 		}
 		if (callback) callback.call(this);//Trigger the data ready function
-	});//end jquery getJSON function
+    }).done(function(){
+            sigmaInstance.draw();
+    });
+	//end jquery getJSON function
 };//end sigma.parseJson function
