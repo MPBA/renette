@@ -27,7 +27,7 @@ def contact(request):
     if request.method == 'POST':  # If the form has been submitted...
         form = ContactForm(request.POST) # A form bound to the POST data
         if form.is_valid():  # All validation rules pass
-            messages.add_message(request, messages.SUCCESS, 'email ok')
+            messages.add_message(request, messages.SUCCESS, 'Message sent successfully! Thanks for your interest!')
 
             name = form.cleaned_data['name']
             message = form.cleaned_data['message']
@@ -41,7 +41,7 @@ def contact(request):
 
             return HttpResponseRedirect('/contact/')  # Redirect after POST
         else:
-            messages.add_message(request, messages.ERROR, 'email ko')
+            messages.add_message(request, messages.ERROR, 'An error occurred! Check the form field and try again!')
             return HttpResponseRedirect('/contact/')  # Redirect after POST
     else:
         #form = ContactForm()  # An unbound form

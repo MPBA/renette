@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
+
+
 {% block container %}
 
 {#{% include 'engine/json_preview.html' %}#}
@@ -143,7 +145,8 @@
                         </div>
 {#                        Ciclo su tutte le tabelle dell'output             #}
                         {% for t in value.csv_tables  %}
-                            <table class="table table-striped">
+                            <div  style="overflow-x: auto">
+                            <table class="table table-striped" style="width: auto">
                             {% for rows in t.rowdata %}
                                 {% if forloop.first %}
                                 <thead>
@@ -160,6 +163,7 @@
                                 <tbody>
                                     <tr>
                                     {% for r in rows %}
+
                                        {% if forloop.first %}
                                           <td><strong>{{ r }}</strong></td>
                                        {% else %}
@@ -182,6 +186,7 @@
                                 </tbody>
                            {% endfor %}
                             </table>
+                            </div>
                         {% endfor %}
                     </div>
                 {% endfor %}
