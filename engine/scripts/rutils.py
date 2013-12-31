@@ -8,7 +8,7 @@ import os.path
 import csv
 import json
 
-def write_Sw (Sw, filename='Sw.csv'):
+def write_Sw (Sw, N, filename='Sw.csv'):
     """
     Write file for edge stability indicator
     """
@@ -20,16 +20,19 @@ def write_Sw (Sw, filename='Sw.csv'):
         return False
     
     fw.writerow(['from', 'to', 'Sw'])
-    links = combinations(xrange(Sw.shape[0]),2)
+    # Create link combinations
+    links = combinations(range(N),2)
+    
     for j,l in zip(range(Sw.shape[0]),links):
         ll = list(l)
         # Set 1 based index
         ll = [x + 1 for x in ll]
-        if (Sw[j,:].mean() != 0.0):
+        Swval = Sw[j,:].mean()
+        # use np.allclose()
+        if (not np.isclose(Swval,0.0)):
             Swval = (Sw[j,:].max() - Sw[j,:].min()) / Sw[j,:].mean()
-        else:
-            Swval = 0.0
-            ll.append(Swval)
+        
+        ll.append(Swval)
         fw.writerow(ll)
     f.close()
         
@@ -60,7 +63,7 @@ def write_Sd(Sd, filename='Sd.csv'):
     return True
 
 
-def export_graph(reslist, i, filepath='.',format='gml'):
+def export_graph(reslist, i, filepath='.',format='gml',  prefix='graph_'):
     """
     Export to the desired graph format
     """
@@ -69,13 +72,13 @@ def export_graph(reslist, i, filepath='.',format='gml'):
     wgraph = igraph.write_graph
     
     #for i,r in enumerate(reslist):
-    myfname = 'graph_' + str(i) + '.%s' % format  
+    myfname = prefix + str(i) + '.%s' % format  
     g = gadj(reslist, mode='undirected', weighted=True)
     wgraph(g, file=os.path.join(filepath,myfname), format=format)
         
     return myfname
 
-def export_to_json(reslist, i, filepath=".", perc=10):
+def export_to_json(reslist, i, filepath=".", perc=10, prefix='graph_' ):
     """
     Create the json for d3js visualization
     """
@@ -87,7 +90,7 @@ def export_to_json(reslist, i, filepath=".", perc=10):
     tmp = np.triu(tmpr)
     thr = np.percentile(tmp[tmp > 0.0], 100-perc)
     
-    print reslist.colnames
+    # print reslist.colnames
     
     # Write nodes specifications
     for n in range(tmp.shape[1]):
@@ -111,7 +114,7 @@ def export_to_json(reslist, i, filepath=".", perc=10):
                 
     # Write json file for d3js
     try:
-        myfname = 'graph_' + str(i) + '.json'
+        myfname = prefix + str(i) + '.json'
         f = open(os.path.join(filepath, myfname),'w')
         json.dump(response,f,ensure_ascii=False)
         f.close()

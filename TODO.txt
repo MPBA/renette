@@ -25,12 +25,12 @@ Additional features
 
 
 TO SUBMIT:
-1) Viewable in the website
-2) tutorials for adj and stability
-3) example dataset (small) -> view through d3js
-4) email nel summary
-5) Chapter on testing the website
-6) FBK logo and license
+1) Viewable in the website							DONE
+2) tutorials for adj and stability					
+3) example dataset (small)							DONE
+4) email nel summary								
+5) Chapter on testing the website					
+6) FBK logo and license								
 
 
 

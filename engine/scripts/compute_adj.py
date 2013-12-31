@@ -92,7 +92,9 @@ class Mat2Adj:
             self.res = lapply(self.mylist,nettools.mat2adj,
                                    method=param['method'], FDR=param['FDR'],
                                    P=param['P'],measure=param['measure'],
-                                   alpha=param['alpha'],DP=param['DP'])
+                                   alpha=param['alpha'],DP=param['DP'], 
+                                   tol=0.0)
+            print self.mylist
             return_value = True
         except ValueError:
             return_value = False
@@ -149,12 +151,17 @@ class Mat2Adj:
                             })
                 # Export to json
                 if export_json:
-                    jname = ru.export_to_json(self.res[i], i=i, filepath=filepath, perc=perc)
+                    jname = ru.export_to_json(self.res[i], i=i, filepath=filepath, 
+                                              perc=perc, 
+                                              prefix='%s_%s_' % (self.listname[i], self.param['method']))
                     self.results[self.listname[i]]['json_files'] += [jname]
 
                 # Export to graph format
                 if graph_format:
-                    gname = ru.export_graph(self.res[i], i=i, filepath=filepath, format=graph_format)
+                    gname = ru.export_graph(self.res[i], i=i, 
+                                            filepath=filepath, 
+                                            format=graph_format,
+                                            prefix='%s_%s_' % (self.listname[i], self.param['method']))
                     self.results[self.listname[i]]['graph_files'] += [gname]
                     
             return self.results
