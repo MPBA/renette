@@ -16,7 +16,6 @@ sigma.publicPrototype.parseJson = function(jsonPath,callback) {
             data.nodes[i].y = H*Math.random();
             data.nodes[i].color = 'rgb(49,163,84)';
 
-
 			var id=data.nodes[i].id;
 			sigmaInstance.addNode(id,data.nodes[i]);
 		}

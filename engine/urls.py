@@ -54,10 +54,13 @@ urlpatterns = patterns('engine.views',
                            name='network_stability_3'),
 
                        url(r'^multiuploader/$', 'multiuploader'),
+
                        url(r'^process/list/$', 'process_list', name="process_list"),
+
                        url(regex='^process/graph/(.+)/(.+)/(\d+)/$',
                            view='process_graph',
                            name='process_graph'),
+
                        url(regex='^results/full_view/(.+)/(.+)/(\d+)/$',
                            view='full_results_view',
                            name='full_results_view'),

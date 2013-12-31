@@ -8,3 +8,5 @@ renette/media
 renette/settings/local_settings.py
 *.csv
 renette/*.bk
+engine/scripts/data/data_phenotype/
+.*

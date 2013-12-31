@@ -39,9 +39,9 @@ class NetworkStabilityStep2Class(View):
         dim = []
 
         for filepath in request.POST.getlist('uploaded'):
-            ex_col = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
-            ex_row = request.POST['exclude_row_header'] if 'exclude_row_header' in request.POST else None
-            valid, ret_file = document_validator(filepath, ex_col, ex_row)
+            ex_first_row = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
+            ex_first_col = request.POST['exclude_row_header'] if 'exclude_row_header' in request.POST else None
+            valid, ret_file = document_validator(filepath, ex_first_row, ex_first_col)
             if valid['is_valid']:
                 dim.append(valid['nrow'])
                 max_ga = valid['nrow']
@@ -51,6 +51,10 @@ class NetworkStabilityStep2Class(View):
                               })
             else:
                 removed_files.append(ret_file)
+
+        if len(files) < 1:
+            messages.add_message(self.request, messages.ERROR, 'No valid file...')
+            return redirect('network_stability')
 
         context = {
                    'uploaded_files': files,
@@ -137,9 +141,9 @@ class NetworkInferenceStep2Class(View):
         dim = []
 
         for filepath in request.POST.getlist('uploaded'):
-            ex_col = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
-            ex_row = request.POST['exclude_row_header'] if 'exclude_row_header' in request.POST else None
-            valid, ret_file = document_validator(filepath, ex_col, ex_row)
+            ex_first_row = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
+            ex_first_col = request.POST['exclude_row_header'] if 'exclude_row_header' in request.POST else None
+            valid, ret_file = document_validator(filepath, ex_first_row, ex_first_col)
             if valid['is_valid']:
                 dim.append(valid['nrow'])
                 max_ga = valid['nrow']
@@ -169,7 +173,7 @@ class NetworkInferenceStep3Class(View):
         sep = request.POST.getlist('sep')
 
         param = {
-            'methods': request.POST.get("methods", "cor"),
+            'method': request.POST.get("methods", "cor"),
             'p': float(request.POST.get("p")) if request.POST.get("p", False) else 6,
             'fdr': float(request.POST.get("fdr")) if request.POST.get("fdr", False) else float(1e-3),
             'alpha': float(request.POST.get("alpha")) if request.POST.get("alpha", False) else 0.6,
@@ -229,9 +233,9 @@ class NetworkDistanceStep2Class(View):
             return redirect('network_distance')
 
         for filepath in request.POST.getlist('uploaded'):
-            ex_col = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
-            ex_row = request.POST['exclude_row_header'] if 'exclude_row_header' in request.POST else None
-            valid, ret_file = document_validator(filepath, ex_col, ex_row)
+            ex_first_row = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
+            ex_first_col = request.POST['exclude_row_header'] if 'exclude_row_header' in request.POST else None
+            valid, ret_file = document_validator(filepath, ex_first_row, ex_first_col)
             if valid['is_valid'] and valid['is_cubic']:
                 dim.append(valid['nrow'])
                 max_ga = valid['nrow']

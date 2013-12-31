@@ -20,8 +20,15 @@
             <div class="col-6">
                {% if task %}
                <h3>Summary</h3>
-               <p>Estimated completion time: <span class="label label-info">3 hour and 34 minutes</span>.
-               Don't forget your unique process id is <span class="label label-info">{{ uuid }}</span>.
+               <div><span class="label label-info">Info</span> The page will automatically redirect in 20 seconds to show status of your pipeline.
+               If you don't want to wait online, please <strong>copy and keep the following link</strong> to retrieve your result later:
+                   <code>https://renette.fbk.eu{% url 'process_status' uuid %}</code>
+               </div>
+               <div>
+                <span class="label label-warning">Warning</span> Your results will be available for 7 days!
+               </div>
+               <p>
+
                </p>
                <p>
                    <a href="{% url 'process_status' uuid %}" role="button" type="button" class="btn btn-info btn-lg btn-block">Go to status page</a>

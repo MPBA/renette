@@ -46,7 +46,7 @@ def handle_upload(request, file):
     return saved
 
 
-def document_validator(filepath, ex_col, ex_row):
+def document_validator(filepath, ex_first_row, ex_first_col):
     try:
         with open(os.path.join(settings.MEDIA_ROOT, filepath), 'r') as f:
             file = UploadedFile(f)
@@ -59,20 +59,22 @@ def document_validator(filepath, ex_col, ex_row):
             temp_list = []
             for line in iter(reader):
                 if reader.line_num == 1:
-                    print line
                     # save first row
                     temp_list.append(line)
             # save last row
             temp_list.append(line)
 
         # check char in first row and first col
-        if not ex_row and not temp_list[0][-1].isdigit():
+        if not ex_first_row and not float(temp_list[0][-1]):
             raise ValueError
-        if not ex_col and not temp_list[-1][0].isdigit():
+        if not ex_first_col and not float(temp_list[-1][0]):
             raise ValueError
 
-        ncol = (len(temp_list[0]) - 1) if ex_row else len(temp_list[0])
-        nrow = (reader.line_num - 1) if ex_col else reader.line_num
+        ncol = (len(temp_list[0]) - 1) if ex_first_col else len(temp_list[0])
+        nrow = (reader.line_num - 1) if ex_first_col else reader.line_num
+
+        print ncol
+        print nrow
         is_cubic = True if (ncol == nrow) else False
         return_value = {'is_valid': True, 'nrow': nrow, 'ncol': ncol, 'separator': dialect.delimiter,
                         'mimetype': mimetype, 'is_cubic': is_cubic}
