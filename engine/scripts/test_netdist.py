@@ -3,7 +3,7 @@ import compute_adj as ca
 import compute_netstab as cs
 
 print 'Test adjacency'
-myparam = {'method':'WGCNA','sep':'\t','row.names': None,'header': True, 'P':2}
+myparam = {'method':'WGCNA','row.names': None,'header': True, 'P':6}
 ad = ca.Mat2Adj(['data/microbiome_Acidobacteria_0.0-diet.csv'], seplist=['\t'], param = myparam)
 ad.loadfiles()
 ad.compute()

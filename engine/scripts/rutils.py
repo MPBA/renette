@@ -110,7 +110,7 @@ def export_to_json(reslist, i, filepath=".", perc=10, prefix='graph_' ):
                 ## print 'n %d, j%d' % (n,j)
                 response['links'].append({'source': n, 
                                           'target': j, 
-                                          'values': tmp[n, j]})
+                                          'weights': tmp[n, j]})
                 
     # Write json file for d3js
     try:
