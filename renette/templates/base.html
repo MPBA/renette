@@ -77,11 +77,15 @@
       {% block footer %}
           <footer>
             <hr>
-            <p>
-                <a href="http://www.fbk.eu" target="_blank"><img src="{% static 'img/logo-small.gif' %}"></a>
+            <div class="row">
+                <div class="col-md-6"><a href="http://www.fbk.eu" target="_blank"><img src="{% static 'img/logo-small.gif' %}"></a>
                 - ReNette is released under <a href="http://www.gnu.org/licenses/gpl.html" target="_blank">GNU General Public License</a>
-            </p>
-            <p class="pull-right">Source Code [GitHub] <a href="https://github.com/MPBA/renette">https://github.com/MPBA/renette</a></p>
+                </div>
+                <div class="col-md-6">
+                    <p class="pull-right">Source Code [GitHub] <a href="https://github.com/MPBA/renette">https://github.com/MPBA/renette</a></p>
+                </div>
+            </div>
+
           </footer>
       {% endblock footer %}
 
