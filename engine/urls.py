@@ -35,10 +35,6 @@ urlpatterns = patterns('engine.views',
                            view=NetworkInferenceClass.as_view(),
                            name='network_inference'),
 
-                       url(regex='^network/inference/(?P<load>.+)/$',
-                           view=NetworkInferenceClass.as_view(),
-                           name='network_inference'),
-
                        url(regex='^network/inference/2/$',
                            view=NetworkInferenceStep2Class.as_view(),
                            name='network_inference_2'),
@@ -46,10 +42,6 @@ urlpatterns = patterns('engine.views',
                        url(regex='^network/inference/3/$',
                            view=NetworkInferenceStep3Class.as_view(),
                            name='network_inference_3'),
-
-                       url(regex='^network/stability/(?P<load>.+)/$',
-                           view=NetworkStabilityClass.as_view(),
-                           name='network_stability'),
 
                        url(regex='^network/stability/$',
                            view=NetworkStabilityClass.as_view(),

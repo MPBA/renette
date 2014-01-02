@@ -11,6 +11,7 @@ from django.contrib import messages
 from django.conf import settings
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from .forms import ContactForm
+from django.core.mail import send_mail
 import random
 
 #class based view for home page rendering
@@ -30,20 +31,20 @@ def contact(request):
             messages.add_message(request, messages.SUCCESS, 'Message sent successfully! Thanks for your interest!')
 
             name = form.cleaned_data['name']
-            message = form.cleaned_data['message']
             email = form.cleaned_data['email']
+            message = 'message by <%s> \n%s' % (email, form.cleaned_data['message'])
+
             #cc_myself = form.cleaned_data['cc_myself']
 
             recipients = ['droghetti@fbk.eu', 'filosi@fbk.eu']
-
-            from django.core.mail import send_mail
-            send_mail("RENETTE contact info", message, 'RENETTE DAEMON <%s>' % settings.EMAIL_HOST_USER, recipients)
+            try:
+                send_mail("RENETTE contact info", message, 'RENETTE DAEMON <%s>' % settings.EMAIL_HOST_USER, recipients)
+            except Exception:
+                messages.add_message(request, messages.ERROR, 'An error occurred! Check the form field and try again!')
 
             return HttpResponseRedirect('/contact/')  # Redirect after POST
         else:
             messages.add_message(request, messages.ERROR, 'An error occurred! Check the form field and try again!')
             return HttpResponseRedirect('/contact/')  # Redirect after POST
     else:
-        #form = ContactForm()  # An unbound form
-        #messages.add_message(request, messages.ERROR, '')
         return HttpResponseBadRequest

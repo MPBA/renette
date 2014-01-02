@@ -360,7 +360,7 @@ def download_zip_file(request, pk):
         print val
         val_keys = val.keys()
         file_list += val['csv_files'] if 'csv_files' in val_keys else []
-        file_list += val['json_files'] if 'json_files' in val_keys else []
+        #file_list += val['json_files'] if 'json_files' in val_keys else []
         file_list += val['graph_files'] if 'graph_files' in val_keys else []
         file_list += val['img_files'] if 'img_files' in val_keys else []
     # Folder name in ZIP archive which contains the above files
