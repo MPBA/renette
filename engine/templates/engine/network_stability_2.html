@@ -10,13 +10,18 @@
             $("#id_resmethods").change(function () {
                 var conceptName = $('#id_resmethods').find(":selected").val();
                 $("#id_k").prop('disabled', true);
+
                 if (conceptName == 'montecarlo') {
                     $("#id_k").removeAttr('disabled');
                 }
                 if (conceptName == 'LOO') {
+                    $("#id_k").val(1)
+                }
+                if (conceptName == 'kCV') {
                     $("#id_k").removeAttr('disabled');
                 }
             });
+
             $("#id_distance").change(function () {
                 var conceptName = $('#id_distance').find(":selected").val();
                 if (conceptName == 'HIM') {
@@ -102,8 +107,13 @@
             });
 
             max_ga = {{ max_ga }}
-                    $("#myform").validate();
+            $("#myform").validate();
             $('#id_ga').rules('add', {
+                required: false,
+                digits: false,
+                max: max_ga
+            });
+            $('#id_k').rules('add', {
                 required: false,
                 digits: false,
                 max: max_ga
@@ -189,7 +199,7 @@
                             <div class="form-group">
                                 <label for="id_k">K</label>
                                 <input type="text" class="positive form-control" name="k" id="id_k"
-                                       value="3" disabled required>
+                                       value="3" required>
                             </div>
                             <div class="form-group">
                                 <label for="h">h</label>

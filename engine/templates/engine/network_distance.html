@@ -9,8 +9,8 @@
                $("#uploaded-files").find('input').remove();
                $('<p/>').text('microbiome_Actinobacteria_0.0-diet_adj.csv [728.4 kB]').appendTo('#files');
                $('<p/>').text('microbiome_Actinobacteria_1.0-diet_adj.csv [728.6 kB]').appendTo('#files');
-                $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/microbiome_Actinobacteria_0.0-diet_adj.csv">');
-                $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/microbiome_Actinobacteria_1.0-diet_adj.csv">');
+                $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/microbiome_Acidobacteria_0.0-diet_adj.csv">');
+                $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/microbiome_Acidobacteria_1.0-diet_adj.csv">');
                $('input[name=exclude_col_header]').attr('checked', true)
                $('input[name=exclude_row_header]').attr('checked', true)
                $('#progress .progress-bar').css(
@@ -61,7 +61,7 @@
                       </tr>
                     </thead>
                         <tbody><tr>
-                            <td><a href="{% get_media_prefix %}example/microbiome_Actinobacteria_0.0-diet_adj.csv">microbiome_Actinobacteria_0.0-diet_adj.csv</a></td>
+                            <td><a href="{% get_media_prefix %}example/microbiome_Acidobacteria_0.0-diet_adj.csv">microbiome_Actinobacteria_0.0-diet_adj.csv</a></td>
                             <td>text/plain</td>
                             <td>187</td>
                             <td>187</td>
@@ -70,7 +70,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td><a href="{% get_media_prefix %}example/microbiome_Actinobacteria_1.0-diet_adj.csv">microbiome_Actinobacteria_1.0-diet_adj.csv</a></td>
+                            <td><a href="{% get_media_prefix %}example/microbiome_Acidobacteria_1.0-diet_adj.csv">microbiome_Actinobacteria_1.0-diet_adj.csv</a></td>
                             <td>text/plain</td>
                             <td>187</td>
                             <td>187</td>

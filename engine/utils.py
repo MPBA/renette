@@ -81,10 +81,10 @@ def document_validator(filepath, ex_first_row, ex_first_col):
                         'mimetype': mimetype, 'is_cubic': is_cubic}
     except csv.Error:
         return_value = {'is_valid': False}
-        file = file
+        file = None
     except Exception:
         return_value = {'is_valid': False}
-        file = file
+        file = None
     except ValueError:
         return_value = {'is_valid': False}
         file = file
