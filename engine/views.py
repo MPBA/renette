@@ -1,4 +1,6 @@
 # -*- encoding: utf-8 -*-
+from redis import ConnectionError
+
 __author__ = 'ernesto'
 #This file contains only the views for the main app. It's made just to render an home page for the project
 
@@ -39,9 +41,9 @@ class NetworkStabilityStep2Class(View):
         dim = []
 
         for filepath in request.POST.getlist('uploaded'):
-            ex_col = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
-            ex_row = request.POST['exclude_row_header'] if 'exclude_row_header' in request.POST else None
-            valid, ret_file = document_validator(filepath, ex_col, ex_row)
+            ex_first_row = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
+            ex_first_col = request.POST['exclude_row_header'] if 'exclude_row_header' in request.POST else None
+            valid, ret_file = document_validator(filepath, ex_first_row, ex_first_col)
             if valid['is_valid']:
                 dim.append(valid['nrow'])
                 max_ga = valid['nrow']
@@ -51,6 +53,10 @@ class NetworkStabilityStep2Class(View):
                               })
             else:
                 removed_files.append(ret_file)
+
+        if len(files) < 1:
+            messages.add_message(self.request, messages.ERROR, 'No valid file...')
+            return redirect('network_stability')
 
         context = {
                    'uploaded_files': files,
@@ -109,13 +115,10 @@ class NetworkStabilityStep3Class(View):
             session = self.request.session.get('runp',[])
             session.append(runp.pk)
             self.request.session['runp'] = session
-            print self.request.session
         except DatabaseError, e:
             t.revoke(terminate=True)
             messages.add_message(self.request, messages.ERROR, 'Error: %s' % str(e))
 
-        #context = {'files': files, 'task': t, 'uuid': t.id}
-        print param
         messages.add_message(self.request, messages.SUCCESS, 'Process submitted with success!!!')
         return render(request, self.template_name, context)
 
@@ -137,9 +140,9 @@ class NetworkInferenceStep2Class(View):
         dim = []
 
         for filepath in request.POST.getlist('uploaded'):
-            ex_col = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
-            ex_row = request.POST['exclude_row_header'] if 'exclude_row_header' in request.POST else None
-            valid, ret_file = document_validator(filepath, ex_col, ex_row)
+            ex_first_row = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
+            ex_first_col = request.POST['exclude_row_header'] if 'exclude_row_header' in request.POST else None
+            valid, ret_file = document_validator(filepath, ex_first_row, ex_first_col)
             if valid['is_valid']:
                 dim.append(valid['nrow'])
                 max_ga = valid['nrow']
@@ -149,7 +152,6 @@ class NetworkInferenceStep2Class(View):
                               })
             else:
                 removed_files.append(ret_file)
-
         context = {
                    'uploaded_files': files,
                    'max_ga': max_ga,
@@ -169,7 +171,7 @@ class NetworkInferenceStep3Class(View):
         sep = request.POST.getlist('sep')
 
         param = {
-            'methods': request.POST.get("methods", "cor"),
+            'method': request.POST.get("methods", "cor"),
             'p': float(request.POST.get("p")) if request.POST.get("p", False) else 6,
             'fdr': float(request.POST.get("fdr")) if request.POST.get("fdr", False) else float(1e-3),
             'alpha': float(request.POST.get("alpha")) if request.POST.get("alpha", False) else 0.6,
@@ -178,7 +180,6 @@ class NetworkInferenceStep3Class(View):
             'header': True if request.POST.get("col", False) else False,
             'row.names': 1 if request.POST.get("row", False) else None
         }
-        print param
         try:
             runp = RunningProcess(
                 process_name='Network inference',
@@ -229,9 +230,9 @@ class NetworkDistanceStep2Class(View):
             return redirect('network_distance')
 
         for filepath in request.POST.getlist('uploaded'):
-            ex_col = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
-            ex_row = request.POST['exclude_row_header'] if 'exclude_row_header' in request.POST else None
-            valid, ret_file = document_validator(filepath, ex_col, ex_row)
+            ex_first_row = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
+            ex_first_col = request.POST['exclude_row_header'] if 'exclude_row_header' in request.POST else None
+            valid, ret_file = document_validator(filepath, ex_first_row, ex_first_col)
             if valid['is_valid'] and valid['is_cubic']:
                 dim.append(valid['nrow'])
                 max_ga = valid['nrow']
@@ -343,7 +344,6 @@ class ProcessStatus(View):
                     result.update({key: val})
 
             context['result'] = result
-            print result
         return render(request, self.template_name, context)
 
 
@@ -357,9 +357,10 @@ def download_zip_file(request, pk):
     file_list = []
     for key in result.keys():
         val = result.get(key)
+        print val
         val_keys = val.keys()
         file_list += val['csv_files'] if 'csv_files' in val_keys else []
-        file_list += val['json_files'] if 'json_files' in val_keys else []
+        #file_list += val['json_files'] if 'json_files' in val_keys else []
         file_list += val['graph_files'] if 'graph_files' in val_keys else []
         file_list += val['img_files'] if 'img_files' in val_keys else []
     # Folder name in ZIP archive which contains the above files
@@ -418,7 +419,6 @@ def multiuploader(request):
             })
             return HttpResponse(response_data, mimetype='application/json')
         except Exception, e:
-
             return HttpResponseBadRequest(str(e))
     else: #GET
         messages.add_message(request, messages.ERROR, 'Bad request')
@@ -440,8 +440,13 @@ def process_list(request):
         }
 
         return render(request, 'engine/my_process_list.html', context)
+    except ConnectionError, e:
+        context = None
+        messages.add_message(request, messages.ERROR, 'Sorry, error connecting to server. Try again.')
     except Exception, e:
-        return HttpResponseBadRequest(str(e))
+        context = None
+        messages.add_message(request, messages.ERROR, 'Sorry, unexpected error occured. Try again.')
+    return render(request, 'engine/my_process_list.html', context)
 
 
 def process_graph(request, uuid, key, idx):

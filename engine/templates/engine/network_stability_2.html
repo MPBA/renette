@@ -10,13 +10,18 @@
             $("#id_resmethods").change(function () {
                 var conceptName = $('#id_resmethods').find(":selected").val();
                 $("#id_k").prop('disabled', true);
+
                 if (conceptName == 'montecarlo') {
                     $("#id_k").removeAttr('disabled');
                 }
                 if (conceptName == 'LOO') {
+                    $("#id_k").val(1)
+                }
+                if (conceptName == 'kCV') {
                     $("#id_k").removeAttr('disabled');
                 }
             });
+
             $("#id_distance").change(function () {
                 var conceptName = $('#id_distance').find(":selected").val();
                 if (conceptName == 'HIM') {
@@ -78,6 +83,7 @@
                     $("#id_fdr").prop('disabled', true);
                 }
             });
+            $("#myform").validate();
             $('#id_p').rules('add', {
                 required: false,
                 digits: false,
@@ -95,15 +101,18 @@
                 max: 1,
                 min: 0
             });
+            max_ga = {{ max_ga }}
             $('#id_c').rules('add', {
                 required: false,
                 digits: false,
                 max: max_ga
             });
-
-            max_ga = {{ max_ga }}
-                    $("#myform").validate();
             $('#id_ga').rules('add', {
+                required: false,
+                digits: false,
+                max: max_ga
+            });
+            $('#id_k').rules('add', {
                 required: false,
                 digits: false,
                 max: max_ga
@@ -180,8 +189,8 @@
                             <div class="form-group">
                                 <label for="id_resmethods">Resampling methods</label>
                                 <select id="id_resmethods" class="form-control" name="resmethods" required>
-                                    <option value="" selected>--------</option>
-                                    <option value="montecarlo">Montecarlo</option>
+{#                                    <option value="" selected>--------</option>#}
+                                    <option value="montecarlo" selected>Montecarlo</option>
                                     <option value="kCV">k-fold Cross Validation</option>
                                     <option value="LOO">Leave One Out</option>
                                 </select>
@@ -189,7 +198,7 @@
                             <div class="form-group">
                                 <label for="id_k">K</label>
                                 <input type="text" class="positive form-control" name="k" id="id_k"
-                                       value="3" disabled required>
+                                       value="3" required>
                             </div>
                             <div class="form-group">
                                 <label for="h">h</label>
@@ -205,8 +214,8 @@
                             <div class="form-group">
                                 <label for="id_methods">Methods</label>
                                 <select id="id_methods" class="form-control" name="methods" required>
-                                    <option value="">--------</option>
-                                    <option value="cor">cor</option>
+{#                                    <option value="">--------</option>#}
+                                    <option value="cor" selected>cor</option>
                                     <option value="WGCNA">WGCNA</option>
                                     <option value="WGCNAFDR">WGCNAFDR</option>
                                     <option value="bicor">bicor</option>
@@ -264,8 +273,8 @@
                             <div class="form-group">
                                 <label for="id_distance">Distance</label>
                                 <select id="id_distance" class="form-control" name="distance" required>
-                                    <option value="">--------</option>
-                                    <option value="HIM">HIM</option>
+{#                                    <option value="">--------</option>#}
+                                    <option value="HIM" selected>HIM</option>
                                     <option value="IM">Ipsen Mikhailov</option>
                                     <option value="H">Hamming</option>
                                 </select>
@@ -296,7 +305,7 @@
                 <div class="col-md-12">
                     {% for f in uploaded_files %}
                         <input type="hidden" name="file" value="{{ f.path }}">
-                        <input type="hidden" name="sep" value={{ f.prop.separator }}>
+                        <input type="hidden" name="sep" value="{{ f.prop.separator }}">
                     {% endfor %}
                     <input type="hidden" name="col" value="{{ request.POST.exclude_col_header }}">
                     <input type="hidden" name="row" value="{{ request.POST.exclude_row_header }}">

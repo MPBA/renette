@@ -173,7 +173,7 @@ class NetStability:
 
                 # Write adjacency matrix on the whole dataset
                 myfname = os.path.join(filepath, '%s_%s_adj.tsv' % (self.listname[i], self.met) )
-                csvlist += ['%s_%s.tsv' % (self.listname[i], self.met)]
+                csvlist += ['%s_%s_adj.tsv' % (self.listname[i], self.met)]
                 write_table(tmp.rx2('ADJ'),myfname,
                             sep='\t', quote=False, 
                             **{'col.names': robjects.NA_Logical, 

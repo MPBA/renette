@@ -101,8 +101,8 @@
                     <div class="form-group">
                       <label for="id_distance">Distance</label>
                       <select id="id_distance" class="form-control" name="distance" required>
-                        <option value="">--------</option>
-                        <option value="HIM">HIM</option>
+{#                        <option value="">--------</option>#}
+                        <option value="HIM" selected>HIM</option>
                         <option value="IM">Ipsen Mikhailov</option>
                         <option value="H">Hamming</option>
                       </select>
@@ -124,7 +124,7 @@
                     </div>
                       {% for f in uploaded_files %}
                         <input type="hidden" name="file" value="{{ f.path }}">
-                        <input type="hidden" name="sep" value={{ f.prop.separator }}>
+                        <input type="hidden" name="sep" value="{{ f.prop.separator }}">
                       {% endfor %}
                         <input type="hidden" name="col" value="{{ request.POST.exclude_col_header }}">
                         <input type="hidden" name="row" value="{{ request.POST.exclude_row_header }}">

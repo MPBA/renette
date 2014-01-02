@@ -92,9 +92,8 @@ class Mat2Adj:
             self.res = lapply(self.mylist,nettools.mat2adj,
                                    method=param['method'], FDR=param['FDR'],
                                    P=param['P'],measure=param['measure'],
-                                   alpha=param['alpha'],DP=param['DP'], 
+                                   alpha=param['alpha'],DP=param['DP'],
                                    tol=0.0)
-            print self.mylist
             return_value = True
         except ValueError:
             return_value = False
