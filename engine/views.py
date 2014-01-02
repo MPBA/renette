@@ -1,4 +1,6 @@
 # -*- encoding: utf-8 -*-
+from redis import ConnectionError
+
 __author__ = 'ernesto'
 #This file contains only the views for the main app. It's made just to render an home page for the project
 
@@ -438,8 +440,13 @@ def process_list(request):
         }
 
         return render(request, 'engine/my_process_list.html', context)
+    except ConnectionError, e:
+        context = None
+        messages.add_message(request, messages.ERROR, 'Sorry, error connecting to server. Try again.')
     except Exception, e:
-        return HttpResponseBadRequest(str(e))
+        context = None
+        messages.add_message(request, messages.ERROR, 'Sorry, unexpected error occured. Try again.')
+    return render(request, 'engine/my_process_list.html', context)
 
 
 def process_graph(request, uuid, key, idx):

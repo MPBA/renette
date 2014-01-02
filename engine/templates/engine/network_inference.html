@@ -7,12 +7,12 @@
            $("#load-example").click(function(){
                $("#files").find('p').remove();
                $("#uploaded-files").find('input').remove();
-               $('<p/>').text('test_data_1.csv [2.1 MB]').appendTo('#files');
-               $('<p/>').text('test_data_2.csv [2.1 MB]').appendTo('#files');
-                $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/netdist_test_data_1.csv">');
-                $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/netdist_test_data_2.csv">');
+               $('<p/>').text('microbiome_Acidobacteria_0.0-diet.csv [68.1 kB]').appendTo('#files');
+               $('<p/>').text('microbiome_Acidobacteria_1.0-diet.csv [47.1 kB]').appendTo('#files');
+                $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/microbiome_Acidobacteria_0.0-diet.csv">');
+                $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/microbiome_Acidobacteria_0.0-diet.csv">');
                $('input[name=exclude_col_header]').attr('checked', true)
-               $('input[name=exclude_row_header]').attr('checked', true)
+               $('input[name=exclude_row_header]').attr('checked', false)
                $('#progress .progress-bar').css(
                         'width',
                         100 + '%'
@@ -20,7 +20,6 @@
                 $('#btn-go').removeAttr('disabled')
                 $('#reset_form').removeAttr('disabled')
             });
-
         });
     </script>
 {% endblock %}
@@ -51,31 +50,30 @@
                     <label for="exampleInputEmail1"></label>
                     <div class="col-sm-9">
                     <table class="table table-striped table-hover">
-                    <thead>
-                      <tr>
-                        <th>Filename</th>
-                        <th>Type</th>
-                        <th># Rows</th>
-                        <th># Cols</th>
-                        <th>Separator</th>
-                      </tr>
-                    </thead>
-
+                        <thead>
+                          <tr>
+                            <th>Filename</th>
+                            <th>Type</th>
+                            <th># Rows</th>
+                            <th># Cols</th>
+                            <th>Separator</th>
+                          </tr>
+                        </thead>
                         <tbody><tr>
-                            <td>test_data_1.csv</td>
-                            <td>text/csv</td>
-                            <td>1000</td>
-                            <td>1000</td>
+                            <td><a href="{% get_media_prefix %}example/microbiome_Acidobacteria_0.0-diet.csv">microbiome_Acidobacteria_0.0-diet.csv</a></td>
+                            <td>text/plain</td>
+                            <td>390</td>
+                            <td>7</td>
                             <td>TAB</td>
                         </tr>
                         <tr>
-                            <td>test_data_2.csv</td>
-                            <td>text/csv</td>
-                            <td>1000</td>
-                            <td>1000</td>
+                            <td><a href="{% get_media_prefix %}example/microbiome_Acidobacteria_0.0-diet.csv">microbiome_Acidobacteria_1.0-diet.csv</a></td>
+                            <td>text/plain</td>
+                            <td>270</td>
+                            <td>7</td>
                             <td>TAB</td>
                         </tr>
-                    </tbody></table>
+                </tbody></table>
                     </div>
                     <div class="col-sm-offset-6">
                         <p style="text-align: justify">
