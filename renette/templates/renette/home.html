@@ -9,39 +9,44 @@
             <h1>ReNette WebService</h1>
             <p>This is a web-interface for network analysis. It supports inference methods, quantitative network distance and network stability analysis.</p>
           </div>
-          <div class="row">
-            <div class="col-6 col-sm-6 col-lg-4">
-              <h2>Networt Inference</h2>
-              <p>The network inference process allows the user to compute his own network starting from row data. A set of 10 methods based on simple correlation, mutual infromation and non-linear correlation are available to the user. </p>
-              <p><a class="btn btn-default" href="{% url 'network_inference' %}" role="button">View details &raquo;</a></p>
-            </div><!--/span-->
-            <div class="col-6 col-sm-6 col-lg-4">
-              <h2>Network Distance</h2>
-              <p>A quantitative analysis of differences between networks. At this time 3 methods are available, one based on an edit distance, another based on a spectral distance and a product metric combining contributions from edit and spectral distances. </p>
-              <p><a class="btn btn-default" href="{% url 'network_distance' %}" role="button">View details &raquo;</a></p>
-            </div><!--/span-->
-            <div class="col-6 col-sm-6 col-lg-4">
-              <h2>Network Stability</h2>
-              <p> The process compute the network stability indicators given the inference method and the network distance choosen. The method is based on perturbation introduced in the data from a resampling procedure.</p>
-              <p><a class="btn btn-default" href="{% url 'network_stability' %}" role="button">View details &raquo;</a></p>
-            </div><!--/span-->
-            <!-- <div class="col-6 col-sm-6 col-lg-4"> -->
-            <!--   <h2>Heading</h2> -->
-            <!--   <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p> -->
-            <!--   <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p> -->
-            <!-- </div><\!--/span-\-> -->
-            <!-- <div class="col-6 col-sm-6 col-lg-4"> -->
-            <!--   <h2>Heading</h2> -->
-            <!--   <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p> -->
-            <!--   <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p> -->
-            <!-- </div><\!--/span-\-> -->
-            <!-- <div class="col-6 col-sm-6 col-lg-4"> -->
-            <!--   <h2>Heading</h2> -->
-            <!--   <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p> -->
-            <!--   <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p> -->
-            <!-- </div><\!--/span-\-> -->
-          </div><!--/row-->
-        </div><!--/span-->
+
+            <div class="row">
+                <div class="col-lg-5">
+                    <iframe width="380" height="285" src="//www.youtube.com/embed/24Lxd33r6PQ" frameborder="0" allowfullscreen></iframe>
+                </div>
+                <div class="col-lg-6 pull-right">
+                  <h2>Networt Inference</h2>
+                  <p>The network inference procedure allows the user to compute his own network starting from row data. A set of 10 methods based on simple correlation, mutual infromation and non-linear correlation are available to the user.</p>
+                  <p><a class="btn btn-default" href="{% url 'network_inference' %}" role="button">View details &raquo;</a></p>
+                </div><!--/span-->
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-lg-6">
+                  <h2>Network Distance</h2>
+                  <p>A quantitative analysis of differences between networks. At this time 3 methods are available, one based on an edit distance, another based on a spectral distance and a product metric combining contributions from edit and spectral distances.</p>
+                  <p><a class="btn btn-default" href="{% url 'network_distance' %}" role="button">View details &raquo;</a></p>
+                </div><!--/span-->
+                <div class="col-lg-5">
+                    <iframe width="380" height="285" src="//www.youtube.com/embed/JKGS5RKUukM" frameborder="0" allowfullscreen></iframe>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-lg-5">
+                    <iframe width="380" height="285" src="//www.youtube.com/embed/58E8FjLvSWY" frameborder="0" allowfullscreen></iframe>
+                </div>
+                <div class="col-lg-6 pull-right">
+                  <h2>Network Stability</h2>
+                  <p> The procedure compute the network stability indicators given the inference method and the network distance choosen. The method is based on perturbation introduced in the data from a resampling procedure.
+<br>
+The process compute the network stability indicators given the inference method and the network distance choosen. The method is based on perturbation introduced in the data from a resampling procedure.</p>
+                  <p><a class="btn btn-default" href="{% url 'network_stability' %}" role="button">View details &raquo;</a></p>
+                </div>
+            </div>
+
+
+        </div>
         {% include "navigation.html" %}
       </div><!--/row-->
 {% endblock container %}
