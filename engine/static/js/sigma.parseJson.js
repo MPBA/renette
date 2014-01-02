@@ -21,6 +21,7 @@ sigma.publicPrototype.parseJson = function(jsonPath,callback) {
 		}
 		for(j=0; j<data.links.length; j++){
 			var edgeNode = data.links[j];
+            data.links[j].size = data.links[j].values
 
 			var source = edgeNode.source;
 			var target = edgeNode.target;
