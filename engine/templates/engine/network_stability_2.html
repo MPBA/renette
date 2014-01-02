@@ -83,6 +83,7 @@
                     $("#id_fdr").prop('disabled', true);
                 }
             });
+            $("#myform").validate();
             $('#id_p').rules('add', {
                 required: false,
                 digits: false,
@@ -100,14 +101,12 @@
                 max: 1,
                 min: 0
             });
+            max_ga = {{ max_ga }}
             $('#id_c').rules('add', {
                 required: false,
                 digits: false,
                 max: max_ga
             });
-
-            max_ga = {{ max_ga }}
-            $("#myform").validate();
             $('#id_ga').rules('add', {
                 required: false,
                 digits: false,
