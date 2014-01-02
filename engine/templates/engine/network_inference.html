@@ -20,6 +20,11 @@
                 $('#btn-go').removeAttr('disabled')
                 $('#reset_form').removeAttr('disabled')
             });
+           var req = {% if request.GET.load %}{{ request.GET.load }}{% else %}false{% endif %};
+
+           if ( req == true) {
+            $( "#load-example" ).trigger( "click" );
+           }
         });
     </script>
 {% endblock %}
