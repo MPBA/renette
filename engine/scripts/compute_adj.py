@@ -141,6 +141,7 @@ class Mat2Adj:
                     colnames = False
                     rownames = False
                 
+                print colnames, rownames
                 # Write files csv ; separated
                 write_table(self.res[i], myfname, sep='\t',
                             quote=False,
