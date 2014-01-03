@@ -14,10 +14,10 @@ import compute_netstab as cs
 
 
 print 'Test Network Distance'
-myparam = {'d': 'HIM','components': True, 'rho': None,'sep': '\t','row.names': 1}
-nd = cd.NetDist(filelist=['data/test_data_3.csv'], seplist=['\t'], param=myparam)
+myparam = {'d': 'HIM','components': True, 'rho': None,'sep': '\t','row.names': 1, 'header': True}
+nd = cd.NetDist(filelist=['data/test_data_10.csv'], seplist=['\t'], param=myparam)
 print nd.loadfiles()
-nd.compute()
+print nd.compute()
 print nd.get_results()
 print nd.save_RData()
 

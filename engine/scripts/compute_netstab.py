@@ -59,9 +59,8 @@ class NetStability:
         if rcount == self.nfiles:
             return True
         else:
-            return False
+            raise IOError
 
-            
     def compute(self): 
         """
         Method for the computation of network stability
@@ -101,23 +100,30 @@ class NetStability:
                                                C=param['C'],
                                                DP=param['DP'],
                                                save=param['save'],
-                                               tol=0,
+                                               tol=0.0,
+                                               var.thr=0.0,
                                                **{'adj.method': param['adj_method'],
                                                   'n.cores': 1}))
             return_value = True
-            self.computed = True
+            
         except IOError, e:
             self.computed = False
             print 'Error during the computation of the stability indicators: %s' % str(e)
         except ri.RRuntimeError, e:
             self.computed = False
             print 'Error during the computation of the stability indicators: %s' % str(e)
+            
+        if return_value:
+            self.computed = True
+            return return_value
+        else:
+            raise Exception(e)
     
     def get_results(self, filepath='.', export_json=True, graph_format="gml", perc=10):
         """
         Write the results on the file system
         """
-                
+        
         names = robjects.r['colnames']
         write_table = robjects.r['write.table']
         results = {}
@@ -210,9 +216,7 @@ class NetStability:
                 results[self.listname[i]]['csv_files'] += csvlist
             return results
         else:
-            return False
-
-    
+            raise Exception('Cannot compute the results')
 
     
     def get_S (self):
