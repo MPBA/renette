@@ -82,11 +82,13 @@ class Mat2Adj:
         # Get patameter and set default
         param = {'method':'cor', 'FDR':1e-3, 'P':6, 
                  'measure':ri.NULL, 'alpha': 0.6, 'C':15, 'DP':1}
+        print param
+        print self.param
         for p in param.keys():
             if p in self.param:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
-        
+        print param
         # Compute the adjacency matrices
         try:
             self.res = lapply(self.mylist,nettools.mat2adj,

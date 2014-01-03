@@ -82,10 +82,10 @@ class NetworkStabilityStep3Class(View):
             'h': int(request.POST.get("h")) if request.POST.get("h", False) else 20,
 
             'adj_method': request.POST.get("methods", "cor"),
-            'p': float(request.POST.get("p")) if request.POST.get("p", False) else 6,
-            'fdr': float(request.POST.get("fdr")) if request.POST.get("fdr", False) else float(1e-3),
+            'P': float(request.POST.get("p")) if request.POST.get("p", False) else 6,
+            'FDR': float(request.POST.get("fdr")) if request.POST.get("fdr", False) else float(1e-3),
             'alpha': float(request.POST.get("alpha")) if request.POST.get("alpha", False) else 0.6,
-            'c': float(request.POST.get("c")) if request.POST.get("c", False) else 15,
+            'C': float(request.POST.get("c")) if request.POST.get("c", False) else 15,
             'measure': request.POST.get("measure", None),
 
             'd': request.POST.get("distance", "HIM"),
@@ -172,10 +172,10 @@ class NetworkInferenceStep3Class(View):
 
         param = {
             'method': request.POST.get("methods", "cor"),
-            'p': float(request.POST.get("p")) if request.POST.get("p", False) else 6,
-            'fdr': float(request.POST.get("fdr")) if request.POST.get("fdr", False) else float(1e-3),
+            'P': float(request.POST.get("p")) if request.POST.get("p", False) else 6,
+            'FDR': float(request.POST.get("fdr")) if request.POST.get("fdr", False) else float(1e-3),
             'alpha': float(request.POST.get("alpha")) if request.POST.get("alpha", False) else 0.6,
-            'c': float(request.POST.get("c")) if request.POST.get("c", False) else 15,
+            'C': float(request.POST.get("c")) if request.POST.get("c", False) else 15,
             'measure': request.POST.get("measure", None),
             'header': True if request.POST.get("col", False) else False,
             'row.names': 1 if request.POST.get("row", False) else None
