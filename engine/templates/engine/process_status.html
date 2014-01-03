@@ -139,6 +139,7 @@
                               </ul>
                             </div>
                             {% endif %}
+
                             <div class="btn-group">
                               <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
                                 Full Results <span class="caret"></span>
@@ -151,7 +152,7 @@
                             </div>
                             {{ value.desc }}
                         </div>
-{#                        Ciclo su tutte le tabelle dell'output             #}
+                        {# Ciclo su tutte le tabelle dell'output #}
                         {% for t in value.csv_tables  %}
                             <div  style="overflow-x: auto">
                             <table class="table table-striped" style="width: auto">
