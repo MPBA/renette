@@ -86,14 +86,14 @@ class Mat2Adj:
             if p in self.param:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
-        
+
         # Compute the adjacency matrices
         try:
             self.res = lapply(self.mylist,nettools.mat2adj,
                               method=param['method'], FDR=param['FDR'],
                               P=param['P'], measure=param['measure'],
                               alpha=param['alpha'], DP=param['DP'],
-                              tol=0.0, **{'var.thr': 0.0})
+                              tol=0.0, **{'var.thr': 1e-12})
             return_value = True
         except ValueError:
             return_value = False
