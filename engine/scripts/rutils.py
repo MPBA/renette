@@ -87,9 +87,12 @@ def export_to_json(reslist, i, filepath=".", perc=10, prefix='graph_' ):
     #for i,r in enumerate(reslist):
     response = {'nodes': [], 'links': []}
     tmpr = np.array(reslist)
+    print tmpr
     tmp = np.triu(tmpr)
-    thr = np.percentile(tmp[tmp > 0.0], 100-perc)
-    
+    try:
+        thr = np.percentile(tmp[tmp > 0.0], 100-perc)
+    except:
+        raise ValueError("Not a number, probably the input variable variance is too low!")
     # print reslist.colnames
     
     # Write nodes specifications
