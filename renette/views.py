@@ -12,14 +12,17 @@ from django.conf import settings
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from .forms import ContactForm
 from django.core.mail import send_mail
-from celery.task.control import inspect
+#from celery.task.control import inspect
+import djcelery
+
 
 #class based view for home page rendering
 class MainView(TemplateView):
     template_name = 'renette/home.html'
 
     def get_context_data(self, **kwargs):
-        i = inspect()
+        c = djcelery.celery
+        i = c.control.inspect()
         context = super(MainView, self).get_context_data()
         print len(i.active().items()[0][1])
         context['active_processes'] = len(i.active().items()[0][1])
