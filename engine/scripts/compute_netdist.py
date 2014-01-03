@@ -106,16 +106,15 @@ class NetDist:
                 directed = False
             
             self.mylist.append(igraph.graph_empty(n=tmp.shape[0], directed=directed))
-            self.mylist.append(igraph.graph_full(n=tmp.shape[0], directed=directed))
             
             # Update the list of 'input' files
-            self.filelist += ['empty','full']
+            self.filelist += ['empty'] 
             
             # Check if there are other warnings
             if self.dflag:
-                self.e += 'Warning: one file provided: computing distance between %s, empty and full binary network' % self.filelist[0]
+                self.e += 'Warning: one file provided: computing distance between %s and empty network' % self.filelist[0]
             else:
-                self.e = 'Warning: one file provided: computing distance between %s,  empty and full binary network' % self.filelist[0]
+                self.e = 'Warning: one file provided: computing distance between %s and empty network' % self.filelist[0]
                 self.dflag = True
         
         try:
