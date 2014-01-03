@@ -93,7 +93,7 @@ class Mat2Adj:
                                    method=param['method'], FDR=param['FDR'],
                                    P=param['P'],measure=param['measure'],
                                    alpha=param['alpha'],DP=param['DP'],
-                                   tol=0.0)
+                                   tol=0.0, **{'var.thr': 0.0})
             return_value = True
         except ValueError:
             return_value = False

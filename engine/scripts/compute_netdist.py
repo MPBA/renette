@@ -25,8 +25,9 @@ class NetDist:
         self.mylist = rlc.TaggedList([])
         self.results = {}
         ## Warning message: diagonal not 0
-        self.e = 'Warning: diagonal has values different from 0. \nSelf loop are not support in the current version.\nAutomatically set to 0 for the network computation in file: '
-        self.dflag = False
+        self.e = []
+        self.stat = 'Success'
+        # self.dflag = False
         
     def loadfiles(self):
         """
@@ -67,28 +68,30 @@ class NetDist:
                 
                 if zcount:
                     self.e += f
-                    self.dflag = True
                     
                 self.mylist.append(dataf)
                 rcount += 1
             except IOError, RRuntimeError:
                 print "Can't load file %s" % f
+        
+        if self.e:
+            self.e += 'Diagonal has values different from 0. \nSelf loop are not support in the current version.\nAutomatically set to 0 for the network computation in file:'
+            self.e.reverse()
+            self.stat = 'Warning'
 
         if rcount == self.nfiles:
             return True
         else:
-            return False
-
+            raise IOError('Cannot read all the files')
+            
     def compute(self):
         """
         Compute the distances between adjacency matrices using nettools
         package
 
         """
-        
         nettools = importr('nettools')
-        igraph = importr('igraph')
-        
+                
         param = {'d': 'HIM', 'ga': ri.NULL, 'components': True, 'rho': 1}
         
         ## Check the correct parameter and set the default
@@ -97,33 +100,26 @@ class NetDist:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
         
-        ## If one file is passed, then compute the distance between empty and full network
+        ## If one file is passed, then compute the distance with the empty network
         if self.nfiles == 1:
             tmp = np.array(self.mylist[0])
-            directed = True
-            # Check if the graph is directed
-            if np.allclose(tmp.transpose(),tmp):
-                directed = False
-            
-            self.mylist.append(igraph.graph_empty(n=tmp.shape[0], directed=directed))
-            self.mylist.append(igraph.graph_full(n=tmp.shape[0], directed=directed))
+            # Create the empty network
+            emp = robjects.r.matrix(0,nrow=tmp.shape[0], ncol=tmp.shape[1])
+            # Append to the data list
+            self.mylist.append(emp)
             
             # Update the list of 'input' files
-            self.filelist += ['empty','full']
+            self.filelist += ['empty'] 
             
             # Check if there are other warnings
-            if self.dflag:
-                self.e += 'Warning: one file provided: computing distance between %s, empty and full binary network' % self.filelist[0]
-            else:
-                self.e = 'Warning: one file provided: computing distance between %s,  empty and full binary network' % self.filelist[0]
-                self.dflag = True
-        
+            self.e += ['One file provided: computing distance between %s and empty network' % self.filelist[0]]
+            self.stat = 'Warning'
+                    
         try:
             self.res = nettools.netdist(self.mylist,
                                         d=param['d'],
                                         components=param['components'],
                                         ga=param['ga'], **{'n.cores': 1})
-
             return_value = True
         except ValueError, e:
             print 'Error in computing network distance: %s' % str(e)
@@ -132,9 +128,12 @@ class NetDist:
             print 'Error in computing network distance: %s' % str(e)
             return_value = False
 
-        self.computed = return_value
-        return return_value
-
+        if return_value:
+            self.computed = True
+            return return_value
+        else:
+            raise Exception(e)
+    
     def get_results(self, filepath='.'):
         
         """
@@ -145,9 +144,8 @@ class NetDist:
         write_table = robjects.r['write.table']
         names = robjects.r['names']
         rlist = robjects.r['list']
-        rmat = robjects.r['as.matrix']
         results = {}
-
+        
         if self.computed:
             for i in range(len(self.res)):
                 myfname = os.path.join(filepath,
@@ -160,8 +158,8 @@ class NetDist:
                     'graph_files': [],
                     'desc': '%s network distance' % names(self.res)[i],
                     'rdata': None,
-                    'messages': [ self.e if self.dflag else ''],
-                    'status': [ 'Warning' if self.dflag else 'Success' ]
+                    'messages': [ self.e if self.e else ''],
+                    'status': [ self.stat ]
                 }
 
                 try:

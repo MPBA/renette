@@ -12,7 +12,7 @@ from django.conf import settings
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from .forms import ContactForm
 from django.core.mail import send_mail
-import random
+
 
 #class based view for home page rendering
 class MainView(TemplateView):

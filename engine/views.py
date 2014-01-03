@@ -225,9 +225,9 @@ class NetworkDistanceStep2Class(View):
         removed_files = []
         dim = []
 
-        if len(request.POST.getlist('uploaded')) < 2:
-            messages.add_message(self.request, messages.ERROR, 'You must upload at least 2 files!!!')
-            return redirect('network_distance')
+        # if len(request.POST.getlist('uploaded')) < 2:
+        #     messages.add_message(self.request, messages.ERROR, 'You must upload at least 2 files!!!')
+        #     return redirect('network_distance')
 
         for filepath in request.POST.getlist('uploaded'):
             ex_first_row = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
@@ -243,7 +243,7 @@ class NetworkDistanceStep2Class(View):
             else:
                 removed_files.append(ret_file)
 
-        if len(files) < 2:
+        if len(files) < 1:
             messages.add_message(self.request, messages.ERROR, 'Your files properties are not .....')
             return redirect('network_distance')
         elif not all(x == dim[0] for x in dim):
@@ -314,7 +314,7 @@ class ProcessStatus(View):
             runp = RunningProcess.objects.get(task_id=uuid)
         except RunningProcess.DoesNotExist:
             runp = None
-            messages.add_message(self.request, messages.ERROR, 'Alcune info non disponibili')
+            messages.add_message(self.request, messages.ERROR, 'Some information not available!')
 
         context = {
             'uuid': uuid, ### TODO: e' nei models, riferirsi a quello
@@ -340,7 +340,7 @@ class ProcessStatus(View):
                         val['csv_tables'] = csvlist
                         val['tomanyfile'] = tomanyfile
                     else:
-                        messages.add_message(self.request, messages.ERROR, 'Impossibile trovare i file dei risultati')
+                        messages.add_message(self.request, messages.ERROR, 'Cannot find the results file!')
                     result.update({key: val})
 
             context['result'] = result
