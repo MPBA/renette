@@ -90,10 +90,10 @@ class Mat2Adj:
         # Compute the adjacency matrices
         try:
             self.res = lapply(self.mylist,nettools.mat2adj,
-                                   method=param['method'], FDR=param['FDR'],
-                                   P=param['P'],measure=param['measure'],
-                                   alpha=param['alpha'],DP=param['DP'],
-                                   tol=0.0, **{'var.thr': 0.0})
+                              method=param['method'], FDR=param['FDR'],
+                              P=param['P'], measure=param['measure'],
+                              alpha=param['alpha'], DP=param['DP'],
+                              tol=0.0, **{'var.thr': 0.0})
             return_value = True
         except ValueError:
             return_value = False
@@ -141,7 +141,7 @@ class Mat2Adj:
                     colnames = False
                     rownames = False
                 
-                print colnames, rownames
+                # print colnames, rownames
                 # Write files csv ; separated
                 write_table(self.res[i], myfname, sep='\t',
                             quote=False,
@@ -163,7 +163,7 @@ class Mat2Adj:
                                             format=graph_format,
                                             prefix='%s_%s_' % (self.listname[i], self.param['method']))
                     self.results[self.listname[i]]['graph_files'] += [gname]
-                    
+            
             return self.results
         else:
             print 'No adjacency matrix computed, please run the compute method before.'

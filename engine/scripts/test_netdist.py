@@ -2,12 +2,12 @@ import compute_netdist as cd
 import compute_adj as ca
 import compute_netstab as cs
 
-# print 'Test adjacency'
-# myparam = {'method':'WGCNA','row.names': None,'header': True, 'P':6}
-# ad = ca.Mat2Adj(['data/microbiome_Acidobacteria_0.0-diet.csv'], seplist=['\t'], param = myparam)
-# ad.loadfiles()
-# ad.compute()
-# print ad.get_results(export_json=True, graph_format=False)
+print 'Test adjacency'
+myparam = {'method':'DTWMIC','row.names': None,'header': True, 'measure': None}
+ad = ca.Mat2Adj(['data/microbiome_Acidobacteria_0.0-diet.csv'], seplist=['\t'], param = myparam)
+print ad.loadfiles()
+print ad.compute()
+print ad.get_results(export_json=True, graph_format=False)
 # ad.save_RData()
 # ad.get_results_fromRData()
 # p
@@ -22,11 +22,11 @@ import compute_netstab as cs
 # print nd.save_RData()
 
 #
-print 'Test Stability'
-myparam = {'d': 'HIM', 'rho': None,'sep': '\t','header': True,
-          'adj_method': 'MINE'}
+# print 'Test Stability'
+# myparam = {'d': 'HIM', 'rho': None,'sep': '\t','header': True,
+#           'adj_method': 'MINE'}
 
-ns = cs.NetStability(['data/microbiome_Acidobacteria_0.0-diet.csv'], ['\t'], param=myparam)
-ns.loadfiles()
-ns.compute()
-print ns.get_results()
+# ns = cs.NetStability(['data/microbiome_Acidobacteria_0.0-diet.csv'], ['\t'], param=myparam)
+# ns.loadfiles()
+# ns.compute()
+# print ns.get_results()
