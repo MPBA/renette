@@ -13,20 +13,20 @@ import compute_netstab as cs
 # p
 
 
-print 'Test Network Distance'
-myparam = {'d': 'HIM','components': True, 'rho': None,'sep': '\t','row.names': 1, 'header': True}
-nd = cd.NetDist(filelist=['data/test_data_10.csv'], seplist=['\t'], param=myparam)
-print nd.loadfiles()
-print nd.compute()
-print nd.get_results()
-print nd.save_RData()
+# print 'Test Network Distance'
+# myparam = {'d': 'HIM','components': True, 'rho': None,'sep': '\t','row.names': 1, 'header': True}
+# nd = cd.NetDist(filelist=['data/test_data_10.csv'], seplist=['\t'], param=myparam)
+# print nd.loadfiles()
+# print nd.compute()
+# print nd.get_results()
+# print nd.save_RData()
 
 #
-# print 'Test Stability'
-# myparam = {'d': 'HIM', 'rho': None,'sep': '\t','row.names': 1,
-#           'adj_method': 'ARACNE'}
+print 'Test Stability'
+myparam = {'d': 'HIM', 'rho': None,'sep': '\t','header': True,
+          'adj_method': 'MINE'}
 
-# ns = cs.NetStability(['test.tsv'], ['\t'], param=myparam)
-# ns.loadfiles()
-# ns.compute()
-# print ns.get_results()
+ns = cs.NetStability(['data/microbiome_Acidobacteria_0.0-diet.csv'], ['\t'], param=myparam)
+ns.loadfiles()
+ns.compute()
+print ns.get_results()
