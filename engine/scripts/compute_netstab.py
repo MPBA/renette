@@ -102,7 +102,7 @@ class NetStability:
                                                save=param['save'],
                                                tol=0.0,
                                                **{'adj.method': param['adj_method'],
-                                                  'n.cores': 1, 'var.thr': 0.0}))
+                                                  'n.cores': 1, 'var.thr': 1e-12}))
             return_value = True
             
         except IOError, e:
@@ -172,7 +172,6 @@ class NetStability:
                 
                 # Compute the edge stability indicator
                 myfname = os.path.join(filepath,'%s_%s_Sw.tsv' % (self.listname[i], self.met))
-                print Sd.shape[1]
                 # Write file for edge stability indicator
                 sww = ru.write_Sw(Sw, N=Sd.shape[1], filename=myfname)
                 if sww:
