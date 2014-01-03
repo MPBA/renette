@@ -10,3 +10,5 @@ renette/settings/local_settings.py
 renette/*.bk
 engine/scripts/data/data_phenotype/
 .*
+*.sqlite3
+*.rdb

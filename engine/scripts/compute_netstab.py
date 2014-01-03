@@ -107,9 +107,11 @@ class NetStability:
             
         except IOError, e:
             self.computed = False
+            return_value = False
             print 'Error during the computation of the stability indicators: %s' % str(e)
         except ri.RRuntimeError, e:
             self.computed = False
+            return_value = False
             print 'Error during the computation of the stability indicators: %s' % str(e)
             
         if return_value:
