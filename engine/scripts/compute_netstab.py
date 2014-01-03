@@ -78,8 +78,7 @@ class NetStability:
             if p in self.param:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
-        print param
-        print self.param
+
         self.met = param['adj_method']
         
         # Start the computation
