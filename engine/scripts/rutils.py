@@ -91,7 +91,7 @@ def export_to_json(reslist, i, filepath=".", perc=10, prefix='graph_' ):
     try:
         thr = np.percentile(tmp[tmp > 0.0], 100-perc)
     except:
-        raise ValueError("Too low co-expression value, probably variance in the input data is below %.1e" % 1.0e-12)    
+        raise ValueError("Too low co-expression value, probably variance in the input data is below %.1e" % 1.0e-15)
     # Write nodes specifications
     for n in range(tmp.shape[1]):
         try:
