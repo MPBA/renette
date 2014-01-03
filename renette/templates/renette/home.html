@@ -48,5 +48,19 @@ The process compute the network stability indicators given the inference method 
 
         </div>
         {% include "navigation.html" %}
+        <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Process Stats</h3>
+              </div>
+              <div class="panel-body">
+                <ul>
+                    <li>Active Processes: {{ active_processes }}</li>
+                    <li>Scheduled Processes: {{ scheduled_processes }}</li>
+                    <li>Registered Processes: {{ registered_processes }}</li>
+                </ul>
+              </div>
+            </div>
+        </div><!--/span-->
       </div><!--/row-->
 {% endblock container %}
