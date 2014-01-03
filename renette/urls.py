@@ -23,5 +23,6 @@ urlpatterns = patterns('',
     url(r'^about/$', 'django.contrib.flatpages.views.flatpage', {'url': '/about/'}, name='about'),
     url(r'^contact/$', 'django.contrib.flatpages.views.flatpage', {'url': '/contact/'}, name='contact'),
     url(r'^tutorial/$', 'django.contrib.flatpages.views.flatpage', {'url': '/tutorial/'}, name='tutorial'),
+    url(r'^faq/$', 'django.contrib.flatpages.views.flatpage', {'url': '/faq/'}, name='faq'),
     url(r'^redactor/', include('redactor.urls')),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

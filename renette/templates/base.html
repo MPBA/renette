@@ -63,9 +63,10 @@
             <li class="{% current 'home' %}"><a href="{% url 'home' %}">Home</a></li>
             <li class="{% current 'about' %}"><a href="{% url 'about' %}">About</a></li>
             <li class="{% current 'contact' %}"><a href="{% url 'contact' %}">Contact</a></li>
+            <li class="{% current 'faq' %}"><a href="{% url 'faq' %}">F.A.Q.</a></li>
             <li class="dropdown">
                 {% get_flatpages '/tutorial/' as tutorial_pages %}
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Tutorial <b class="caret"></b></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Tutorials <b class="caret"></b></a>
                 <ul class="dropdown-menu">
                     {% for page in tutorial_pages %}
                         <li><a href="{{ page.url }}">{{ page.title }}</a></li>

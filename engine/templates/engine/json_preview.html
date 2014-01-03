@@ -2,8 +2,8 @@
 {% load static %}
 {% block container %}
 {# TODO: Mettere sigma lib tutto sotto static! #}
-<script type="application/javascript" src="http://sigmajs.org/js/sigma.min.js"></script>
-<script type="application/javascript" src="/static/js/sigma.parseJson.js"></script>
+<script type="application/javascript" src="{% static 'js/sigma.js' %}"></script>
+<script type="application/javascript" src="{% static 'js/sigma.parseJson.js' %}"></script>
 <script type="application/javascript">
 jQuery(document).ready(function(){
   sigma.publicPrototype.myCircularLayout = function() {
@@ -19,33 +19,21 @@ jQuery(document).ready(function(){
     return this.position(0,0,1).draw();
   };
 
-  sigma.publicPrototype.myRandomLayout = function() {
-    var W = 300,
-        H = 300;
-
-    this.iterNodes(function(n){
-      n.x = W*Math.random();
-      n.y = H*Math.random();
-    });
-
-    return this.position(0,0,1).draw();
-  };
-
 // Instanciate sigma.js and customize rendering :
   sigInst = sigma.init(document.getElementById('sigma')).drawingProperties({
     defaultLabelColor: '#000',
     defaultLabelSize: 14,
-    defaultLabelBGColor: '#000',
+    defaultLabelBGColor: '#fff',
     defaultLabelHoverColor: '#000',
-    defaultEdgeColor: '#b2e2e2',
-    edgeColor: 'default',
     labelThreshold: 6,
-    defaultEdgeType: 'curve'
+    defaultEdgeType: 'curve',
+    defaultEdgeColor: '#a1d99b',
+    edgeColor: 'default'
   }).graphProperties({
     minNodeSize: 0.2,
     maxNodeSize: 8,
-    minEdgeSize: 0.2,
-    maxEdgeSize: 1,
+    minEdgeSize: 1,
+    maxEdgeSize: 5,
     sideMargin: 50
   }).mouseProperties({
     maxRatio: 32
