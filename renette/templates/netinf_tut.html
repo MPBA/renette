@@ -1,0 +1,222 @@
+<h2><span style="color: #494949;"> Short Description</span></h2>
+
+<p><span style="color: #595959;">In the <b> Network Inference</b> procedure many network inference algorithm are implemented, such as correlation-based measures, ARACNE or CLR. <br>
+
+    The inferred adjacency matrix can then be used as input for the</span><a class="btn btn-default" role="button" href="/engine/network/stability/">Network Stability</a><span style="color: #595959">procedure, in order to test its variability inherited by inference from data subsampling.</span></p>
+
+<p><span style="color: #595959">Moreover, in case of two networks, their can be compared through the </span><a class="btn bttn-default" role="button" href="/engine/network/distance/">Network Distance</a>&nbsp;<span style=" color: rgb(89, 89, 89);"> procedure.</span></p>
+
+<h3><span style="color: #595959;"> Step 1.</span></h3>
+
+<h4><span style="color: #595959;"> Loading the files</span></h4>
+
+<span style="color: #595959;">
+  ReNette supports the upload of csv file. Separator is automatically guessed by the first row of the file. Supported column separators are  [";:,\t"]
+</span>
+
+<ol>
+  
+  <li><span style="color: #595959;">In the right column click on the</span><a class="btn btn-default" role="button" href="/engine/network/inference/">Network Inference</a><span style=" color: rgb(89, 89, 89);"> button. The user will be redirected to the </span><a href="https://renette.fbk.eu/engine/network/inference/"> loading page</a></li>
+  
+  <li><span style="color: #595959;"> Load the example data clicking on the </span><p><a class="btn btn-go" role="button" href="https://renette.fbk.eu/engine/network/inference/?load=true">Load example data</a></p>
+    <span style="color: #595959;">
+      (please note that here two files are automatically loaded so that the inferred networks can be directly used in the <b>Network Distance</b> process) and skip 3.-4. or click on the button "Browse"</span></li>
+  
+  <li><span style="color: #595959;"> Select a file from your file system </span></li>
+  
+  <ul>
+    
+    <li><span style="color: #595959;"> A dialog window will open on the home directory on your local computer showing the available files</span></li>
+    
+    <li><span style="color: #595959;"> Navigate your local system to find the file you want to upload</span></li>
+  </ul>
+  
+  
+  <li><span style="color: #595959;">Check the "Column names" and/or "Row names" boxes if the uploaded files have respectively the header in the first row and/or the sample names in the first column</span></li>
+  
+  <ul>
+    
+    <li><span style="color: #595959;">The progress bar allows the user to track the upload progress. If the files are very big this may take a while.</span></li>
+  </ul>
+  
+  
+  <li><span style="color: #595959;">Once the download is complete click on the</span><button class="btn btn-go">Go</button><span style="color: #595959;">button to go to the second step process page</span></li>
+</ol>
+
+<h3><span style="color: #595959;">Step 2.</span></h3>
+
+<h4><span style="color: #595959;"> Select methods and set the parameters</span></h4>
+
+<p><span style="color: #595959;">The network inference algorithm can be chosen among 11 different methods.
+</span></p>
+
+
+<li><span style="color: #595959;">Select the inference algorithm in the <b>Method</b> drop-down menu
+  </span><p>
+    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+      Distance  
+    </button>
+  
+  
+  <ul role="menu">
+    
+    <li><span style="color: #595959;">cor </span></li>
+    
+    <li><span style="color: #595959;">WGCNA</span></li>
+    
+    <li><span style="color: #595959;">WGCNAFDR</span></li>
+    
+    <li><span style="color: #595959;">bicor</span></li>
+    
+    <li><span style="color: #595959;">bicorFDR</span></li>
+    
+    <li><span style="color: #595959;">TOM</span></li>
+    
+    <li><span style="color: #595959;">ARACNE</span></li>
+    
+    <li><span style="color: #595959;">CLR</span></li>
+    
+    <li><span style="color: #595959;">MINE</span></li>
+    
+    <li><span style="color: #595959;">MINEFDR</span></li> 
+    
+    <li><span style="color: #595959;">DTWMIC</span></li>
+  </ul>
+</p>
+</li>
+
+<dl>
+
+  <dt><span style="color: rgb(89, 89, 89);">cor:<span style="font-weight: normal;">&nbsp;</span></span><span style="font-weight: normal; color: rgb(89, 89, 89);">Pearson correlation coefficient</span></dt>
+
+
+  <dt><span style="color: rgb(89, 89, 89);">WGCNA:<span style="font-weight: normal;">&nbsp;</span></span><span style="font-weight: normal; color: rgb(89, 89, 89);">Weighted Gene Correlation Network Analysis. the co-expression similarity is defined as a function of the absolute correlation, with soft-thresholding, i.e., the similarity is defined as a power of the absolute correlation&nbsp;</span><a href="#wgcna_paper" target="_self" style="font-weight: normal;">[1]</a><span style="font-weight: normal; color: rgb(89, 89, 89);">.</span></dt>
+
+
+  <dt><span style="color: rgb(89, 89, 89);">WGCNAFDR:<span style="font-weight: normal;">&nbsp;</span></span><span style="font-weight: normal; color: rgb(89, 89, 89);">the WGCNA with False Discovery Rate correction. The FDR controlled procedure defines a rule for choosing which edges to trust (thus to keep) during the network reconstruction phase. We essentially count how many times the absolute correlation level between two nodes is lesser than the correlation between a shuffled version of the sample data. Precisely, the data are shuffled as many times as possible (depending on the sample size) or at least as many times as needed to reach a chosen p-value threshold (see FDR value in the parameter list).</span></dt>
+
+
+  <dt><span style="color: rgb(89, 89, 89);">bicor:<span style="font-weight: normal;">&nbsp;</span></span><span style="font-weight: normal; color: rgb(89, 89, 89);">the biweight midcorrelation, which is more robust to outliers than the Pearson correlation&nbsp;</span><a href="#wgcna_paper" target="_self" style="font-weight: normal;">[1]</a><span style="font-weight: normal; color: rgb(89, 89, 89);">.</span></dt>
+
+
+  <dt><span style="color: rgb(89, 89, 89);">bicorFDR:<span style="font-weight: normal;">&nbsp;</span></span><span style="font-weight: normal; color: rgb(89, 89, 89);">the bicor similarity score with False Discovery Rate correction.</span><a href="#stab_paper" target="_self" style="line-height: 1.5em; font-weight: normal;">[5]</a></dt>
+
+
+  <dt><span style="color: rgb(89, 89, 89);">TOM:<span style="font-weight: normal;">&nbsp;</span></span><span style="font-weight: normal; color: rgb(89, 89, 89);">The Topological Overlap Measure (TOM) replaces the original co-expression similarity with a measure of interconnectedness (between couple of nodes) based on shared neighbors. It can be seen as a filter for cutting away weak connections, thus leading to more robust networks than WGCNA&nbsp;</span><a href="wgcna_paper" target="_self" style="font-weight: normal;">[1]</a><span style="font-weight: normal; color: rgb(89, 89, 89);">.</span></dt>
+
+
+  <dt><span style="color: rgb(89, 89, 89);">ARACNE:<span style="font-weight: normal;">&nbsp;</span></span><span style="font-weight: normal; color: rgb(89, 89, 89);">The Algorithm for the Reconstruction of Accurate Cellular Networks (ARACNE) is an approach relying on the mutual information, which was originally developed for inferring regulatory networks of mammalian cells. It starts with a graph where each pair of nodes are connected if their association is above a chosen threshold. In order to avoid the false positive problem, usually affecting co-expression networks, the Data Processing Inequality (DPI) is then applied for removing the weakest edge of each triplet, thus removing the majority of indirected links.&nbsp;</span><a href="#aracne_paper" target="_self" style="line-height: 1.5em; font-weight: normal;">[2]</a></dt>
+
+
+  <dt><span style="color: rgb(89, 89, 89);">CLR:<span style="font-weight: normal;">&nbsp;</span></span><span style="font-weight: normal; color: rgb(89, 89, 89);">The Context Likelihood of Relatedness (CLR) approach scores the interactions by using the mutual information between the corresponding gene expression levels, coupled with an adaptive background correction step. Although suboptimal if the number of nodes is much larger than the number of variables, it was observed that CLR performs well in terms of prediction accuracy and some CLR predictions in literature were later experimentally validated.&nbsp;</span><a href="#clr_paper" target="_self" style="line-height: 1.5em; font-weight: normal;">[3]</a></dt>
+
+
+  <dt><span style="color: rgb(89, 89, 89);">MINE:<span style="font-weight: normal;">&nbsp;</span></span><span style="font-weight: normal; color: rgb(89, 89, 89);">one of the Maximal Information-based Nonparametric Exploration (MINE) statistics.&nbsp;</span><a href="mine_paper" target="_self" style="line-height: 1.5em; font-weight: normal;">[4]</a></dt>
+
+
+  <dt><span style="color: rgb(89, 89, 89);">MINEFDR:<span style="font-weight: normal;">&nbsp;</span></span><span style="font-weight: normal; color: rgb(89, 89, 89);">the MINE similarity with False Discovery Rate correction.&nbsp;</span><a href="#stab_paper" target="_self" style="line-height: 1.5em; font-weight: normal;">[5]</a></dt>
+
+
+  <dt><span style="color: rgb(89, 89, 89);">DTWMIC:<span style="font-weight: normal;">&nbsp;</span></span><span style="font-weight: normal; color: rgb(89, 89, 89);">linear combination of Dynamic Time Warping based distance and MIC (i.e., the Maximal Information Coefficient belonging to the MINE family).</span><a href="#dtw_paper" target="_self" style="line-height: 1.5em; font-weight: normal;">[6]</a></dt>
+
+</dl>
+
+
+<li><span style="color: #595959;">For each algorithm, the user can set the corresponging parameters:</span></li>
+
+<dl>
+
+  <dt><span style="color: #595959;">P</span></dt>
+
+
+  <dd><span style="color: #595959;"> (WGCNA and WGCNAFDR) soft thresholding parameter: the exponent of the similarity function defining the existence of a link. Default value set to 6.</span></dd>
+
+
+  <dt><span style="color: #595959;">FDR</span></dt>
+
+
+  <dd><span style="color: #595959;"> (WGCNAFDR, bicorFDR, MINEFDR) p-value throshold for the FDR procedure. Default value set to 1e-3.</span></dd>
+
+
+  <dt><span style="color: #595959;">alpha</span></dt>
+
+
+  <dd><span style="color: #595959;">(MINE and MINEFDR) Default value set to 0.6.</span></dd>
+
+
+  <dt><span style="color: #595959;">C</span></dt>
+
+
+  <dd><span style="color: #595959;">(MINE and MINEFDR) Default value set to 15.</span></dd>
+
+
+  <dt><span style="color: #595959;">Measure</span></dt>
+
+
+  <dd><span style="color: #595959;">(MINE and MINEFDR) Statistic to be used among the MINE family. Possible values are MIC, MAS, MCN, MEV, and MICR2 (which means MIC-cor^2).</span></dd>
+
+</dl>
+
+
+<li><span style="color: #595959;">Press the</span><button class="btn btn-primary" type="button">Submit</button><span style=" color: rgb(89, 89, 89);">button to submit the job.</span></li>
+<h3><span style="color: #595959;">Step 3.</span></h3>
+
+<h4><span style="color: #595959;">Summary view and result page</span></h4>
+
+<span style="color: #595959;">
+  After the job submission the user will be automatically redirected to the summary page
+</span>
+
+<ol>
+
+  <li><span style="color: #595959;">In the top part there is the process ID and the button pointing to the result page for the submitted job</span></li>
+
+  <li><span style="color: #595959;">A short summary is shown with the uploaded file, the selected algorithm and the parameters used for the computation.</span></li>
+
+  <li><span style="color: #595959;">To see the status of the process just click on the
+    </span><p><button class="btn btn-info" type="button">
+	Go to status page</button></p>
+
+    <span style="color: #595959;">
+      button in the top of the page.
+  </span></li>
+</ol>
+
+<h3><span style="color: #494949;"> The Result page</span></h3>
+
+<h4 style=" color: rgb(59, 59, 59);">Process Status</h4>
+
+<p style=" color: rgb(59, 59, 59);">The result page contains all the information on the submitted job. It includes the job UUID, the submitted procedure, the selected parameters of the running job, the submission time stamp, the status of the process (success, started, failure, running, pending), see&nbsp;<a href="/faq/" target="_self">faq</a>&nbsp;section for more details on process statuses. Then in the same box, if the job has successfully complete, a link to a zip file with all the results is provided.</p>
+
+<span style="color: #595959;"><b>The session will last for 7 days</b>: within 7 days after the submission the results and the job queue appear in the process list. After 7 days the session expires, so the job queue of the user will be deleted.</span><br>
+
+<p><span style="color: #595959;">For each input file a weighted adjacency matrix is returned. In particular the weight is the inference measure between two variable in the input file.&nbsp;</span></p>
+
+<p><span style="color: #595959;">For each adjacency matrix it is possible to visualize the network, in which the node dimension is proportional to the node degree and the edge width is proportional to the edge weight given by the adjacency matrix. Furthermore the network can be exported as adjacency matrix as "csv" files or as "gml" file format (see&nbsp;<a href="http://www.fim.uni-passau.de/en/fim/faculty/chairs/theoretische-informatik/projects.html" target="_self">here</a>&nbsp;for more details).&nbsp;If column names are provided in the input file they will be used as node identifiers.&nbsp;</span></p>
+
+<p><button class="btn btn-success" type="button">Download all files</button>
+</p>
+
+<span style="color: #595959;">
+  The implementation in based on the R nettools packages available on <a href="https://github.com/MPBA/nettools">github</a></span>&nbsp;<p><b><span style="color: #595959;">References</span></b><br>
+
+</p>
+
+<ol>
+
+  <li><span style="color: #595959;"><a style="color:#595959; text-decoration:none" name="wgcna_paper">Langfelder P, Horvath S (2008) WGCNA: an R package for weighted correlation network analysis. BMC Bioinformatics 2008, 9:559,</a> (<a href="http://www.biomedcentral.com/1471-2105/9/559" target="_self">link to paper</a>&nbsp;)<br>
+
+  </span></li>
+
+  <li><a style="color: #595959;text-decoration:none" name="aracne_paper">Adam A. Margolin, Ilya Nemenman, Katia Basso, Chris Wiggins, Gustavo Stolovitzky, Riccardo Dalla Favera, and Andrea Califano. Aracne : An algorithm for the reconstruction of gene regulatory networks in a mammalian cellular context. BMC Bioinformatics, 2006.</a>(<a style="color:#595959" href="http://www.biomedcentral.com/1471-2105/7/S1/S7" target="_self">link to paper</a>&nbsp;)</li>
+
+  <li><span style="color: #595959;"><a style="color: #595959;text-decoration:none" name="clr_paper"> Faith J. J., Hayete B., Thaden J. T., Mogno I., Wierzbowski J., Cottarel G., Kasif S., Collins J., Gardner T., Large-Scale Mapping and Validation of Escherichia Coli Transcriptional Regulation from a Compendium of Expression Profiles. PLoS Biol, 2007. </a> (<a href="http://www.plosbiology.org/article/info:doi/10.1371/journal.pbio.0050008" target="_self">link to paper</a>&nbsp;)</span><br>
+
+  </li>
+  
+  <li> <span style="color: #595959;"><a style="color: #595959;text-decoration:none" name="mine_paper"> Reshef D., Reshef Y., Finucane H., Grossman S., McVean G., Turnbaugh P., Lander E., Mitzenmacher M., Sabeti P.. Detecting novel associations in large datasets. Science, 2011</a> (<a href="http://www.sciencemag.org/content/334/6062/1518.full?ijkey=cRCIlh2G7AjiA&amp;keytype=ref&amp;siteid=sci" target="_self">link to paper</a>&nbsp;) </span></li>
+
+  <li> <span style="color: #595959;"><a style="color: #595959;text-decoration:none" name="stab_paper">Jurman G., Filosi M., Visintainer R., Riccadonna S., Furlanello C.,Stability indicators in network reconstruction, arXiv, 2012. </a>(<a href="http://arxiv.org/abs/1209.1654v1" target="_self">link to paper</a>) </span></li>
+ 
+  <li><span style="color: #595959;"><a style="color: #595959;text-decoration:none" href="dtw_paper">Riccadonna S., Jurman G., Visintainer R., Filosi M., Furlanello C., DTW-MIC Coexpression Networks from Time-Course Data, arXiv, 2012.</a> (<a href="http://arxiv.org/abs/1210.3149v1" target="_self">link to paper</a>)</span></li>
+</ol>
