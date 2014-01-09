@@ -7,7 +7,7 @@ from rpy2.robjects.numpy2ri import numpy2ri
 import rpy2.rinterface as ri
 import numpy as np
 import os.path
-
+import rutils as ru
 
 class NetDist:
     
@@ -147,7 +147,7 @@ class NetDist:
         results = {}
         
         if self.computed:
-            for i in range(len(self.res)):
+            for i in xrange(len(self.res)):
                 myfname = os.path.join(filepath,
                                        names(self.res)[i] + '_distance.tsv')
                 
@@ -186,6 +186,18 @@ class NetDist:
                                 'col.names': ri.NA_Logical,
                                 'row.names': True
                             })
+            
+                print 'Test'
+                if self.nfiles > 2:
+                    try:
+                        aa = ru.plot_mds(self.res[i], 
+                                         prefix=names(self.res)[i] + '_distance')
+                        results[names(self.res)[i]]['img_files'] += [names(self.res)[i] + '_distance.png']
+                    except RRuntimeError, e:
+                        if self.stat == 'Success':
+                            self.stat = 'Warning'
+                        self.e += [e]
+            
             return results
         else:
             print "No distance computed"
@@ -217,4 +229,5 @@ class NetDist:
         except RRuntimeError, e:
             print 'No results found: %s' % str(e)
             return False
+
 

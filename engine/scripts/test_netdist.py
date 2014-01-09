@@ -1,9 +1,11 @@
 import compute_netdist as cd
 import compute_adj as ca
 import compute_netstab as cs
+import rutils as ru
+
 
 print 'Test adjacency'
-myparam = {'method':'MINE','row.names': None,'header': True, 'measure': None}
+myparam = {'method':'CLR','row.names': None,'header': True, 'measure': None}
 ad = ca.Mat2Adj(['data/microbiome_Acidobacteria_0.0-diet.csv'], seplist=['\t'], param = myparam)
 print ad.loadfiles()
 print ad.compute()
@@ -15,7 +17,7 @@ print ad.get_results(export_json=True, graph_format=False)
 
 # print 'Test Network Distance'
 # myparam = {'d': 'HIM','components': True, 'rho': None,'sep': '\t','row.names': 1, 'header': True}
-# nd = cd.NetDist(filelist=['data/test_data_10.csv'], seplist=['\t'], param=myparam)
+# nd = cd.NetDist(filelist=['data/test_data_10.csv', 'data/test_data_1.csv', 'data/test_data_2.csv', 'data/test_data_3.csv'], seplist=['\t' for i in xrange(4)], param=myparam)
 # print nd.loadfiles()
 # print nd.compute()
 # print nd.get_results()

@@ -3,10 +3,13 @@ import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
 from rpy2.robjects.numpy2ri import numpy2ri
 from rpy2.robjects.vectors import DataFrame
+from random import randrange
 import numpy as np
 import os.path
 import csv
 import json
+
+
 
 def write_Sw (Sw, N, filename='Sw.csv'):
     """
@@ -75,25 +78,59 @@ def export_graph(reslist, i, filepath='.',format='gml',  prefix='graph_'):
     myfname = prefix + str(i) + '.%s' % format  
     g = gadj(reslist, mode='undirected', weighted=True)
     wgraph(g, file=os.path.join(filepath,myfname), format=format)
-        
+    
     return myfname
-
-def export_to_json(reslist, i, filepath=".", perc=10, prefix='graph_' ):
+    
+def export_to_json(reslist, i, filepath=".", perc=10, prefix='graph_', weight=True ):
     """
     Create the json for d3js visualization
     """
+    igraph = importr('igraph')
+    gadj = igraph.graph_adjacency
+    direct = 'directed'
     
     # Write a graph file for each result
     #for i,r in enumerate(reslist):
     response = {'nodes': [], 'links': []}
     tmpr = np.array(reslist)
-    tmp = np.triu(tmpr)
+    # tmp = np.triu(tmpr)
+    
+    # Check if the matrix is symmetric
+    ck = (np.triu(tmpr).transpose() - np.tril(tmpr))
+    if not ck.all():
+        direct = 'undirected'
+        tmp = np.triu(tmpr)
+    else:
+        tmp = tmpr
+        
     try:
         thr = np.percentile(tmp[tmp > 0.0], 100-perc)
     except:
         thr = 0.0
-        # raise ValueError("Too low co-expression value, probably variance in the input data is below %.1e" % 1.0e-15)
     
+    # Create the graph object
+    g = gadj(reslist, mode=direct, weighted=weight, diag=False)
+    
+    # Check for weights attribute
+    if weight:
+        ww = igraph.get_edge_attribute(g, "weight")
+    else:
+        ww = ri.NULL
+    
+    # Get x-y coords for graph visualization
+    gcoord = igraph.layout_fruchterman_reingold(g, weights=ww)
+    gcoorda = np.array(gcoord)
+        
+    # Get communities 
+    gmm = igraph.spinglass_community(g, weights=ww)
+    mm = igraph.membership(gmm)
+    cm = np.empty(len(mm), dtype='S8')
+    
+    # Assign color to each community
+    for m in np.unique(mm):
+        cc = "#%s" % "".join([hex(randrange(0, 255))[2:] for i in range(3)])
+        cm[mm==m] = cc
+        
     # Write nodes specifications
     for n in range(tmp.shape[1]):
         try:
@@ -102,12 +139,20 @@ def export_to_json(reslist, i, filepath=".", perc=10, prefix='graph_' ):
             mynode = n
         
         response['nodes'].append({'label': '%s' % str(mynode), 'id': n, 
-                                  'size': '%.2f' % tmpr[n,:].sum()})
+                                  'size': '%.2f' % tmpr[n,:].sum(), 
+                                  'x': gcoorda[n,0],
+                                  'y': gcoorda[n,1],
+                                  'cluster': mm[n],
+                                  'color': cm[n]})
     
     # Write links specifications
     N = tmp.shape[1]
-    for n in range(tmp.shape[1]):
-        for j in range(n+1,N):
+    for n in xrange(tmp.shape[1]):
+        if direct == "undirected":
+            start = n + 1
+        else:
+            start = 1
+        for j in xrange(start,N):
             if (tmp[n,j] >= thr):
                 response['links'].append({'source': n, 
                                           'target': j, 
@@ -133,7 +178,7 @@ def csv2graph(csvfiles, seplist=[], param={},filepath='.', graph_format='gml'):
     igraph = importr('igraph')
     gadj = igraph.graph_adjacency
     wgraph = igraph.write_graph
-
+    
     if len(seplist) != len(csvfiles):
         raise IOError('Not enought separators')
         
@@ -149,4 +194,34 @@ def csv2graph(csvfiles, seplist=[], param={},filepath='.', graph_format='gml'):
         
     return True
 
+    
+def plot_mds (results, filepath=".", prefix='mds_'):
+    """
+    Plot the mds of the distances
+    """
+    grdevices = importr('grDevices')
+    asdist = robjects.r['as.dist']
+    
+    try:
+        mm = robjects.r.cmdscale(asdist(results),eig=True)
+        mmp = mm[0]
+        
+        grdevices.png(file=os.path.join(filepath, prefix + '.png'), width=512, height=512)
+        robjects.r.plot(mmp.rx(True,1),mmp.rx(True,2), type="n", col='red',
+                        ylab='Coord. 2', xlab='Coord. 1', main='Multi-Dimensional Scaling plot')
+        robjects.r.text(mmp.rx(True,1),mmp.rx(True,2), mmp.rownames)
+        grdevices.dev_off()
+        
+        return True
+        
+    except ValueError, e:
+        raise "%s Not conformable array dimension." % e
+        
+
+def igraph_layout (adjmat):
+    """
+    """
+    igraph = importr('igraph')
+    
+    
     
