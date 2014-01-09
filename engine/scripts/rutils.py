@@ -118,7 +118,12 @@ def export_to_json(reslist, i, filepath=".", perc=10, prefix='graph_', weight=Tr
         ww = ri.NULL
     
     # Get x-y coords for graph visualization
-    gcoord = igraph.layout_fruchterman_reingold(g, weights=ww)
+    minx = [0 for i in xrange(tmp.shape[0])]
+    maxx = [i + 1100 for i in minx]
+    maxy = [i + 600 for i in minx]
+    gcoord = igraph.layout_fruchterman_reingold(g, weights=ww, 
+                                                minx=minx, maxx=maxx,
+                                                miny=minx, maxy=maxy)
     gcoorda = np.array(gcoord)
         
     # Get communities 
