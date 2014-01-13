@@ -12,10 +12,14 @@ sigma.publicPrototype.parseJson = function(jsonPath,callback) {
 		for (i=0; i<data.nodes.length; i++){
             H=600
             W=$("#sigma-example-parent").width()
-            data.nodes[i].x = W*Math.random();
-            data.nodes[i].y = H*Math.random();
-            data.nodes[i].color = 'rgb(49,163,84)';
-
+            if(!data.nodes[i].x){
+                data.nodes[i].x = W*Math.random();
+            }
+            if(!data.nodes[i].y){
+                data.nodes[i].y = H*Math.random();
+            }
+//            data.nodes[i].y = H*Math.random();
+//            data.nodes[i].color = 'rgb(49,163,84)';
 			var id=data.nodes[i].id;
 			sigmaInstance.addNode(id,data.nodes[i]);
 		}
