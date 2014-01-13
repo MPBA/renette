@@ -1,0 +1,191 @@
+<h2> Short Description</h2>
+
+<p>In the <b>Network Distance</b> procedure 3 different network metrics are implemented. In particular each metric allows quantifying the differences between two or more networks.<br>
+
+Here we consider only mono-layer networks, without self-loop, represented by their adjacency matrices. It would be better to normalize the matrix by scaling its values in [0,1]. <br>
+
+Directed weighted networks is the most general case Renette can handle: they are represented by a non-symmetric matrix of float numbers, where
+two nodes are connected if the corresponding value in the adjacency matrix is different from 0. In particular, the weighted network case correspond to an adjacency matrix of float numbers in [0,1], which are assigned to the edge weight, while the unweighted case correspond to an adjacency metrix of 0/1 values, where 1 indicates the presence of a link.<br>
+
+The network adjacency matrices to be compared can be inferred from data thanks to the </p>
+<p> <a href="/engine/network/inference/"> <button type="button" class="btn btn-default"><b>Network Inference</b></button> </a> </p>
+ procedure.
+
+<h3> Step 1.</h3>
+
+<h4> Loading the files</h4>
+
+ReNette supports the upload of csv file. Separator is automatically guessed by the first row of the file. Supported column separators are  [";:,\t"]
+
+<ol>
+
+  <li>In the right column click on the <a class="btn btn-default" role="button" href="/engine/network/distance/"><b>Network Distance</b></a>
+    button. The user will be redirected to the <a href="https://renette.fbk.eu/engine/network/distance/"> loading page </a></li>
+
+	<li>  Load the example data (clicking on the 
+	  <a class="btn btn-go" role="button" href="https://renette.fbk.eu/engine/network/distance/?load=true">Load example data</a>
+	  button at the page bottom) or click on the button "Browse" for loading your own data</li>
+	<li> Select at least TWO files from your file system </li>
+<ul>
+  <li> A dialog window will open on the home directory on your local computer showing the available files</li>
+  <li> Navigate your local system to find the file you want to upload</li>
+</ul>
+
+  <li>Check the "Column names" and/or "Row names" boxes if the uploaded files have respectively the header in the first row and/or the sample names in the first column</li>
+  
+<ul>
+  
+  <li>The progress bar allows the user to track the upload progress. If the files are very big this may take a while.</li>
+</ul>
+  <li>Once the download is complete click on the 
+    <p><button class="btn btn-go">
+	Go</button></p>
+ button to go to the second step process page</li>
+</ol>
+
+<h3>Step 2.</h3>
+
+<h4> Select methods and set the parameters</h4>
+
+<p>The distance between networks can be computed with the following three metrics: HIM, Hamming and Ipsen-Mikhailov. A complete descrition can be found <a href="">here</a></p>
+
+
+<ol>
+
+	<li>Select the distance metric in the <b>Distance</b> drop-down menu
+
+  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+  Distance  <span class="caret"></span>
+  </button>
+
+<ul class="dropdown-menu" role="menu">
+ 
+	<li>HIM </li>
+ 
+	<li>Ipsen Mikhailov</li>
+ 
+	<li>Hamming</li>
+</ul>
+</li>
+
+<dl class="dl-horizontal">
+
+<dt>HIM</dt>
+
+
+<dd>It takes into account both global and local differences between networks. It is defined as the one-parameter family of product metrics linearly combining (with a factor <b>rho</b> ranging from zero to infinity) the Hamming distance and the Ipsen-Mikhailov distance, normalized by the factor <b>1 + rho</b> to set its upper bound to 1 (for details see <i>Filosi et al., 2013</i>).</dd>
+
+
+<dt>Hamming</dt>
+
+
+<dd>It is a local distance. Takes into account only the local differences between the input network. It searches for matching and non-matching links when two network are compared</dd>
+
+
+<dt>Ipsen-Mikhailov</dt>
+
+
+<dd>It is a spectral distance which means that it evaluates the differences in the structure of the networks given by the eigenvalues of the network laplacian matrices. It is worth considering that isomorphic graph cannot be distinguished by this metric</dd>
+
+</dl>
+
+
+	<li>For each distance a set of parameter can be chosen:</li>
+
+<dl class="dl-horizontal">
+
+<dt>HIM</dt>
+
+
+<dd>
+
+<ul>
+
+	<li><b>rho</b>: default=1. It is the weight of the distances in the HIM product metric. For further details on the rho parameter see <i>Filosi et al., 2013</i> (please note that in the text is mentioned as xi)</li>
+
+	<li><b>ga</b>:default <empty>. This is the scale parameter gamma of the Ipsen-Mikhailov distance. It depends on the number of nodes of the network.</empty></li>
+
+	<li><b>Components</b>: default True. If False only the HIM distance is returned, otherwise the HIM distance is returned together with the 2 components Hamming and Ipsen-Mikhailov</li>
+</ul>
+<br>
+
+</dd>
+
+
+<dt> Hamming </dt>
+
+
+<dd>
+<ul>
+	<li>No parameters needed</li></ul>
+<br>
+</dd>
+
+
+<dt>Ipsen Mikhailov</dt>
+
+
+<dd>
+
+<ul>
+
+	<li><b>ga</b>:default <empty>. This is the scale parameter gamma which specifies the half-width at half-maximum in the sum of the Lorentz distributions.</empty></li>
+</ul>
+
+</dd>
+
+</dl>
+
+
+	<li>Press the
+<p><button type="button" class="btn btn-primary">
+    Submit</button></p>
+ button to submit the job.
+ </li>
+</ol>
+
+<h3>Step 3.</h3>
+
+<h4>Summary view and result page</h4>
+
+After the job submission the user will be automatically redirected to the summary page
+
+<ol>
+
+	<li>In the top part there is the process ID and the button pointing to the result page for the submitted job</li>
+
+	<li>A short summary is shown with the uploaded file, the selected metric and the parameters used for the computation.</li>
+
+	<li>To see the status of the process just click on the
+<p><button type="button" class="btn btn-info">
+    Go to status page</button></p>
+ button in the top of the page.
+ </li>
+</ol>
+
+<h3> The Result page</h3>
+
+<h4>A short preview of the results is displayed here.</h4>
+
+<p>In the top box there are the task information (such as the ID of the submitted process), the time stamp of the submission of the process and the status of the process.<br>
+
+Once the status switch to
+<span class="label label-success">
+<b>Success</b>
+</span>
+ the results are automatically loaded, otherwise the process is still running.<br>
+</p>
+
+<p><b> The session will last for 7 days</b>: within 7 days after the submission the results and the job queue appear in the process list. After 7 days the session expires, so the job queue of the user will be deleted.</p>
+
+<p>For each metric selected we present the distance as a table. It is possible to select the files to download or even download alla the results as a zip archive with 
+</p>
+<p><button type="button" class="btn btn-success">
+    Download all files</button>
+</p>
+
+If multiple file are uploaded the table contains the pairwise distances between the uploaded networks.<br>
+
+The results are exported as csv tab separated format.
+
+The implementation in based on the R nettools packages available on <a href="https://github.com/MPBA/nettools">github</a>

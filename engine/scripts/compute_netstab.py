@@ -102,7 +102,7 @@ class NetStability:
                                                save=param['save'],
                                                tol=0.0,
                                                **{'adj.method': param['adj_method'],
-                                                  'n.cores': 1, 'var.thr': 1e-12}))
+                                                  'n.cores': 1, 'var.thr': 1e-15}))
             return_value = True
             
         except IOError, e:
