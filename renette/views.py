@@ -21,13 +21,18 @@ class MainView(TemplateView):
     template_name = 'renette/home.html'
 
     def get_context_data(self, **kwargs):
-        c = djcelery.celery
-        i = c.control.inspect()
         context = super(MainView, self).get_context_data()
-        print len(i.active().items()[0][1])
-        context['active_processes'] = len(i.active().items()[0][1])
-        context['registered_processes'] = len(i.registered().items()[0][1])
-        context['scheduled_processes'] = len(i.scheduled().items()[0][1])
+
+        try:
+            c = djcelery.celery
+            i = c.control.inspect()
+            context['active_processes'] = len(i.active().items()[0][1])
+            context['registered_processes'] = len(i.registered().items()[0][1])
+            context['scheduled_processes'] = len(i.scheduled().items()[0][1])
+        except Exception:
+            context['active_processes'] = 'NA'
+            context['registered_processes'] = 'NA'
+            context['scheduled_processes'] = 'NA'
         return context
 
 

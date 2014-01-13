@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
+{% load cache %}
+
 {% block container %}
+
 <div class="row row-offcanvas row-offcanvas-right">
+        {% cache 500 sidebar %}
         <div class="col-xs-12 col-sm-9">
           <p class="pull-right visible-xs">
             <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle nav</button>
@@ -44,9 +48,8 @@ The process compute the network stability indicators given the inference method 
                   <p><a class="btn btn-default" href="{% url 'network_stability' %}" role="button">View details &raquo;</a></p>
                 </div>
             </div>
-
-
         </div>
+        {% endcache %}
         {% include "navigation.html" %}
         <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
             <div class="panel panel-default">
