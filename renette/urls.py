@@ -3,6 +3,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.sitemaps import FlatPageSitemap
+from django.views.decorators.cache import cache_page
 from .sitemap import StaticViewSitemap
 from .views import MainView
 admin.autodiscover()
@@ -21,8 +22,13 @@ urlpatterns = patterns('',
     (r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap', {'sitemaps': sitemaps}),
 
     # main app url
-    url(regex='^$', view=MainView.as_view(), name='home'),
+    url(regex='^$', view=cache_page(60 * 5)(MainView.as_view()), name='home'),
     url(r'^sendmail/$', 'renette.views.contact', name='sendmail'),
+
+    # test url
+    url(r'^test/db/$', 'renette.views.test_db'),
+    url(r'^test/rabbitmq/$', 'renette.views.test_rabbitmq'),
+    url(r'^test/celery/$', 'renette.views.test_celery'),
 
     # engine urls
     (r'^engine/', include('engine.urls')),

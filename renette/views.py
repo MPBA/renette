@@ -1,22 +1,24 @@
 # -*- encoding: utf-8 -*-
-from django.views.decorators.csrf import csrf_exempt
+import socket
 
 __author__ = 'ernesto'
-
 #This file contains only the views for the main app. It's made just to render an home page for the project
-
 from django.views.generic import TemplateView
 from django.shortcuts import render
 from django.contrib import messages
-from django.conf import settings
-from django.http import HttpResponseRedirect, HttpResponseBadRequest
-from .forms import ContactForm
+from django.contrib.sites.models import Site
 from django.core.mail import send_mail
+from django.conf import settings
+from django.http import HttpResponseRedirect, HttpResponseBadRequest, HttpResponseServerError, HttpResponse
+from django.views.decorators.cache import cache_page
+from django.views.decorators.csrf import csrf_exempt
+from .forms import ContactForm
+
 #from celery.task.control import inspect
 import djcelery
 
 
-#class based view for home page rendering
+
 class MainView(TemplateView):
     template_name = 'renette/home.html'
 
@@ -61,3 +63,29 @@ def contact(request):
             return HttpResponseRedirect('/contact/')  # Redirect after POST
     else:
         return HttpResponseBadRequest
+
+
+def test_db(request):
+    try:
+        sites = Site.objects.all()
+    except Exception:
+        return HttpResponseServerError()
+    return HttpResponse('200 OK')
+
+
+def test_rabbitmq(request):
+    try:
+        s = socket.socket()
+        s.connect_ex(('geopg.fbk.eu', 50010))
+    except Exception:
+        return HttpResponseServerError()
+    return HttpResponse('200 OK')
+
+
+def test_celery(request):
+    try:
+         c = djcelery.celery
+         i = c.control.inspect()
+    except Exception:
+        return HttpResponseServerError()
+    return HttpResponse('200 OK')

@@ -1,10 +1,8 @@
 {% extends 'base.html' %}
-{% load cache %}
 
 {% block container %}
 
 <div class="row row-offcanvas row-offcanvas-right">
-        {% cache 500 sidebar %}
         <div class="col-xs-12 col-sm-9">
           <p class="pull-right visible-xs">
             <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle nav</button>
@@ -42,19 +40,18 @@
                 </div>
                 <div class="col-lg-6 pull-right">
                   <h2>Network Stability</h2>
-                  <p> The procedure compute the network stability indicators given the inference method and the network distance choosen. The method is based on perturbation introduced in the data from a resampling procedure.
+                  <p>The procedure compute the network stability indicators given the inference method and the network distance choosen. The method is based on perturbation introduced in the data from a resampling procedure.
 <br>
 The process compute the network stability indicators given the inference method and the network distance choosen. The method is based on perturbation introduced in the data from a resampling procedure.</p>
                   <p><a class="btn btn-default" href="{% url 'network_stability' %}" role="button">View details &raquo;</a></p>
                 </div>
             </div>
         </div>
-        {% endcache %}
         {% include "navigation.html" %}
         <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
             <div class="panel panel-default">
               <div class="panel-heading">
-                <h3 class="panel-title">Process Stats</h3>
+                <h3 class="panel-title">Process stats <i>last 5 min</i></h3>
               </div>
               <div class="panel-body">
                 <ul>

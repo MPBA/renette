@@ -9,7 +9,7 @@ from django.views.generic.base import View
 from django.shortcuts import redirect, render, render_to_response
 from django.core.files.uploadedfile import UploadedFile
 from django.db import DatabaseError
-from django.http import Http404, HttpResponse, HttpResponseBadRequest
+from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseServerError
 from .utils import document_validator, get_bootsrap_badge, read_csv_results, handle_upload
 from .models import RunningProcess
 from django.contrib import messages
