@@ -1,12 +1,25 @@
+import time
+from urllib2 import urlopen
 from django.conf.urls import patterns, include, url
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.sitemaps import FlatPageSitemap
 from django.views.decorators.cache import cache_page
+from django.core.cache import cache
+from django.views.defaults import server_error
 from .sitemap import StaticViewSitemap
 from .views import MainView
 admin.autodiscover()
+
+
+def h500(*args, **kwargs):
+    if ((time.time() - cache.get('last_time_status_check_launched', 0)) > 10) and hasattr(settings, 'STATUS_CHECK_URL'):
+        urlopen(settings.STATUS_CHECK_URL)
+        cache.set('last_time_status_check_launched', time.time())
+    server_error(*args, **kwargs)
+
+handler500 = h500
 
 
 sitemaps = {
@@ -21,6 +34,7 @@ urlpatterns = patterns('',
     (r'^robots\.txt$', include('robots.urls')),
     (r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap', {'sitemaps': sitemaps}),
 
+    
     # main app url
     url(regex='^$', view=cache_page(60 * 5)(MainView.as_view()), name='home'),
     url(r'^sendmail/$', 'renette.views.contact', name='sendmail'),
