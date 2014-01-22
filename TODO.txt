@@ -36,3 +36,16 @@ TO SUBMIT:
 
 
 
+## System Install:
+sudo yum install redis 
+
+## VENV install
+pip install -r requirements.txt
+
+
+## Run the following commands on different terminal for local server to run
+python manage.py runserver --settings=renette.settings.devel
+redis-server
+python manage.py celery worker --settings=renette.settings.devel
+
+## To test connect on localhost:8000
