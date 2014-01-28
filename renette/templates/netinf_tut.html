@@ -1,17 +1,16 @@
 <h2><span style="color: #494949;"> Short Description</span></h2>
 
 <p><span style="color: #595959;">In the <b> Network Inference</b> procedure many network inference algorithm are implemented, such as correlation-based measures, ARACNE or CLR. <br>
-
-    The inferred adjacency matrix can then be used as input for the</span><a class="btn btn-default" role="button" href="/engine/network/stability/">Network Stability</a><span style="color: #595959">procedure, in order to test its variability inherited by inference from data subsampling.</span></p>
-
-<p><span style="color: #595959">Moreover, in case of two networks, their can be compared through the </span><a class="btn bttn-default" role="button" href="/engine/network/distance/">Network Distance</a>&nbsp;<span style=" color: rgb(89, 89, 89);"> procedure.</span></p>
+    The inference method is computed for all possible pairs of <strong>columns</strong> in the input file.
+        
+<p><span style="color: #595959">Moreover, in case of two networks, they can be compared through the </span><a class="btn btn-default" role="button" href="/engine/network/distance/">Network Distance</a>&nbsp;<span style=" color: rgb(89, 89, 89);"> procedure.</span></p>
 
 <h3><span style="color: #595959;"> Step 1.</span></h3>
 
 <h4><span style="color: #595959;"> Loading the files</span></h4>
 
 <span style="color: #595959;">
-  ReNette supports the upload of csv file. Separator is automatically guessed by the first row of the file. Supported column separators are  [";:,\t"]
+  ReNette supports the upload of csv file. Separators are automatically guessed by the first row of the file. Supported column separators are  [";:,\t"]
 </span>
 
 <ol>
@@ -31,12 +30,11 @@
     <li><span style="color: #595959;"> Navigate your local system to find the file you want to upload</span></li>
   </ul>
   
-  
   <li><span style="color: #595959;">Check the "Column names" and/or "Row names" boxes if the uploaded files have respectively the header in the first row and/or the sample names in the first column</span></li>
   
   <ul>
     
-    <li><span style="color: #595959;">The progress bar allows the user to track the upload progress. If the files are very big this may take a while.</span></li>
+    <li><span style="color: #595959;">The progress bar allows the user to track the upload progress. Upload time depends by file dimension and network speed.</span></li>
   </ul>
   
   
@@ -45,11 +43,10 @@
 
 <h3><span style="color: #595959;">Step 2.</span></h3>
 
-<h4><span style="color: #595959;"> Select methods and set the parameters</span></h4>
+<h4><span style="color: #595959;"> Methods selection and parameters set</span></h4>
 
 <p><span style="color: #595959;">The network inference algorithm can be chosen among 11 different methods.
 </span></p>
-
 
 <li><span style="color: #595959;">Select the inference algorithm in the <b>Method</b> drop-down menu
   </span><p>
@@ -89,9 +86,7 @@
 
   <dt><span style="color: rgb(89, 89, 89);">cor:<span style="font-weight: normal;">&nbsp;</span></span><span style="font-weight: normal; color: rgb(89, 89, 89);">Pearson correlation coefficient</span></dt>
 
-
   <dt><span style="color: rgb(89, 89, 89);">WGCNA:<span style="font-weight: normal;">&nbsp;</span></span><span style="font-weight: normal; color: rgb(89, 89, 89);">Weighted Gene Correlation Network Analysis. the co-expression similarity is defined as a function of the absolute correlation, with soft-thresholding, i.e., the similarity is defined as a power of the absolute correlation&nbsp;</span><a href="#wgcna_paper" target="_self" style="font-weight: normal;">[1]</a><span style="font-weight: normal; color: rgb(89, 89, 89);">.</span></dt>
-
 
   <dt><span style="color: rgb(89, 89, 89);">WGCNAFDR:<span style="font-weight: normal;">&nbsp;</span></span><span style="font-weight: normal; color: rgb(89, 89, 89);">the WGCNA with False Discovery Rate correction. The FDR controlled procedure defines a rule for choosing which edges to trust (thus to keep) during the network reconstruction phase. We essentially count how many times the absolute correlation level between two nodes is lesser than the correlation between a shuffled version of the sample data. Precisely, the data are shuffled as many times as possible (depending on the sample size) or at least as many times as needed to reach a chosen p-value threshold (see FDR value in the parameter list).</span></dt>
 
@@ -128,30 +123,21 @@
 
   <dt><span style="color: #595959;">P</span></dt>
 
-
   <dd><span style="color: #595959;"> (WGCNA and WGCNAFDR) soft thresholding parameter: the exponent of the similarity function defining the existence of a link. Default value set to 6.</span></dd>
-
 
   <dt><span style="color: #595959;">FDR</span></dt>
 
-
   <dd><span style="color: #595959;"> (WGCNAFDR, bicorFDR, MINEFDR) p-value throshold for the FDR procedure. Default value set to 1e-3.</span></dd>
-
 
   <dt><span style="color: #595959;">alpha</span></dt>
 
-
   <dd><span style="color: #595959;">(MINE and MINEFDR) Default value set to 0.6.</span></dd>
-
 
   <dt><span style="color: #595959;">C</span></dt>
 
-
   <dd><span style="color: #595959;">(MINE and MINEFDR) Default value set to 15.</span></dd>
 
-
   <dt><span style="color: #595959;">Measure</span></dt>
-
 
   <dd><span style="color: #595959;">(MINE and MINEFDR) Statistic to be used among the MINE family. Possible values are MIC, MAS, MCN, MEV, and MICR2 (which means MIC-cor^2).</span></dd>
 
@@ -188,11 +174,12 @@
 
 <p style=" color: rgb(59, 59, 59);">The result page contains all the information on the submitted job. It includes the job UUID, the submitted procedure, the selected parameters of the running job, the submission time stamp, the status of the process (success, started, failure, running, pending), see&nbsp;<a href="/faq/" target="_self">faq</a>&nbsp;section for more details on process statuses. Then in the same box, if the job has successfully complete, a link to a zip file with all the results is provided.</p>
 
-<span style="color: #595959;"><b>The session will last for 7 days</b>: within 7 days after the submission the results and the job queue appear in the process list. After 7 days the session expires, so the job queue of the user will be deleted.</span><br>
+<span style="color: #595959;"><b>The session will last 7 days</b>: within 7 days after the submission date results and job details are available in the process list. After 7 days the session expires; job details and results are no longer available.</span><br>
 
 <p><span style="color: #595959;">For each input file a weighted adjacency matrix is returned. In particular the weight is the inference measure between two variable in the input file.&nbsp;</span></p>
 
-<p><span style="color: #595959;">For each adjacency matrix it is possible to visualize the network, in which the node dimension is proportional to the node degree and the edge width is proportional to the edge weight given by the adjacency matrix. Furthermore the network can be exported as adjacency matrix as "csv" files or as "gml" file format (see&nbsp;<a href="http://www.fim.uni-passau.de/en/fim/faculty/chairs/theoretische-informatik/projects.html" target="_self">here</a>&nbsp;for more details).&nbsp;If column names are provided in the input file they will be used as node identifiers.&nbsp;</span></p>
+<p><span style="color: #595959;">For each adjacency matrix it is possible to visualize the network, in which the node dimension is proportional to the node degree and the edge width is proportional to the edge weight given by the adjacency matrix. Node colors denote different communities found applying the Spinglass clustering algorithm on the weighted network (this is only for visualization purpose). <br/>
+    Networks can be exported as adjacency matrix as "csv" files or as "gml" file format (see <a href="http://www.fim.uni-passau.de/en/fim/faculty/chairs/theoretische-informatik/projects.html" target="_self">here</a> for more details). If column names are provided in the input file they will be used as node identifiers.</span></p>
 
 <p><button class="btn btn-success" type="button">Download all files</button>
 </p>
