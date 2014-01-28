@@ -66,7 +66,7 @@ def write_Sd(Sd, filename='Sd.csv'):
     return True
 
 
-def export_graph(reslist, i, filepath='.',format='gml',  prefix='graph_'):
+def export_graph(reslist, i, filepath='.',format='gml',  prefix='graph_',  weight=True):
     """
     Export to the desired graph format
     """
@@ -74,26 +74,24 @@ def export_graph(reslist, i, filepath='.',format='gml',  prefix='graph_'):
     gadj = igraph.graph_adjacency
     wgraph = igraph.write_graph
     
-    #for i,r in enumerate(reslist):
     myfname = prefix + str(i) + '.%s' % format  
-    g = gadj(reslist, mode='undirected', weighted=True)
+    g = gadj(reslist, mode='undirected', weighted=weight)
     wgraph(g, file=os.path.join(filepath,myfname), format=format)
     
     return myfname
     
-def export_to_json(reslist, i, filepath=".", perc=10, prefix='graph_', weight=True ):
+def export_to_json(reslist, i, filepath='.', perc=10, prefix='graph_', weight=True ):
     """
     Create the json for d3js visualization
     """
+    
     igraph = importr('igraph')
     gadj = igraph.graph_adjacency
     direct = 'directed'
     
     # Write a graph file for each result
-    #for i,r in enumerate(reslist):
     response = {'nodes': [], 'links': []}
     tmpr = np.array(reslist)
-    # tmp = np.triu(tmpr)
     
     # Check if the matrix is symmetric
     ck = (np.triu(tmpr).transpose() - np.tril(tmpr))
@@ -102,7 +100,8 @@ def export_to_json(reslist, i, filepath=".", perc=10, prefix='graph_', weight=Tr
         tmp = np.triu(tmpr)
     else:
         tmp = tmpr
-        
+    
+    # Apply thresholding
     try:
         thr = np.percentile(tmp[tmp > 0.0], 100-perc)
     except:
@@ -118,6 +117,7 @@ def export_to_json(reslist, i, filepath=".", perc=10, prefix='graph_', weight=Tr
         ww = ri.NULL
     
     # Get x-y coords for graph visualization
+    # Set the limit given by the sigmajs constrains
     minx = [0 for i in xrange(tmp.shape[0])]
     maxx = [i + 1100 for i in minx]
     maxy = [i + 600 for i in minx]
@@ -125,7 +125,7 @@ def export_to_json(reslist, i, filepath=".", perc=10, prefix='graph_', weight=Tr
                                                 minx=minx, maxx=maxx,
                                                 miny=minx, maxy=maxy)
     gcoorda = np.array(gcoord)
-        
+    
     # Get communities 
     gmm = igraph.spinglass_community(g, weights=ww)
     mm = igraph.membership(gmm)
@@ -135,7 +135,7 @@ def export_to_json(reslist, i, filepath=".", perc=10, prefix='graph_', weight=Tr
     for m in np.unique(mm):
         cc = "#%s" % "".join([hex(randrange(0, 255))[2:] for i in range(3)])
         cm[mm==m] = cc
-        
+    
     # Write nodes specifications
     for n in range(tmp.shape[1]):
         try:
@@ -162,8 +162,8 @@ def export_to_json(reslist, i, filepath=".", perc=10, prefix='graph_', weight=Tr
                 response['links'].append({'source': n, 
                                           'target': j, 
                                           'weights': tmp[n, j]})
-                
-    # Write json file for d3js
+    
+    # Write json file for sigmajs
     try:
         myfname = prefix + str(i) + '.json'
         f = open(os.path.join(filepath, myfname),'w')

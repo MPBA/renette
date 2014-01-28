@@ -101,7 +101,7 @@ class Mat2Adj:
         self.computed = return_value
         return return_value
 
-    def get_results(self, filepath='.', export_json=True, graph_format="gml", perc=30):
+    def get_results(self, filepath='.', export_json=True, graph_format='gml', perc=30):
         """
         Get the results and write to a file
         """

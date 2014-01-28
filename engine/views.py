@@ -13,7 +13,7 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpRespo
 from .utils import document_validator, get_bootsrap_badge, read_csv_results, handle_upload
 from .models import RunningProcess
 from django.contrib import messages
-from engine.tasks import test_netdist, test_netinf, test_netstab
+from engine.tasks import test_netdist, test_netinf, test_netstab, netinf
 from django.conf import settings
 import djcelery
 import os
@@ -186,7 +186,8 @@ class NetworkInferenceStep3Class(View):
                 inputs=param,
                 submited=datetime.now()
             )
-            t = test_netinf.delay(files, sep, param)
+            # t = test_netinf.delay(files, sep, param)
+            t = netinf.delay(files, sep, param)
             runp.task_id = t.id
 
         except Exception, e:
