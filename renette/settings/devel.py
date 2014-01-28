@@ -141,12 +141,14 @@ UPLOAD_PATH = 'uploads/%Y/%m/%d'
 RESULT_PATH = 'results'
 
 ############## CELERY CONFIGURATION ################
-BROKER_URL = 'amqp://renette:renette@geopg.fbk.eu:50010/renette'
+##BROKER_URL = 'amqp://renette:renette@geopg.fbk.eu:50010/renette'
+BROKER_URL = 'redis://localhost:6379/0'
 # List of modules to import when celery starts.
 #CELERY_IMPORTS = ('myapp.tasks', )
 ## Using the database to store task state and results.pip
 CELERY_TRACK_STARTED = True
-CELERY_RESULT_BACKEND = "amqp"
+## CELERY_RESULT_BACKEND = "amqp"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 CELERY_TASK_RESULT_EXPIRES = 18000  # 5 hours.
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
