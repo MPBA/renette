@@ -7,82 +7,121 @@
     <script type="text/javascript" src="{% static 'js/regex.js' %}"></script>
     <script type="text/javascript">
         jQuery(document).ready(function () {
-            $("#id_resmethods").change(function () {
-                var conceptName = $('#id_resmethods').find(":selected").val();
-                $("#id_k").prop('disabled', true);
-
+        $("#id_resmethods").change(function () {
+        var conceptName = $('#id_resmethods').find(":selected").val();
+        $("#id_k").prop('disabled', true);
+	
                 if (conceptName == 'montecarlo') {
                     $("#id_k").removeAttr('disabled');
+	            $("#id_k").val(3);
+	            $("#id_all_k").show();
                 }
                 if (conceptName == 'LOO') {
-                    $("#id_k").val(1)
+                    $("#id_k").val(1);
+	            $("#id_all_k").hide();
                 }
                 if (conceptName == 'kCV') {
                     $("#id_k").removeAttr('disabled');
+	            $("#id_k").val(3);
+	            $("#id_all_k").show();
                 }
             });
+          $("#id_distance").change(function(){
+       
+            var conceptName = $('#id_distance').find(":selected").val();
+            if (conceptName=='HIM') {
+                $("#id_rho").removeAttr('disabled');
+                $("#id_ga").removeAttr('disabled');
+                $("#id_components").removeAttr('disabled');
+                $("#id_all_rho").show();
+                $("#id_all_ga").show();
+                $("#id_all_components").show();                
+            }
+            if (conceptName=='IM') {
+                $("#id_rho").prop('disabled', true);
+                $("#id_ga").removeAttr('disabled');
+                $("#id_components").prop('disabled', true);
+                $("#id_all_rho").hide();
+                $("#id_all_components").hide();
+                $("#id_all_ga").show();
+            }
+            if (conceptName=='H') {
+                $("#id_rho").prop('disabled', true);
+                $("#id_ga").prop('disabled', true);
+                $("#id_components").prop('disabled', true);
+                $("#id_all_rho").hide();
+                $("#id_all_ga").hide();
+                $("#id_all_components").hide();
+            }
+            if (conceptName=='') {
+                $("#id_rho").prop('disabled', true);
+                $("#id_ga").prop('disabled', true);
+                $("#id_components").prop('disabled', true);
+		}
+          });
+            max_ga = {{ max_ga }}
+            $("#myform").validate();
+            $('#id_ga').rules('add', {
+                required: false,
+                digits: false,
+                max: max_ga
+           });
 
-            $("#id_distance").change(function () {
-                var conceptName = $('#id_distance').find(":selected").val();
-                if (conceptName == 'HIM') {
-                    $("#id_rho").removeAttr('disabled');
-                    $("#id_ga").removeAttr('disabled');
-                    $("#id_components").removeAttr('disabled');
-                }
-                if (conceptName == 'IM') {
-                    $("#id_rho").prop('disabled', true);
-                    $("#id_ga").removeAttr('disabled');
-                    $("#id_components").prop('disabled', true);
-                }
-                if (conceptName == 'H') {
-                    $("#id_rho").prop('disabled', true);
-                    $("#id_ga").prop('disabled', true);
-                    $("#id_components").prop('disabled', true);
-                }
-                if (conceptName == '') {
-                    $("#id_rho").prop('disabled', true);
-                    $("#id_ga").prop('disabled', true);
-                    $("#id_components").prop('disabled', true);
-                }
-            });
-            $("#id_methods").change(function () {
+       $("#id_methods").change(function(){
+       $("#id_alpha").prop('disabled', true);
+       $("#id_p").prop('disabled', true);
+       $("#id_c").prop('disabled', true);
+       $("#id_measure").prop('disabled', true);
+       $("#id_fdr").prop('disabled', true);
+       $("#id_all_alpha").hide();
+       $("#id_all_p").hide();
+       $("#id_all_c").hide();
+       $("#id_all_measure").hide();
+       $("#id_all_fdr").hide();
+       
+       var conceptName = $('#id_methods').find(":selected").val();
+            if (conceptName=='WGCNA') {
+                $("#id_p").removeAttr('disabled');
+                $("#id_all_p").show();
+            }
+            if (conceptName=='WGCNAFDR') {
+                $("#id_fdr").removeAttr('disabled');
+                $("#id_all_fdr").show();
+            }
+            if (conceptName=='bicorFDR') {
+                $("#id_fdr").removeAttr('disabled');
+                $("#id_all_fdr").show();
+            }
+            if (conceptName=='TOM') {
+                $("#id_p").removeAttr('disabled');
+                $("#id_all_p").show();
+            }
+            if (conceptName=='MINE') {
+                $("#id_alpha").removeAttr('disabled');
+                $("#id_c").removeAttr('disabled');
+                $("#id_measure").removeAttr('disabled');
+                $("#id_all_alpha").show();
+                $("#id_all_c").show();
+                $("#id_all_measure").show();
+            }
+            if (conceptName=='MINEFDR') {
+                $("#id_alpha").removeAttr('disabled');
+                $("#id_c").removeAttr('disabled');
+                $("#id_measure").removeAttr('disabled');
+                $("#id_fdr").removeAttr('disabled');
+                $("#id_all_alpha").show();
+                $("#id_all_c").show();
+                $("#id_all_measure").show();
+                $("#id_all_fdr").show();
+            }
+            if (conceptName=='') {
                 $("#id_alpha").prop('disabled', true);
-                $("#id_p").prop('disabled', true);
                 $("#id_c").prop('disabled', true);
                 $("#id_measure").prop('disabled', true);
                 $("#id_fdr").prop('disabled', true);
-                var conceptName = $('#id_methods').find(":selected").val();
-                if (conceptName == 'WGCNA') {
-                    $("#id_p").removeAttr('disabled');
-                }
-                if (conceptName == 'WGCNAFDR') {
-                    $("#id_fdr").removeAttr('disabled');
-
-                }
-                if (conceptName == 'bicorFDR') {
-                    $("#id_fdr").removeAttr('disabled');
-                }
-                if (conceptName == 'TOM') {
-                    $("#id_p").removeAttr('disabled');
-                }
-                if (conceptName == 'MINE') {
-                    $("#id_alpha").removeAttr('disabled');
-                    $("#id_c").removeAttr('disabled');
-                    $("#id_measure").removeAttr('disabled');
-                }
-                if (conceptName == 'MINEFDR') {
-                    $("#id_alpha").removeAttr('disabled');
-                    $("#id_c").removeAttr('disabled');
-                    $("#id_measure").removeAttr('disabled');
-                    $("#id_fdr").removeAttr('disabled');
-                }
-                if (conceptName == '') {
-                    $("#id_alpha").prop('disabled', true);
-                    $("#id_c").prop('disabled', true);
-                    $("#id_measure").prop('disabled', true);
-                    $("#id_fdr").prop('disabled', true);
-                }
-            });
+            }
+          });
+            max_ga = {{ max_ga }}
             $("#myform").validate();
             $('#id_p').rules('add', {
                 required: false,
@@ -101,23 +140,11 @@
                 max: 1,
                 min: 0
             });
-            max_ga = {{ max_ga }}
             $('#id_c').rules('add', {
                 required: false,
                 digits: false,
                 max: max_ga
             });
-            $('#id_ga').rules('add', {
-                required: false,
-                digits: false,
-                max: max_ga
-            });
-            $('#id_k').rules('add', {
-                required: false,
-                digits: false,
-                max: max_ga
-            });
-
         });
 
     </script>
@@ -195,7 +222,7 @@
                                     <option value="LOO">Leave One Out</option>
                                 </select>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" id="id_all_k">
                                 <label for="id_k">K</label>
                                 <input type="text" class="positive form-control" name="k" id="id_k"
                                        value="3" required>
@@ -228,31 +255,31 @@
                                     <option value="DTWMIC">DTWMIC</option>
                                 </select>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" id="id_all_p" style="display: none">
                                 <label for="id_p">P</label>
                                 <input type="text" class="positive form-control" name="p" id="id_p"
                                        value="6"
                                        disabled required>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" id="id_all_fdr" style="display: none">
                                 <label for="id_fdr">FDR</label>
                                 <input type="text" class="form-control" name="fdr" id="id_fdr"
                                        value="1e-3"
                                        disabled>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" id="id_all_alpha" style="display: none">
                                 <label for="id_alpha">alpha</label>
                                 <input type="text" class="positive form-control" name="alpha"
                                        id="id_alpha"
                                        value="0.6" disabled>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" id="id_all_c" style="display: none">
                                 <label for="id_c">C</label>
                                 <input type="text" class="positive form-control" name="c" id="id_c"
                                        value="15"
                                        disabled>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" id="id_all_measure" style="display: none">
                                 <label for="id_measure">Measure</label>
                                 <select id="id_measure" class="form-control" name="measure" disabled required>
                                     <option value='MIC'>MIC</option>
@@ -278,21 +305,21 @@
                                     <option value="H">Hamming</option>
                                 </select>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" id="id_all_rho">
                                 <label for="id_rho">rho</label>
                                 <input type="text" class="positive form-control" name="rho" id="id_rho"
-                                       value="1" disabled required>
+                                       value="1">
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" id="id_all_ga">
                                 <label for="id_ga">ga</label>
                                 <input type="text" class="positive form-control" name="ga" id="id_ga"
                                        value=""
-                                       disabled>
+                                       >
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" id="id_all_components">
                                 <label for="id_components">Components</label>
                                 <select id="id_components" class="form-control" name="components"
-                                        disabled>
+                                        >
                                     <option value='True'>True</option>
                                     <option value='False'>False</option>
                                 </select>

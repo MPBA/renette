@@ -8,37 +8,53 @@
      <script type="text/javascript">
 
        jQuery(document).ready(function(){
-
-          $("#id_methods").change(function(){
-            $("#id_alpha").prop('disabled', true);
-            $("#id_p").prop('disabled', true);
-            $("#id_c").prop('disabled', true);
-            $("#id_measure").prop('disabled', true);
-            $("#id_fdr").prop('disabled', true);
-            var conceptName = $('#id_methods').find(":selected").val();
+       
+       $("#id_methods").change(function(){
+       $("#id_alpha").prop('disabled', true);
+       $("#id_p").prop('disabled', true);
+       $("#id_c").prop('disabled', true);
+       $("#id_measure").prop('disabled', true);
+       $("#id_fdr").prop('disabled', true);
+       $("#id_all_alpha").hide();
+       $("#id_all_p").hide();
+       $("#id_all_c").hide();
+       $("#id_all_measure").hide();
+       $("#id_all_fdr").hide();
+       
+       var conceptName = $('#id_methods').find(":selected").val();
             if (conceptName=='WGCNA') {
                 $("#id_p").removeAttr('disabled');
+                $("#id_all_p").show();
             }
             if (conceptName=='WGCNAFDR') {
                 $("#id_fdr").removeAttr('disabled');
-
+                $("#id_all_fdr").show();
             }
             if (conceptName=='bicorFDR') {
                 $("#id_fdr").removeAttr('disabled');
+                $("#id_all_fdr").show();
             }
             if (conceptName=='TOM') {
                 $("#id_p").removeAttr('disabled');
+                $("#id_all_p").show();
             }
             if (conceptName=='MINE') {
                 $("#id_alpha").removeAttr('disabled');
                 $("#id_c").removeAttr('disabled');
                 $("#id_measure").removeAttr('disabled');
+                $("#id_all_alpha").show();
+                $("#id_all_c").show();
+                $("#id_all_measure").show();
             }
             if (conceptName=='MINEFDR') {
                 $("#id_alpha").removeAttr('disabled');
                 $("#id_c").removeAttr('disabled');
                 $("#id_measure").removeAttr('disabled');
                 $("#id_fdr").removeAttr('disabled');
+                $("#id_all_alpha").show();
+                $("#id_all_c").show();
+                $("#id_all_measure").show();
+                $("#id_all_fdr").show();
             }
             if (conceptName=='') {
                 $("#id_alpha").prop('disabled', true);
@@ -153,23 +169,23 @@
                         <option value="DTWMIC">DTWMIC</option>
                       </select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="id_all_p" style="display: none">
                       <label for="id_p">P</label>
-                      <input type="text" class="positive form-control" name="p" id="id_p" value="6" disabled required>
+                      <input type="text" class="positive form-control" name="p" id="id_p"  value="6" disabled required>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="id_all_fdr" style="display: none">
                       <label for="id_fdr">FDR</label>
                       <input type="text" class="form-control" name="fdr" id="id_fdr" value="1e-3" disabled>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="id_all_alpha" style="display: none">
                       <label for="id_alpha">alpha</label>
                       <input type="text" class="positive form-control" name="alpha" id="id_alpha" value="0.6" disabled>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="id_all_c" style="display: none">
                       <label for="id_c">C</label>
                       <input type="text" class="positive form-control" name="c" id="id_c" value="15" disabled>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="id_all_measure" style="display: none">
                       <label for="id_measure">Measure</label>
                       <select id="id_measure" class="form-control" name="measure" disabled required>
                         <option value='MIC'>MIC</option>

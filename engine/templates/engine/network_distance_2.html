@@ -8,27 +8,37 @@
        jQuery(document).ready(function(){
 
           $("#id_distance").change(function(){
+       
             var conceptName = $('#id_distance').find(":selected").val();
             if (conceptName=='HIM') {
                 $("#id_rho").removeAttr('disabled');
                 $("#id_ga").removeAttr('disabled');
                 $("#id_components").removeAttr('disabled');
+                $("#id_all_rho").show();
+                $("#id_all_ga").show();
+                $("#id_all_components").show();                
             }
             if (conceptName=='IM') {
                 $("#id_rho").prop('disabled', true);
                 $("#id_ga").removeAttr('disabled');
                 $("#id_components").prop('disabled', true);
+                $("#id_all_rho").hide();
+                $("#id_all_components").hide();
+                $("#id_all_ga").show();
             }
             if (conceptName=='H') {
                 $("#id_rho").prop('disabled', true);
                 $("#id_ga").prop('disabled', true);
                 $("#id_components").prop('disabled', true);
+                $("#id_all_rho").hide();
+                $("#id_all_ga").hide();
+                $("#id_all_components").hide();
             }
             if (conceptName=='') {
                 $("#id_rho").prop('disabled', true);
                 $("#id_ga").prop('disabled', true);
                 $("#id_components").prop('disabled', true);
-            }
+		}
           });
             max_ga = {{ max_ga }}
             $("#myform").validate();
@@ -107,17 +117,17 @@
                         <option value="H">Hamming</option>
                       </select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="id_all_rho">
                       <label for="id_rho">rho</label>
-                      <input type="text" class="positive form-control" name="rho" id="id_rho" value="1" disabled required>
+                      <input type="text" class="positive form-control" name="rho" id="id_rho" value="1">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="id_all_ga">
                       <label for="id_ga">ga</label>
-                      <input type="text" class="positive form-control" name="ga" id="id_ga" value="" disabled>
+                      <input type="text" class="positive form-control" name="ga" id="id_ga" value="">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="id_all_components">
                       <label for="id_components">Components</label>
-                      <select id="id_components" class="form-control" name="components" disabled>
+                      <select id="id_components" class="form-control" name="components">
                         <option value='True'>True</option>
                         <option value='False'>False</option>
                       </select>
