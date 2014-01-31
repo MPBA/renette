@@ -11,13 +11,25 @@
             <h1>ReNette WebServices</h1>
             <p>This is a web-interface for network analysis. It supports inference methods, quantitative network distance and network stability analysis.</p>
           </div>
-
+            <div class="row">
+                <div class="col-lg-6">
+                  <h2>Network Distance</h2>
+                  <p>A quantitative analysis of differences between networks. Three methods are available, one based on an edit distance, another based on a spectral distance and a product metric combining contributions from edit and spectral distances.</p>
+                  <p><a class="btn btn-default" href="{% url 'network_distance' %}" role="button">View details &raquo;</a></p>
+                </div><!--/span-->
+                <div class="col-lg-5">
+                   <p class="text-center"><strong>Network Distance Video Tutorial</strong></p>
+                    <iframe width="380" height="285" src="//www.youtube.com/embed/JKGS5RKUukM" frameborder="0" allowfullscreen></iframe>
+                </div>
+            </div>
+            <hr>
             <div class="row">
                 <div class="col-lg-5">
+                   <p class="text-center"><strong>Network Inference Video Tutorial</strong></p>
                     <iframe width="380" height="285" src="//www.youtube.com/embed/24Lxd33r6PQ" frameborder="0" allowfullscreen></iframe>
                 </div>
                 <div class="col-lg-6 pull-right">
-                  <h2>Networt Inference</h2>
+                  <h2>Network Inference</h2>
                   <p>The network inference procedure allows the user to compute his own network starting from row data. A set of 10 methods based on simple correlation, mutual infromation and non-linear correlation are available to the user.</p>
                   <p><a class="btn btn-default" href="{% url 'network_inference' %}" role="button">View details &raquo;</a></p>
                 </div><!--/span-->
@@ -25,25 +37,15 @@
             <hr>
             <div class="row">
                 <div class="col-lg-6">
-                  <h2>Network Distance</h2>
-                  <p>A quantitative analysis of differences between networks. At this time 3 methods are available, one based on an edit distance, another based on a spectral distance and a product metric combining contributions from edit and spectral distances.</p>
-                  <p><a class="btn btn-default" href="{% url 'network_distance' %}" role="button">View details &raquo;</a></p>
-                </div><!--/span-->
-                <div class="col-lg-5">
-                    <iframe width="380" height="285" src="//www.youtube.com/embed/JKGS5RKUukM" frameborder="0" allowfullscreen></iframe>
-                </div>
-            </div>
-            <hr>
-            <div class="row">
-                <div class="col-lg-5">
-                    <iframe width="380" height="285" src="//www.youtube.com/embed/58E8FjLvSWY" frameborder="0" allowfullscreen></iframe>
-                </div>
-                <div class="col-lg-6 pull-right">
                   <h2>Network Stability</h2>
-                  <p>The procedure compute the network stability indicators given the inference method and the network distance choosen. The method is based on perturbation introduced in the data from a resampling procedure.
+                  <p>The procedure computes the network stability indicators given the inference method and the network distance choosen. The method is based on perturbation introduced in the data from a resampling procedure.
 <br>
-The process compute the network stability indicators given the inference method and the network distance choosen. The method is based on perturbation introduced in the data from a resampling procedure.</p>
+The process computes the network stability indicators given the inference method and the network distance choosen. The method is based on perturbation introduced in the data from a resampling procedure.</p>
                   <p><a class="btn btn-default" href="{% url 'network_stability' %}" role="button">View details &raquo;</a></p>
+                </div>
+                <div class="col-lg-5">
+                   <p class="text-center"><strong>Network Stability Video Tutorial</strong></p>
+		   <iframe width="380" height="285" src="//www.youtube.com/embed/58E8FjLvSWY" frameborder="0" allowfullscreen></iframe>
                 </div>
             </div>
         </div>
@@ -62,5 +64,13 @@ The process compute the network stability indicators given the inference method 
               </div>
             </div>
         </div><!--/span-->
+	<div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
+            <div class="panel panel-default">
+		<div class="panel-body">	
+		   	If you use ReNette please cite:</br>
+			<small><strong>Stability indicators in Network Reconstruction.</strong> M. Filosi, R. Visintainer, S. Riccadonna, G. Jurman, C. Furlanello, <i>PLOSONE</i>, In Press</small>
+		</div>
+	    </div>	
+	</div>
       </div><!--/row-->
 {% endblock container %}
