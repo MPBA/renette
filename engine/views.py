@@ -11,7 +11,7 @@ from django.core.files.uploadedfile import UploadedFile
 from django.db import DatabaseError
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseServerError
 from .utils import document_validator, get_bootsrap_badge, read_csv_results, handle_upload
-from .models import RunningProcess
+from .models import RunningProcess, Results
 from django.contrib import messages
 from engine.tasks import test_netdist, test_netinf, test_netstab, netinf
 from django.conf import settings
@@ -310,7 +310,7 @@ class ProcessStatus(View):
 
     def get(self, request, uuid, **kwargs):
         task = djcelery.celery.AsyncResult(uuid)
-
+        
         try:
             runp = RunningProcess.objects.get(task_id=uuid)
         except RunningProcess.DoesNotExist:
@@ -346,6 +346,54 @@ class ProcessStatus(View):
 
             context['result'] = result
         return render(request, self.template_name, context)
+
+# Process status view from database
+class ProcessStatus2(View):
+    template_name = 'engine/process_status2.html'
+
+    def get(self, request, uuid, **kwargs):
+        task = djcelery.celery.AsyncResult(uuid)
+        
+        try:
+            runp = RunningProcess.objects.get(task_id=uuid)
+        except RunningProcess.DoesNotExist:
+            runp = None
+            messages.add_message(self.request, messages.ERROR, 'Some information not available!')
+
+        context = {
+            'uuid': uuid, ### TODO: e' nei models, riferirsi a quello
+            'task': task, ### TODO: e' nei models, riferirisi a quello
+            'badge': get_bootsrap_badge(task.status), ### TODO: e' nei model, riferirsi a quello
+            'runp': runp
+        }
+        
+        if task.status == 'SUCCESS':
+            result = task.result
+            print uuid
+            result = Results.objects.filter(task_id__task_id=uuid)
+            print([r.filetype for r in result])
+            # idx = 0
+            # if isinstance(result, dict):
+            #     context['download_btn'] = True  ### TODO: e' nei models
+            #     for key in result.keys():
+            #         if idx == 3:
+            #             context['tomanyresult'] = True #todo too
+            #             break
+            #         idx += 1
+
+            #         val = result.get(key)
+            #         csvlist, tomanyfile = read_csv_results(val['csv_files'])
+            #         if csvlist:
+            #             val['csv_tables'] = csvlist
+            #             val['tomanyfile'] = tomanyfile
+            #         else:
+            #             messages.add_message(self.request, messages.ERROR, 'Cannot find the results file!')
+            #         result.update({key: val})
+
+            context['result'] = result
+        return render(request, self.template_name, context)
+
+
 
 
 def download_zip_file(request, pk):

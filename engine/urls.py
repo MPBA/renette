@@ -4,7 +4,7 @@ from django.contrib import admin
 from .views import (NetworkDistanceClass, NetworkDistanceStep2Class, NetworkDistanceStep3Class,
                     ProcessStatus, download_zip_file,
                     NetworkInferenceClass, NetworkInferenceStep2Class, NetworkInferenceStep3Class,
-                    NetworkStabilityClass, NetworkStabilityStep2Class, NetworkStabilityStep3Class)
+                    NetworkStabilityClass, NetworkStabilityStep2Class, NetworkStabilityStep3Class, ProcessStatus2)
 admin.autodiscover()
 
 urlpatterns = patterns('engine.views',
@@ -23,8 +23,12 @@ urlpatterns = patterns('engine.views',
                            view=NetworkDistanceStep3Class.as_view(),
                            name='network_distance_3'),
 
+                       # url(regex='^process/status/(.+)/$',
+                       #     view=ProcessStatus.as_view(),
+                       #     name='process_status'),
+                       
                        url(regex='^process/status/(.+)/$',
-                           view=ProcessStatus.as_view(),
+                           view=ProcessStatus2.as_view(),
                            name='process_status'),
 
                        url(regex='^process/download/zip/(?P<pk>\d+)$',
