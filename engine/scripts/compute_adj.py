@@ -101,7 +101,7 @@ class Mat2Adj:
         self.computed = return_value
         return return_value
 
-    def get_results(self, filepath='.', export_json=True, graph_format='gml', perc=30):
+    def get_results(self, filepath='.', export_json=True, graph_format='gml', plot=True, perc=30):
         """
         Get the results and write to a file
         """
@@ -163,7 +163,13 @@ class Mat2Adj:
                                             format=graph_format,
                                             prefix='%s_%s_' % (self.listname[i], self.param['method']))
                     self.results[self.listname[i]]['graph_files'] += [gname]
-            
+                
+                # Make some plots (degree distribution for now)
+                if plot:
+                    plotname = ru.plot_degree_distrib(self.res[i], i=i, filepath=filepath, 
+                                           prefix='%s_%s_' % (self.listname[i], self.param['method']))
+                    self.results[self.listname[i]]['img_files'] += [plotname]
+
             return self.results
         else:
             print 'No adjacency matrix computed, please run the compute method before.'

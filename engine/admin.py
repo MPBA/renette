@@ -12,3 +12,5 @@ class ResultsAdmin(admin.ModelAdmin):
     
 admin.site.register(RunningProcess)
 admin.site.register(Results, ResultsAdmin)
+
+

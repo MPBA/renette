@@ -104,7 +104,7 @@ class Results(models.Model):
     filename = models.CharField(max_length=40)
     filepath = models.CharField(max_length=100)
     filestore = models.FileField(upload_to=get_tmp_dir)
-    # imagestore = models.ImageField(upload_to=settings.MEDIA_ROOT)
+    imagestore = models.ImageField(upload_to=get_tmp_dir)
     desc = models.TextField()
     
     def __unicode__(self):
