@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extrahead %}
+    <link href="{% static "datatables/css/dt_bootstrap.css" %}" rel="stylesheet">
+{#    <style>#}
+{#        table { table-layout: fixed; }#}
+{#        table th, table td { overflow: hidden; }#}
+{#    </style>#}
+    <script src={% static 'datatables/js/jquery.dataTables.js' %}></script>
+    <script src={% static 'datatables/js/bootstrap3_dt.js' %}></script>
+    <script type="text/javascript" charset="utf-8">
+    /* Table initialisation */
+            $(document).ready(function() {
+                $("#tableslist").on('change', function() {
+                    var uninitialized = $('#tablesview').filter(function() {
+                        return $.fn.DataTable.fnIsDataTable(this);
+                    });
+                    if(uninitialized.length){
+                        var tb = $('#tablesview').DataTable()
+                        tb.fnClearTable(true)
+                        tb.fnDestroy()
+                    }
+                    var pk = $("#tableslist option:selected").attr('pk');
+                    var firstrow = eval($("#tableslist option:selected").attr('firstrow'));
+                        firstrow.shift();
+                    var aryJSONColTable=[];
+                    for (var i=0; i < firstrow.length; i++ ) {
+                      aryJSONColTable.push({
+                                    "sTitle": firstrow[i],
+                                    "aTargets": [i]
+                       });
+                    };
+                    $('#tablesview').dataTable({
+                        "bProcessing": true,
+                        "aoColumnDefs": aryJSONColTable,
+                        "sScrollX": "200px",
+                        "sAjaxSource": '/engine/datatables/' + pk + "/"
+                    });
+                });
+                $("#tableslist").trigger("change")
+            });
+	    </script>
+{% endblock %}
+{% block googleanalytics %}
+{% endblock %}
+{% block container %}
+
+{#{% include 'engine/json_preview.html' %}#}
+
+<div class="row row-offcanvas row-offcanvas-right">
+
+    <div class="col-md-12">
+          <div class="row">
+            <h1>Network inference result</h1>
+            <div class="col-6">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+            </div>
+            {% endfor %}
+            {% endif %}
+            </div><!--/span-->
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs">
+              <li class="active"><a href="#tables" data-toggle="tab">Tables</a></li>
+              <li><a href="#netvis" data-toggle="tab">Network visualization</a></li>
+              <li><a href="#charts" data-toggle="tab">Charts</a></li>
+              <li><a href="#download" data-toggle="tab">Download area</a></li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+              <div class="tab-pane active" id="tables">
+                  <div style="padding-top: 10px; padding-bottom: 10px">
+                    <select class="form-control" id="tableslist">
+                        {% for t in tables %}
+                            <option url="{{ t.filestore.url }}" pk="{{ t.pk }}" firstrow={{ t.get_first_row|safe }}>{{ t.filename }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                    <table class="table table-striped" id="tablesview">
+                      <thead>
+
+                      </thead>
+                      <tbody>
+{#                        <tr>#}
+{#                          <td>1</td>#}
+{#                          <td>Mark</td>#}
+{#                          <td>Otto</td>#}
+{#                          <td>@mdo</td>#}
+{#                        </tr>#}
+{#                        <tr>#}
+{#                          <td>2</td>#}
+{#                          <td>Jacob</td>#}
+{#                          <td>Thornton</td>#}
+{#                          <td>@fat</td>#}
+{#                        </tr>#}
+{#                        <tr>#}
+{#                          <td>3</td>#}
+{#                          <td>Larry</td>#}
+{#                          <td>the Bird</td>#}
+{#                          <td>@twitter</td>#}
+{#                        </tr>#}
+                      </tbody>
+                    </table>
+              </div>
+              <div class="tab-pane" id="netvis">Network</div>
+              <div class="tab-pane" id="charts">Charts</div>
+              <div class="tab-pane" id="download">Download</div>
+            </div>
+
+          </div><!--/row-->
+    </div><!--/span-->
+</div><!--/row-->
+{% endblock container %}
+
+
+

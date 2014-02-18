@@ -3,7 +3,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from .views import (NetworkDistanceClass, NetworkDistanceStep2Class, NetworkDistanceStep3Class,
                     ProcessStatus, download_zip_file,
-                    NetworkInferenceClass, NetworkInferenceStep2Class, NetworkInferenceStep3Class,
+                    NetworkInferenceClass, NetworkInferenceStep2Class, NetworkInferenceStep3Class, NetworkInferenceStep4Class,
                     NetworkStabilityClass, NetworkStabilityStep2Class, NetworkStabilityStep3Class, ProcessStatus2)
 admin.autodiscover()
 
@@ -47,6 +47,10 @@ urlpatterns = patterns('engine.views',
                            view=NetworkInferenceStep3Class.as_view(),
                            name='network_inference_3'),
 
+                       url(regex='^network/inference/4/(.+)/$',
+                           view=NetworkInferenceStep4Class.as_view(),
+                           name='network_inference_4'),
+
                        url(regex='^network/stability/$',
                            view=NetworkStabilityClass.as_view(),
                            name='network_stability'),
@@ -62,6 +66,7 @@ urlpatterns = patterns('engine.views',
                        url(r'^multiuploader/$', 'multiuploader'),
 
                        url(r'^process/list/$', 'process_list', name="process_list"),
+                       url(r'^datatables/(?P<pk>\d+)/$', 'datatables', name="datatables"),
 
                        url(regex='^process/graph/(.+)/(.+)/(\d+)/$',
                            view='process_graph',

@@ -1,3 +1,5 @@
+import csv
+
 __author__ = 'droghetti'
 import time
 import uuid
@@ -38,6 +40,7 @@ def test_netdist(self, files, sep, param):
             val['rdata'] = os.path.join(settings.RESULT_PATH, tmpdir, val['rdata']) if val['rdata'] else None
             result.update({key: val})
     return result
+
 
 @celery.task(bind=True)
 def netinf(self, files, sep, param):
@@ -171,7 +174,22 @@ def save_to_db(result, pid, result_path_full=settings.MEDIA_ROOT):
                         resdb.desc = mydesc
                             
                         # Store files in the DB
-                        if tp == 'csv' or tp == 'json' or tp == 'graph':
+                        if tp == 'csv':
+                            f = open(os.path.join(result_path_full, myn))
+                            resdb.filestore.save(myn, File(f))
+
+                            f.seek(0)
+                            reader = csv.reader(f, delimiter='\t')
+                            idx = 0
+                            for line in iter(reader):
+                                if(idx==0):
+                                    resdb.filefirstrow = line
+                                idx += 1
+
+                            resdb.filerow = idx
+                            resdb.filecol = len(line) if line else None
+                            f.close()
+                        if tp == 'json' or tp == 'graph':
                             f = open(os.path.join(result_path_full, myn))
                             resdb.filestore.save(myn, File(f))
                             f.close()
@@ -181,7 +199,6 @@ def save_to_db(result, pid, result_path_full=settings.MEDIA_ROOT):
                             f.close()
                     except Exception, e:
                         print e
-                         # messages.add_message(messages.ERROR, 'Error: %s' % str(e))
                     try:
                         resdb.save()
                     except Exception, e:

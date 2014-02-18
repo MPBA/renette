@@ -2,10 +2,10 @@
 {% load static %}
 {% block extrahead %}
     <script type="application/javascript">
-    {% if task.status != 'SUCCESS' %}
+    {% if  runp.celery_task.status != 'SUCCESS' %}
         jQuery(document).ready(function(){
             setTimeout(function () {
-               window.location.href = "{% url 'process_status' uuid %}"; //will redirect to your blog page (an ex: blog.html)
+               window.location.href = "{% url 'process_status' runp.task_id %}"; //will redirect to your blog page (an ex: blog.html)
             }, 5000);
         });
     {% endif %}
@@ -42,7 +42,7 @@
                   <table class="table">
                       <tr>
                         <td style="width: 150px;"><strong>UUID:</strong></td>
-                          <td>{{ task.id }}</td>
+                          <td>{{ runp.task_id }}</td>
                       </tr>
                       <tr>
                           <td><strong>Type:</strong></td>
@@ -62,19 +62,19 @@
                       </tr>
                       <tr>
                           <td><strong>Status:</strong></td>
-                          <td><span class="label {{ badge }}"><strong>{{ task.status }}</strong></span></td>
+                          <td>{{ runp.badge_status|safe }}</td>
                       </tr>
                       <tr>
-                          {% if task.status == 'RUNNING' %}
+                          {% if runp.celery_task.status == 'RUNNING' %}
                               <td><strong>Actual action:</strong></td>
-                              <td>{{ task.info }}</td>
+                              <td>{{ runp.celery_task.status.info }}</td>
                           {% endif %}
-                          {% if task.status == 'FAILURE' %}
+                          {% if runp.celery_task.status == 'FAILURE' %}
                               <td><strong>Exception</strong></td>
-                              <td>{{ task.info }}</td>
+                              <td>{{ runp.celery_task.info }}</td>
                           {% endif %}
                       </tr>
-                      {% if task.status == 'SUCCESS' %}
+                      {% if runp.celery_task.status == 'SUCCESS' %}
                       <tr>
                           <td><strong>Action:</strong></td>
                           <td>
@@ -83,127 +83,11 @@
                                 Download all files
                               </a>
                               {% endif %}
-
-                          </td>
-                      </tr>
-                      <tr>
-                          <td><strong>Note:</strong></td>
-                          <td>
-                                {% if tomanyresult %}
-                                    Too many result
-                                {% else %}
-                                    No warning for process result.
-                                {%  endif %}
-                                {% for key, value in result.items %}
-                                    {% if value.tomanyfile %}
-                                        Too many file for {{ key }} result
-                                    {% endif %}
-                                {% endfor %}
                           </td>
                       </tr>
                       {% endif %}
                   </table>
                 </div>
-
-
-                {% if task.status == 'SUCCESS' %}
-                <hr/>
-                <h3>Result preview</h3>
-                {% for key, value in result.items %}
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h3 class="panel-title">{{ key }} analysis results. </h3>
-                        </div>
-                        <div class="panel-body">
-                            <div class="btn-group">
-                              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                                Download <span class="caret"></span>
-                              </button>
-                              <ul class="dropdown-menu" role="menu">
-                                {% for d in value.csv_files %}
-                                <li><a href="{% get_media_prefix %}{{ d }}">{{ key }} file <span class="badge">csv</span></a></li>
-                                {% endfor %}
-                              </ul>
-                            </div>
-                            {% if value.json_files %}
-                            <div class="btn-group">
-                              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                                Network preview <span class="caret"></span>
-                              </button>
-                              <ul class="dropdown-menu" role="menu">
-                                {% for d in value.json_files %}
-                                <li>
-                                    <a role="button" href="{% url 'process_graph' runp.task_id key forloop.counter0 %}" target="_blank">
-                                      Display network <span class="badge">JS CHART</span>
-                                    </a>
-                                </li>
-                                {% endfor %}
-                              </ul>
-                            </div>
-                            {% endif %}
-
-                            <div class="btn-group">
-                              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                                Full Results <span class="caret"></span>
-                              </button>
-                              <ul class="dropdown-menu" role="menu">
-                                {% for d in value.csv_files %}
-                                <li><a href="{% url 'full_results_view' task.id key forloop.counter0 %}" target="_blank"> Results Table <span class="badge">Web View</span></a></li>
-                                {% endfor %}
-                              </ul>
-                            </div>
-                            {{ value.desc }}
-                        </div>
-                        {# Ciclo su tutte le tabelle dell'output #}
-                        {% for t in value.csv_tables  %}
-                            <div  style="overflow-x: auto">
-                            <table class="table table-striped" style="width: auto">
-                            {% for rows in t.rowdata %}
-                                {% if forloop.first %}
-                                <thead>
-                                    <tr>
-                                    {% for r in rows %}
-                                      <th>{{ r }}</th>
-                                      {% if forloop.last and t.tomanycol %}
-                                          <th><strong> ... </strong></th>
-                                      {% endif %}
-                                    {% endfor %}
-                                    </tr>
-                                </thead>
-                                {% else %}
-                                <tbody>
-                                    <tr>
-                                    {% for r in rows %}
-
-                                       {% if forloop.first %}
-                                          <td><strong>{{ r }}</strong></td>
-                                       {% else %}
-                                          <td>{{ r|floatformat:3 }}</td>
-                                       {% endif %}
-                                       {% if forloop.last and t.tomanycol %}
-                                          <td><strong> ... </strong></td>
-                                       {% endif %}
-                                    {% endfor %}
-                                    </tr>
-                                {% endif %}
-                                {% if forloop.last and t.tomanyrow %}
-                                    <tr>
-                                    {% for r in rows %}
-                                          <td><strong> ... </strong></td>
-                                    {% endfor %}
-                                          <td><strong> ... </strong></td>
-                                    </tr>
-                                {% endif %}
-                                </tbody>
-                           {% endfor %}
-                            </table>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endfor %}
-                {% endif %}
-
-
             </div><!--/span-->
           </div><!--/row-->
         </div><!--/span-->

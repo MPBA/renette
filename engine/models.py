@@ -1,3 +1,5 @@
+import csv
+import json
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -6,7 +8,7 @@ import djcelery
 import os
 
 # Create your models here.
-from engine.utils import get_bootsrap_badge
+from engine.utils import get_bootsrap_badge, is_number
 
 
 class RunningProcess(models.Model):
@@ -48,16 +50,6 @@ class RunningProcess(models.Model):
         task = self.celery_task
         return '<span class="label %s">%s</span>' % (get_bootsrap_badge(task.status), task.status)
 
-    ## Check if the task has finished
-    #@property
-    #def finished(self):
-    #    return self.celery_task.ready()
-    #
-    ## Return the current status of the task
-    #@property
-    #def status(self):
-    #    return self.celery_task.status
-    #
     ## Returns the result of the task
     @property
     def result(self):
@@ -89,22 +81,23 @@ class Results(models.Model):
         return os.path.join(settings.MEDIA_ROOT, settings.RESULT_PATH, self.task_id.task_id, filename)
     
     FILE_TYPES = (
-        ('csv','comma separated file'),
+        ('csv', 'comma separated file'),
         ('img', 'jpg, tiff, png, pdf'),
         ('graph', 'gml, graphml'),
         ('txt', 'text description'),
-        ('json', 'jsoon file'),
+        ('json', 'json file'),
         ('rdata', 'R compressed format, binary')
     )
     
     process_name = models.CharField(max_length=40)
     task_id = models.ForeignKey(RunningProcess)
-    #files = jsonfield.JSONField(blank=True, null=True)
     filetype = models.CharField(max_length=36, choices=FILE_TYPES)
     filename = models.CharField(max_length=40)
     filepath = models.CharField(max_length=100)
     filestore = models.FileField(upload_to=get_tmp_dir)
-    # imagestore = models.ImageField(upload_to=settings.MEDIA_ROOT)
+    filecol = models.IntegerField(blank=True, null=True)
+    filerow = models.IntegerField(blank=True, null=True)
+    filefirstrow = models.TextField(blank=True, null=True)
     desc = models.TextField()
     
     def __unicode__(self):
@@ -112,4 +105,23 @@ class Results(models.Model):
         
     def get_submitted(self):
         return self.task_id.submited
-    get_submitted.short_description='Submit time'
+
+    def tables_to_json(self):
+        reader = csv.reader(self.filestore, delimiter='\t')
+
+        json_list = []
+        reader.next()
+        for line in iter(reader):
+            json_list.append([round(float(l), 3) if is_number(l) else l for l in line])
+
+        return {'aaData': json_list}
+
+    def get_first_row(self):
+        if self.filefirstrow:
+            res = json.dumps(self.filefirstrow)
+        else:
+            res = None
+
+        return json.dumps(self.filefirstrow)
+
+    get_submitted.short_description = 'Submit time'
