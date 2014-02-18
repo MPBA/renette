@@ -78,7 +78,7 @@ class Results(models.Model):
     Results table: need for storing the results instead of pass through celery
     """
     def get_tmp_dir(self, filename):
-        return os.path.join(settings.MEDIA_ROOT, settings.RESULT_PATH, self.task_id.task_id, filename)
+        return os.path.join(settings.RESULT_PATH, self.task_id.task_id, filename)
     
     FILE_TYPES = (
         ('csv', 'comma separated file'),
@@ -98,6 +98,7 @@ class Results(models.Model):
     filecol = models.IntegerField(blank=True, null=True)
     filerow = models.IntegerField(blank=True, null=True)
     filefirstrow = models.TextField(blank=True, null=True)
+    imagestore = models.ImageField(upload_to=get_tmp_dir)
     desc = models.TextField()
     
     def __unicode__(self):

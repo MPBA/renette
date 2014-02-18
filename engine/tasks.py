@@ -6,9 +6,7 @@ import uuid
 import celery
 import os
 from django.conf import settings
-from django.contrib import messages
 from engine.scripts import compute_netdist, compute_adj, compute_netstab
-from django.db import DatabaseError, models
 from .models import Results, RunningProcess
 from django.core.files import File
 
@@ -50,10 +48,13 @@ def netinf(self, files, sep, param):
     ad = compute_adj.Mat2Adj(files, sep, param)
     
     tmpdir = str(uuid.uuid4())
+    print 'tmpdir %s' % tmpdir
     result_path = os.path.join(settings.MEDIA_ROOT, settings.RESULT_PATH)
     result_path_full = os.path.join(result_path, tmpdir)
     media_path = os.path.join(settings.RESULT_PATH, tmpdir)
-
+    
+    print 'results full %s' % result_path_full
+    
     if not os.path.exists(result_path_full):
         os.makedirs(result_path_full)
         
@@ -64,9 +65,10 @@ def netinf(self, files, sep, param):
     ad.compute()
     
     self.update_state(state='RUNNING', meta='Fetching result...')
-    result = ad.get_results(filepath=result_path_full)
+    result = ad.get_results(filepath=result_path_full, )
         
     if result:
+        
         sdb = save_to_db(result, pid=self.request.id, result_path_full=result_path_full)
         print 'Saving to db %s' % 'Success' if sdb else 'Error'
     print result
@@ -143,7 +145,7 @@ def save_to_db(result, pid, result_path_full=settings.MEDIA_ROOT):
     """
     Save to Results db
     """
-    
+    print 'I am the save to db %s' % pid
     for key in result.keys():
         val = result.get(key)
         for k in ['json_files', 'rdata', 'csv_files', 'img_files', 'graph_files']:
@@ -195,7 +197,7 @@ def save_to_db(result, pid, result_path_full=settings.MEDIA_ROOT):
                             f.close()
                         if tp == 'img':
                             f = open(os.path.join(result_path_full, myn))
-                            resdb.imagestore.save(myn, ImageFile(f))
+                            resdb.imagestore.save(myn, File(f))
                             f.close()
                     except Exception, e:
                         print e

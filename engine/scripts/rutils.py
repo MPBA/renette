@@ -230,3 +230,32 @@ def igraph_layout (adjmat):
     
     
     
+def plot_degree_distrib(adj_mat, i, filepath=".", prefix='ddist_'):
+    """
+    Compute degree distribution and plot using lattice
+    """
+    
+    lattice = importr('lattice')
+    grdevices = importr('grDevices')
+    xyplot = lattice.xyplot
+    rprint = robjects.globalenv.get("print")
+        
+    deg = robjects.r.rowSums(adj_mat)
+    degdens = robjects.r.density(deg)
+    
+    myf = robjects.Formula('y ~ x')
+    myf.getenvironment()['x'] = degdens.rx2['x']
+    myf.getenvironment()['y'] = degdens.rx2['y']
+    p = xyplot(myf, type='l', lwd=3, 
+               xlab='Node Degree', ylab='Density',
+               main='Node degree distribution')
+    
+    myfname = prefix + str(i) + '.png'
+    grdevices.png(file=os.path.join(filepath, myfname), width=512, height=512)
+    rprint(p)
+    grdevices.dev_off()
+    
+           
+    return myfname
+
+
