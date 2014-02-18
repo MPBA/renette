@@ -9,7 +9,7 @@ from django.views.generic.base import View
 from django.shortcuts import redirect, render, render_to_response
 from django.core.files.uploadedfile import UploadedFile
 from django.db import DatabaseError
-from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseServerError
+from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseServerError, HttpResponseRedirect
 from .utils import document_validator, get_bootsrap_badge, read_csv_results, handle_upload
 from .models import RunningProcess, Results
 from django.contrib import messages
@@ -222,7 +222,12 @@ class NetworkInferenceStep4Class(View):
 
         context = {
             'runp': runp,
-            'tables': runp.results_set.filter(filetype='csv')
+            'tables': runp.results_set.filter(filetype='csv'),
+            'charts': runp.results_set.filter(filetype='img'),
+            'json': runp.results_set.filter(filetype='json'),
+            'graphs': runp.results_set.filter(filetype='graph'),
+            'rdata': runp.results_set.filter(filetype='rdata'),
+            'charts_length': runp.results_set.filter(filetype='img').count()
         }
 
         return render(request, self.template_name, context)
@@ -385,50 +390,47 @@ class ProcessStatus2(View):
         return render(request, self.template_name, context)
 
 
-def download_zip_file(request, pk):
-    try:
-        runp = RunningProcess.objects.get(pk=pk)
-    except RunningProcess.DoesNotExist:
-        raise Http404
+def download_zip_file(request):
+    if request.method != 'POST':
+        return HttpResponseBadRequest("Bad request")
 
-    result = runp.result
-    file_list = []
-    for key in result.keys():
-        val = result.get(key)
-        print val
-        val_keys = val.keys()
-        file_list += val['csv_files'] if 'csv_files' in val_keys else []
-        #file_list += val['json_files'] if 'json_files' in val_keys else []
-        file_list += val['graph_files'] if 'graph_files' in val_keys else []
-        file_list += val['img_files'] if 'img_files' in val_keys else []
-    # Folder name in ZIP archive which contains the above files
-    # FIXME: Set this to something better
-    zip_basename = "result"
-    zip_filename = "%s.zip" % zip_basename
+    files = request.POST.getlist('files', [])
 
-    # Open StringIO to grab in-memory ZIP contents
-    s = StringIO.StringIO()
+    if len(files):
+        file_list = Results.objects.filter(pk__in=files)
 
-    # The zip compressor
-    zf = zipfile.ZipFile(s, "w")
+        ## Folder name in ZIP archive which contains the above files
+        zip_basename = "result"
+        zip_filename = "%s.zip" % zip_basename
+        #
+        # Open StringIO to grab in-memory ZIP contents
+        s = StringIO.StringIO()
 
-    for fpath in file_list:
-        # Calculate path for file in zip
-        fdir, fname = os.path.split(fpath)
-        zip_path = os.path.join("./", fname)
+        # The zip compressor
+        zf = zipfile.ZipFile(s, "w")
 
-        # Add file, at correct path
-        zf.write(os.path.join(settings.MEDIA_ROOT,fpath), zip_path)
+        for fpath in file_list:
+            # nome file interno allo zip
+            zip_path = os.path.join("./", fpath.filename)
 
-    # Must close zip for all contents to be written
-    zf.close()
+            # Add file, at correct path
+            if fpath.filetype == 'img':
+                zf.write(fpath.imagestore.path, zip_path)
+            else:
+                zf.write(fpath.filestore.path, zip_path)
+
+        # Must close zip for all contents to be written
+        zf.close()
 
     # Grab ZIP file from in-memory, make response with correct MIME-type
     # ..and correct content-disposition
-    resp = HttpResponse(s.getvalue(), mimetype="application/x-zip-compressed")
-
-    resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
-    return resp
+        resp = HttpResponse(s.getvalue(), mimetype="application/x-zip-compressed")
+        resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
+        return resp
+    else:
+        # TODO: check
+        messages.add_message(request, messages.ERROR, 'No file selected.')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 @render_to_json(mimetype='application/json')

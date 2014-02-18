@@ -8,6 +8,8 @@
 {#    </style>#}
     <script src={% static 'datatables/js/jquery.dataTables.js' %}></script>
     <script src={% static 'datatables/js/bootstrap3_dt.js' %}></script>
+    <script src={% static 'js/bootstrap-paginator.js' %}></script>
+
     <script type="text/javascript" charset="utf-8">
     /* Table initialisation */
             $(document).ready(function() {
@@ -37,6 +39,32 @@
                         "sAjaxSource": '/engine/datatables/' + pk + "/"
                     });
                 });
+
+                /* Pagination setup */
+                {% if charts_length %}
+                var options = {
+                    currentPage: 1,
+                    totalPages: {{ charts_length }},
+                    bootstrapMajorVersion: 3,
+                    numberOfPages: 10,
+                    size:"normal",
+                    onPageClicked: function(e,originalEvent,type,page){
+                        var idx = page - 1;
+                        $('#chart-img').attr("src",image_list[idx]);
+                        $('#chart-desc').html(image_list_desc[idx]);
+                    }
+                }
+                $('#imagespaginator').bootstrapPaginator(options);
+
+                image_list = [];
+                image_list_desc = [];
+                {% for c in charts %}
+                    image_list.push('{{ c.imagestore.url }}')
+                    image_list_desc.push('{{ c.filename }}')
+                {% endfor %}
+                {% endif %}
+
+                //TRIGGER EVENT
                 $("#tableslist").trigger("change")
             });
 	    </script>
@@ -81,34 +109,71 @@
                     </select>
                   </div>
                     <table class="table table-striped" id="tablesview">
-                      <thead>
-
-                      </thead>
-                      <tbody>
-{#                        <tr>#}
-{#                          <td>1</td>#}
-{#                          <td>Mark</td>#}
-{#                          <td>Otto</td>#}
-{#                          <td>@mdo</td>#}
-{#                        </tr>#}
-{#                        <tr>#}
-{#                          <td>2</td>#}
-{#                          <td>Jacob</td>#}
-{#                          <td>Thornton</td>#}
-{#                          <td>@fat</td>#}
-{#                        </tr>#}
-{#                        <tr>#}
-{#                          <td>3</td>#}
-{#                          <td>Larry</td>#}
-{#                          <td>the Bird</td>#}
-{#                          <td>@twitter</td>#}
-{#                        </tr>#}
-                      </tbody>
+                      <thead></thead>
+                      <tbody></tbody>
                     </table>
               </div>
               <div class="tab-pane" id="netvis">Network</div>
-              <div class="tab-pane" id="charts">Charts</div>
-              <div class="tab-pane" id="download">Download</div>
+              <div class="tab-pane" id="charts">
+                  <div class="panel panel-default" style="margin-top: 10px;">
+                     <div class="panel-heading" id="chart-desc">{{ charts.0.filename }}</div>
+                     <div class="panel-body">
+                        <img id="chart-img" src="{{ charts.0.imagestore.url }}" class="img-thumbnail img-responsive col-md-6 col-md-offset-3">
+                     </div>
+                     <div class="panel-body">
+                         <ul class="pagination pagination-sm" id="imagespaginator"></ul>
+                     </div>
+                  </div>
+
+              </div>
+              <div class="tab-pane" id="download">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                      <th><input type="checkbox" value="" id="selectall"></th>
+                      <th>File name</th>
+                      <th>File type</th>
+                      <th>Size</th>
+                      <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <form role="form" method="POST" action="{% url 'process_download_zip' %}">
+                    {% csrf_token %}
+                    {% for t in tables %}
+                    <tr>
+                      <td><input type="checkbox" name="files" value="{{ t.pk }}"></td>
+                      <td>{{ t.filename }}</td>
+                      <td>{{ t.filetype }}</td>
+                      <td>{{ t.filestore.size|filesizeformat }}</td>
+                      <td><a href="{{ t.filestore.url }}" target="_blank" class="btn btn-primary" role="button">Download</a></td>
+                    </tr>
+                    {% endfor %}
+                    {% for c in charts %}
+                    <tr>
+                      <td><input type="checkbox" name="files" value="{{ c.pk }}"></td>
+                      <td>{{ c.filename }}</td>
+                      <td>{{ c.filetype }}</td>
+                      <td>{{ c.imagestore.size|filesizeformat }}</td>
+                      <td><a href="{{ c.imagestore.url }}" download="{{ c.filename }}" target="_blank" class="btn btn-primary" role="button">Download</a></td>
+                    </tr>
+                    {% endfor %}
+                    {% for g in graphs %}
+                    <tr>
+                      <td><input type="checkbox" name="files" value="{{ g.pk }}"></td>
+                      <td>{{ g.filename }}</td>
+                      <td>{{ g.filetype }}</td>
+                      <td>{{ g.filestore.size|filesizeformat }}</td>
+                      <td><a href="{{ g.filestore.url }}" target="_blank" class="btn btn-primary" role="button">Download</a></td>
+                    </tr>
+                    {% endfor %}
+                    <tr><td colspan="5">
+                        <button type="submit" class="btn btn-primary btn-lg btn-block">Download files</button>
+                    </td></tr>
+                    </form>
+                    </tbody>
+                </table>
+              </div>
             </div>
 
           </div><!--/row-->

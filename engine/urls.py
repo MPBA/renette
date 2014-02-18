@@ -31,7 +31,7 @@ urlpatterns = patterns('engine.views',
                            view=ProcessStatus2.as_view(),
                            name='process_status'),
 
-                       url(regex='^process/download/zip/(?P<pk>\d+)$',
+                       url(regex='^process/download/zip/$',
                            view=download_zip_file,
                            name='process_download_zip'),
 
