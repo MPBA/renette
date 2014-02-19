@@ -15,7 +15,6 @@ class RunningProcess(models.Model):
     #user = models.ForeignKey(User)
     process_name = models.CharField(max_length=40)
     task_id = models.CharField(max_length=36)
-    #files = jsonfield.JSONField(blank=True, null=True)
     inputs = jsonfield.JSONField()
     submited = models.DateTimeField()
     startered = models.DateTimeField(blank=True, null=True)

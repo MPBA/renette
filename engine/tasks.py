@@ -160,7 +160,7 @@ def save_to_db(result, pid, result_path_full=settings.MEDIA_ROOT):
                             filepath=result_path_full,
                             filetype=tp,
                             filename=myn,
-                            task_id = RunningProcess.objects.get(task_id = pid)
+                            task_id = RunningProcess.objects.get(task_id=pid)
                         )
                         
                         if tp == 'csv':

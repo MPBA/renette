@@ -2,10 +2,7 @@
 {% load static %}
 {% block extrahead %}
     <link href="{% static "datatables/css/dt_bootstrap.css" %}" rel="stylesheet">
-{#    <style>#}
-{#        table { table-layout: fixed; }#}
-{#        table th, table td { overflow: hidden; }#}
-{#    </style>#}
+
     <script src={% static 'datatables/js/jquery.dataTables.js' %}></script>
     <script src={% static 'datatables/js/bootstrap3_dt.js' %}></script>
     <script src={% static 'js/bootstrap-paginator.js' %}></script>
@@ -36,8 +33,27 @@
                         "bProcessing": true,
                         "aoColumnDefs": aryJSONColTable,
                         "sScrollX": "200px",
-                        "sAjaxSource": '/engine/datatables/' + pk + "/"
+                        "sDom": "<'row'<'col-sm-6'l><'col-sm-6'f>r>" + "t" + "<'row'<'col-sm-6'i><'col-sm-6'p>>",
+                        "sPaginationType": "bootstrap",
+                        "oLanguage": {
+                            "sLengthMenu": "_MENU_ records per page"
+                        },
+                        "sWrapper": "dataTables_wrapper form-inline",
+                        "sFilterInput": "form-control input-sm",
+                        "sLengthSelect": "form-control input-sm",
+                        "sAjaxSource": '/engine/datatables/' + pk + "/",
+                        "fnRowCallback": function( nRow, aData, iDisplayIndex ) {
+                            /* Append the grade to the default row class name */
+                            for(var i=0; i<=aData.length; i++){
+                                if( aData[i] > 0.6 ){
+                                    $('td:eq('+i+')', nRow).html('<span class="label label-info">'+aData[i]+'</span>');
+                                }
+                            }
+                        }
                     });
+                    $('#tablesview_length label select').addClass('form-control');
+                    $('#tablesview_filter label input').addClass('form-control');
+                    $('#table-desc').html( $("#tableslist option:selected").val());
                 });
 
                 /* Pagination setup */
@@ -63,6 +79,27 @@
                     image_list_desc.push('{{ c.filename }}')
                 {% endfor %}
                 {% endif %}
+
+                // DOWNLOAD AREA
+                $('#downloadform input[name="files"]').change(function() {
+                    if ($(this).is(':checked')) {
+                        $(this).closest('tr').attr('class','success')
+                    } else {
+                        $(this).closest('tr').removeAttr('class','success')
+                    }
+                    if( $('#downloadform tbody :checked').length){
+                        $('#downloadsubmit').removeAttr('disabled')
+                    } else {
+                        $('#downloadsubmit').attr('disabled','disabled')
+                    }
+                });
+                $('#selectall').change(function() {
+                    if ($(this).is(':checked')) {
+                        $('#downloadform tbody input[name="files"]').filter(':not(:checked)').click()
+                    } else {
+                        $('#downloadform tbody input[name="files"]').filter(':checked').click()
+                    }
+                });
 
                 //TRIGGER EVENT
                 $("#tableslist").trigger("change")
@@ -101,78 +138,103 @@
             <!-- Tab panes -->
             <div class="tab-content">
               <div class="tab-pane active" id="tables">
-                  <div style="padding-top: 10px; padding-bottom: 10px">
-                    <select class="form-control" id="tableslist">
-                        {% for t in tables %}
-                            <option url="{{ t.filestore.url }}" pk="{{ t.pk }}" firstrow={{ t.get_first_row|safe }}>{{ t.filename }}</option>
-                        {% endfor %}
-                    </select>
+                  <div class="row" style="padding-top: 10px;">
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label">Change tables</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" id="tableslist">
+                            {% for t in tables %}
+                                <option url="{{ t.filestore.url }}" pk="{{ t.pk }}" firstrow={{ t.get_first_row|safe }}>{{ t.filename }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                   </div>
-                    <table class="table table-striped" id="tablesview">
-                      <thead></thead>
-                      <tbody></tbody>
-                    </table>
+                  </div>
+                  <div class="panel panel-default" style="margin-top: 10px;">
+                     <div class="panel-heading" id="table-desc">bla bla bla</div>
+                     <div class="panel-body">
+                          <div class="col-sm-12" style="padding: 0px !important;">
+                          <table class="table table-condensed table-striped" id="tablesview">
+                              <thead></thead>
+                              <tbody></tbody>
+                          </table>
+                          </div>
+                     </div>
+                  </div>
+
               </div>
               <div class="tab-pane" id="netvis">Network</div>
               <div class="tab-pane" id="charts">
                   <div class="panel panel-default" style="margin-top: 10px;">
                      <div class="panel-heading" id="chart-desc">{{ charts.0.filename }}</div>
                      <div class="panel-body">
-                        <img id="chart-img" src="{{ charts.0.imagestore.url }}" class="img-thumbnail img-responsive col-md-6 col-md-offset-3">
-                     </div>
-                     <div class="panel-body">
-                         <ul class="pagination pagination-sm" id="imagespaginator"></ul>
+                         <div class="row">
+                             {% if charts %}
+                             <img id="chart-img" src="{{ charts.0.imagestore.url }}" class="img-thumbnail img-responsive col-md-6 col-md-offset-3">
+                             {% else %}
+                                 <h3>No charts available</h3>
+                             {% endif %}
+                         </div>
+                         <div class="row">
+                             <div class="col-md-6 col-md-offset-3">
+                                <ul class="pagination pagination-sm " id="imagespaginator"></ul>
+                             </div>
+                         </div>
                      </div>
                   </div>
-
               </div>
               <div class="tab-pane" id="download">
-                <table class="table table-striped">
-                    <thead>
-                    <tr>
-                      <th><input type="checkbox" value="" id="selectall"></th>
-                      <th>File name</th>
-                      <th>File type</th>
-                      <th>Size</th>
-                      <th>Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <form role="form" method="POST" action="{% url 'process_download_zip' %}">
-                    {% csrf_token %}
-                    {% for t in tables %}
-                    <tr>
-                      <td><input type="checkbox" name="files" value="{{ t.pk }}"></td>
-                      <td>{{ t.filename }}</td>
-                      <td>{{ t.filetype }}</td>
-                      <td>{{ t.filestore.size|filesizeformat }}</td>
-                      <td><a href="{{ t.filestore.url }}" target="_blank" class="btn btn-primary" role="button">Download</a></td>
-                    </tr>
-                    {% endfor %}
-                    {% for c in charts %}
-                    <tr>
-                      <td><input type="checkbox" name="files" value="{{ c.pk }}"></td>
-                      <td>{{ c.filename }}</td>
-                      <td>{{ c.filetype }}</td>
-                      <td>{{ c.imagestore.size|filesizeformat }}</td>
-                      <td><a href="{{ c.imagestore.url }}" download="{{ c.filename }}" target="_blank" class="btn btn-primary" role="button">Download</a></td>
-                    </tr>
-                    {% endfor %}
-                    {% for g in graphs %}
-                    <tr>
-                      <td><input type="checkbox" name="files" value="{{ g.pk }}"></td>
-                      <td>{{ g.filename }}</td>
-                      <td>{{ g.filetype }}</td>
-                      <td>{{ g.filestore.size|filesizeformat }}</td>
-                      <td><a href="{{ g.filestore.url }}" target="_blank" class="btn btn-primary" role="button">Download</a></td>
-                    </tr>
-                    {% endfor %}
-                    <tr><td colspan="5">
-                        <button type="submit" class="btn btn-primary btn-lg btn-block">Download files</button>
-                    </td></tr>
-                    </form>
-                    </tbody>
-                </table>
+                  <div class="panel panel-default" style="margin-top: 10px;">
+                     <div class="panel-heading" id="chart-desc">Available files for download</div>
+                         <form role="form" method="POST" id="downloadform" action="{% url 'process_download_zip' %}">
+                         <table class="table">
+                            <thead>
+                            <tr>
+                              <th><input type="checkbox" value="" id="selectall"></th>
+                              <th>File name</th>
+                              <th>File type</th>
+                              <th class="hidden-sm hidden-xs">Size</th>
+                              <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            {% csrf_token %}
+                            {% for t in tables %}
+                            <tr>
+                              <td><input type="checkbox" name="files" value="{{ t.pk }}"></td>
+                              <td>{{ t.filename }}</td>
+                              <td>{{ t.filetype }}</td>
+                              <td class="hidden-sm hidden-xs">{{ t.filestore.size|filesizeformat }}</td>
+                              <td><a href="{{ t.filestore.url }}" target="_blank" class="btn btn-primary btn-xs" role="button">Download</a></td>
+                            </tr>
+                            {% endfor %}
+                            {% for c in charts %}
+                            <tr>
+                              <td><input type="checkbox" name="files" value="{{ c.pk }}"></td>
+                              <td>{{ c.filename }}</td>
+                              <td>{{ c.filetype }}</td>
+                              <td class="hidden-sm hidden-xs">{{ c.imagestore.size|filesizeformat }}</td>
+                              <td><a href="{{ c.imagestore.url }}" download="{{ c.filename }}" target="_blank" class="btn btn-primary btn-xs" role="button">Download</a></td>
+                            </tr>
+                            {% endfor %}
+                            {% for g in graphs %}
+                            <tr>
+                              <td><input type="checkbox" name="files" value="{{ g.pk }}"></td>
+                              <td>{{ g.filename }}</td>
+                              <td>{{ g.filetype }}</td>
+                              <td class="hidden-sm hidden-xs">{{ g.filestore.size|filesizeformat }}</td>
+                              <td><a href="{{ g.filestore.url }}" target="_blank" class="btn btn-primary btn-xs" role="button">Download</a></td>
+                            </tr>
+                            {% endfor %}
+                            <tr><td colspan="5">
+                                <button id="downloadsubmit" type="submit" class="btn btn-primary btn-lg btn-block" disabled="disabled">Download files</button>
+                            </td></tr>
+
+                            </tbody>
+                        </table>
+                        </form>
+                  </div>
               </div>
             </div>
 
