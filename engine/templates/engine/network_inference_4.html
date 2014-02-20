@@ -151,7 +151,7 @@
                   </div>
                   </div>
                   <div class="panel panel-default" style="margin-top: 10px;">
-                     <div class="panel-heading" id="table-desc">bla bla bla</div>
+                     <div class="panel-heading" id="table-desc">t.0.filename</div>
                      <div class="panel-body">
                           <div class="col-sm-12" style="padding: 0px !important;">
                           <table class="table table-condensed table-striped" id="tablesview">
@@ -163,7 +163,9 @@
                   </div>
 
               </div>
-              <div class="tab-pane" id="netvis">Network</div>
+              <div class="tab-pane" id="netvis">
+                {% include 'engine/json_preview.html' %}
+              </div>
               <div class="tab-pane" id="charts">
                   <div class="panel panel-default" style="margin-top: 10px;">
                      <div class="panel-heading" id="chart-desc">{{ charts.0.filename }}</div>
@@ -198,7 +200,6 @@
                             </tr>
                             </thead>
                             <tbody>
-
                             {% csrf_token %}
                             {% for t in tables %}
                             <tr>

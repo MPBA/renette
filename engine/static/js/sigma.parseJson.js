@@ -10,8 +10,9 @@ sigma.publicPrototype.parseJson = function(jsonPath,callback) {
 
 	jQuery.getJSON(jsonPath, function(data) {
 		for (i=0; i<data.nodes.length; i++){
-            H=600
-            W=$("#sigma-example-parent").width()
+            H=600;
+//            W=$("#sigma-example-parent").width()
+            W=400;
             if(!data.nodes[i].x){
                 data.nodes[i].x = W*Math.random();
             }
