@@ -146,3 +146,11 @@ def read_csv_results(files):
             return result, tomanyfile
 
     return result, tomanyfile
+
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False

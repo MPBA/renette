@@ -1,0 +1,67 @@
+{% load static %}
+{% block extrahead %}
+    <script src={% static 'js/bootstrap-paginator.js' %}></script>
+{% endblock %}
+<script type="application/javascript">
+    $(document).ready(function() {
+        {% if charts_length %}
+            var options = {
+                currentPage: 1,
+                totalPages: {{ charts_length }},
+                bootstrapMajorVersion: 3,
+                numberOfPages: 10,
+                size:"normal",
+                onPageChanged: function(e,oldPage,newPage){
+                    var idx = newPage - 1;
+                    $('#chart-img').attr("src",image_list[idx]);
+                    $('#chart-desc').html(image_list_desc[idx]);
+                    $("#chartlist").val(image_list_desc[idx]);
+                }
+            }
+            $('#imagespaginator').bootstrapPaginator(options);
+
+            image_list = [];
+            image_list_desc = [];
+            {% for c in charts %}
+                image_list.push('{{ c.imagestore.url }}')
+                image_list_desc.push('{{ c.filename }}')
+            {% endfor %}
+
+            $("#chartlist").on('change', function() {
+                var idx = $("#chartlist option:selected").attr('idx');
+                $('#imagespaginator').bootstrapPaginator('show',idx)
+            });
+        {% endif %}
+    });
+</script>
+<div class="row">
+    <form role="form">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Change charts</label>
+            <div class="col-sm-10">
+                <select class="form-control" id="chartlist">
+                    {% for c in charts %}
+                        <option idx="{{ forloop.counter }}" >{{ c.filename }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="panel panel-default" style="margin-top: 10px;">
+    <div class="panel-heading" id="chart-desc">{{ charts.0.filename }}</div>
+    <div class="panel-body">
+        <div class="row">
+            {% if charts %}
+                <img id="chart-img" src="{{ charts.0.imagestore.url }}" class="img-thumbnail img-responsive col-md-6 col-md-offset-3">
+            {% else %}
+                <h3>No charts available</h3>
+            {% endif %}
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <ul class="pagination pagination-sm " id="imagespaginator"></ul>
+            </div>
+        </div>
+    </div>
+</div>

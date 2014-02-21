@@ -9,12 +9,13 @@ from django.views.generic.base import View
 from django.shortcuts import redirect, render, render_to_response
 from django.core.files.uploadedfile import UploadedFile
 from django.db import DatabaseError
-from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseServerError
+from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseServerError, HttpResponseRedirect
 from .utils import document_validator, get_bootsrap_badge, read_csv_results, handle_upload
 from .models import RunningProcess, Results
 from django.contrib import messages
 from engine.tasks import test_netdist, test_netinf, test_netstab, netinf
 from django.conf import settings
+from tojson.decorators import render_to_json
 import djcelery
 import os
 import StringIO
@@ -204,9 +205,31 @@ class NetworkInferenceStep3Class(View):
             t.revoke(terminate=True)
             messages.add_message(self.request, messages.ERROR, 'Error: %s' % str(e))
 
-
-
         messages.add_message(self.request, messages.SUCCESS, 'Process submitted with success!!!')
+        return render(request, self.template_name, context)
+
+
+# Process status view from database
+class NetworkInferenceStep4Class(View):
+    template_name = 'engine/network_inference_4.html'
+
+    def get(self, request, uuid, **kwargs):
+        try:
+            runp = RunningProcess.objects.get(task_id=uuid)
+        except RunningProcess.DoesNotExist:
+            runp = None
+            messages.add_message(self.request, messages.ERROR, 'Some information not available!')
+
+        context = {
+            'runp': runp,
+            'tables': runp.results_set.filter(filetype='csv'),
+            'charts': runp.results_set.filter(filetype='img'),
+            'json': runp.results_set.filter(filetype='json'),
+            'graphs': runp.results_set.filter(filetype='graph'),
+            'rdata': runp.results_set.filter(filetype='rdata'),
+            'charts_length': runp.results_set.filter(filetype='img').count()
+        }
+
         return render(request, self.template_name, context)
 
 
@@ -305,55 +328,55 @@ class NetworkDistanceStep3Class(View):
         return render(request, self.template_name, context)
 
 
-class ProcessStatus(View):
-    template_name = 'engine/process_status.html'
+#class ProcessStatus(View):
+#    template_name = 'engine/process_status.html'
+#
+#    def get(self, request, uuid, **kwargs):
+#        task = djcelery.celery.AsyncResult(uuid)
+#
+#        try:
+#            runp = RunningProcess.objects.get(task_id=uuid)
+#        except RunningProcess.DoesNotExist:
+#            runp = None
+#            messages.add_message(self.request, messages.ERROR, 'Some information not available!')
+#
+#        context = {
+#            'uuid': uuid, ### TODO: e' nei models, riferirsi a quello
+#            'task': task, ### TODO: e' nei models, riferirisi a quello
+#            'badge': get_bootsrap_badge(task.status), ### TODO: e' nei model, riferirsi a quello
+#            'runp': runp
+#        }
+#
+#        if task.status == 'SUCCESS':
+#            result = task.result
+#            idx = 0
+#            if isinstance(result, dict):
+#                context['download_btn'] = True  ### TODO: e' nei models
+#                for key in result.keys():
+#                    if idx == 3:
+#                        context['tomanyresult'] = True #todo too
+#                        break
+#                    idx += 1
+#
+#                    val = result.get(key)
+#                    csvlist, tomanyfile = read_csv_results(val['csv_files'])
+#                    if csvlist:
+#                        val['csv_tables'] = csvlist
+#                        val['tomanyfile'] = tomanyfile
+#                    else:
+#                        messages.add_message(self.request, messages.ERROR, 'Cannot find the results file!')
+#                    result.update({key: val})
+#
+#            context['result'] = result
+#        return render(request, self.template_name, context)
 
-    def get(self, request, uuid, **kwargs):
-        task = djcelery.celery.AsyncResult(uuid)
-        
-        try:
-            runp = RunningProcess.objects.get(task_id=uuid)
-        except RunningProcess.DoesNotExist:
-            runp = None
-            messages.add_message(self.request, messages.ERROR, 'Some information not available!')
-
-        context = {
-            'uuid': uuid, ### TODO: e' nei models, riferirsi a quello
-            'task': task, ### TODO: e' nei models, riferirisi a quello
-            'badge': get_bootsrap_badge(task.status), ### TODO: e' nei model, riferirsi a quello
-            'runp': runp
-        }
-
-        if task.status == 'SUCCESS':
-            result = task.result
-            idx = 0
-            if isinstance(result, dict):
-                context['download_btn'] = True  ### TODO: e' nei models
-                for key in result.keys():
-                    if idx == 3:
-                        context['tomanyresult'] = True #todo too
-                        break
-                    idx += 1
-
-                    val = result.get(key)
-                    csvlist, tomanyfile = read_csv_results(val['csv_files'])
-                    if csvlist:
-                        val['csv_tables'] = csvlist
-                        val['tomanyfile'] = tomanyfile
-                    else:
-                        messages.add_message(self.request, messages.ERROR, 'Cannot find the results file!')
-                    result.update({key: val})
-
-            context['result'] = result
-        return render(request, self.template_name, context)
 
 # Process status view from database
 class ProcessStatus2(View):
-    template_name = 'engine/process_status2.html'
+    template_name = 'engine/process_status.html'
 
     def get(self, request, uuid, **kwargs):
-        task = djcelery.celery.AsyncResult(uuid)
-        
+        #task = djcelery.celery.AsyncResult(uuid)
         try:
             runp = RunningProcess.objects.get(task_id=uuid)
         except RunningProcess.DoesNotExist:
@@ -361,85 +384,63 @@ class ProcessStatus2(View):
             messages.add_message(self.request, messages.ERROR, 'Some information not available!')
 
         context = {
-            'uuid': uuid, ### TODO: e' nei models, riferirsi a quello
-            'task': task, ### TODO: e' nei models, riferirisi a quello
-            'badge': get_bootsrap_badge(task.status), ### TODO: e' nei model, riferirsi a quello
             'runp': runp
         }
-        
-        if task.status == 'SUCCESS':
-            result = task.result
-            print uuid
-            result = Results.objects.filter(task_id__task_id=uuid)
-            print([r.filetype for r in result])
-            # idx = 0
-            # if isinstance(result, dict):
-            #     context['download_btn'] = True  ### TODO: e' nei models
-            #     for key in result.keys():
-            #         if idx == 3:
-            #             context['tomanyresult'] = True #todo too
-            #             break
-            #         idx += 1
 
-            #         val = result.get(key)
-            #         csvlist, tomanyfile = read_csv_results(val['csv_files'])
-            #         if csvlist:
-            #             val['csv_tables'] = csvlist
-            #             val['tomanyfile'] = tomanyfile
-            #         else:
-            #             messages.add_message(self.request, messages.ERROR, 'Cannot find the results file!')
-            #         result.update({key: val})
-
-            context['result'] = result
         return render(request, self.template_name, context)
 
 
+def download_zip_file(request):
+    if request.method != 'POST':
+        return HttpResponseBadRequest("Bad request")
 
+    files = request.POST.getlist('files', [])
 
-def download_zip_file(request, pk):
-    try:
-        runp = RunningProcess.objects.get(pk=pk)
-    except RunningProcess.DoesNotExist:
-        raise Http404
+    if len(files):
+        file_list = Results.objects.filter(pk__in=files)
 
-    result = runp.result
-    file_list = []
-    for key in result.keys():
-        val = result.get(key)
-        print val
-        val_keys = val.keys()
-        file_list += val['csv_files'] if 'csv_files' in val_keys else []
-        #file_list += val['json_files'] if 'json_files' in val_keys else []
-        file_list += val['graph_files'] if 'graph_files' in val_keys else []
-        file_list += val['img_files'] if 'img_files' in val_keys else []
-    # Folder name in ZIP archive which contains the above files
-    # FIXME: Set this to something better
-    zip_basename = "result"
-    zip_filename = "%s.zip" % zip_basename
+        ## Folder name in ZIP archive which contains the above files
+        zip_basename = "result"
+        zip_filename = "%s.zip" % zip_basename
+        #
+        # Open StringIO to grab in-memory ZIP contents
+        s = StringIO.StringIO()
 
-    # Open StringIO to grab in-memory ZIP contents
-    s = StringIO.StringIO()
+        # The zip compressor
+        zf = zipfile.ZipFile(s, "w")
 
-    # The zip compressor
-    zf = zipfile.ZipFile(s, "w")
+        for fpath in file_list:
+            # nome file interno allo zip
+            zip_path = os.path.join("./", fpath.filename)
 
-    for fpath in file_list:
-        # Calculate path for file in zip
-        fdir, fname = os.path.split(fpath)
-        zip_path = os.path.join("./", fname)
+            # Add file, at correct path
+            if fpath.filetype == 'img':
+                zf.write(fpath.imagestore.path, zip_path)
+            else:
+                zf.write(fpath.filestore.path, zip_path)
 
-        # Add file, at correct path
-        zf.write(os.path.join(settings.MEDIA_ROOT,fpath), zip_path)
-
-    # Must close zip for all contents to be written
-    zf.close()
+        # Must close zip for all contents to be written
+        zf.close()
 
     # Grab ZIP file from in-memory, make response with correct MIME-type
     # ..and correct content-disposition
-    resp = HttpResponse(s.getvalue(), mimetype="application/x-zip-compressed")
+        resp = HttpResponse(s.getvalue(), mimetype="application/x-zip-compressed")
+        resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
+        return resp
+    else:
+        # TODO: check
+        messages.add_message(request, messages.ERROR, 'No file selected.')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-    resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
-    return resp
+
+@render_to_json(mimetype='application/json')
+def datatables(request, pk):
+    try:
+        res = Results.objects.get(pk=pk)
+    except RunningProcess.DoesNotExist:
+        raise Http404
+
+    return res.tables_to_json()
 
 
 def multiuploader(request):
@@ -498,59 +499,59 @@ def process_list(request):
     return render(request, 'engine/my_process_list.html', context)
 
 
-def process_graph(request, uuid, key, idx):
-    try:
-        runp = RunningProcess.objects.get(task_id=uuid)
-    except RunningProcess.DoesNotExist:
-        raise Http404
-
-    result = runp.result
-    try:
-        url = result[key]['json_files'][int(idx)]
-        context = {
-            'url': url,
-            'key': key,
-            'idx': idx,
-            'runp':runp
-        }
-    except KeyError:
-        context = None
-        messages.add_message(request, messages.ERROR, 'No json available for graph visualization.')
-
-    return render(request, 'engine/json_preview.html', context)
-
-
-def full_results_view(request, uuid, key, idx):
-    import csv
-    try:
-        runp = RunningProcess.objects.get(task_id=uuid)
-    except RunningProcess.DoesNotExist:
-        raise Http404
-
-    result = runp.result
-    try:
-        filepath = result[key]['csv_files'][int(idx)]
-        f = open(os.path.join(settings.MEDIA_ROOT, filepath), 'r')
-        f.seek(0, 0)
-        dialect = csv.Sniffer().sniff(f.readline(), delimiters=[';', ',', '\t'])
-        f.seek(0, 0)
-        reader = csv.reader(f, dialect)
-        rows = ""
-        r=[]
-        for line in reader:
-            r.append(line)
-            rows += '<tr>'
-            for col in line:
-                rows += '<td>'+str(col)+'</td>'
-            rows += '</tr>'
-        context = {
-            'url': filepath,
-            'rows': rows,
-            'r': r
-        }
-
-    except KeyError:
-        context = None
-        messages.add_message(request, messages.ERROR, 'No json available for graph visualization.')
-
-    return render(request, 'engine/full_results_view.html', context)
+#def process_graph(request, uuid, key, idx):
+#    try:
+#        runp = RunningProcess.objects.get(task_id=uuid)
+#    except RunningProcess.DoesNotExist:
+#        raise Http404
+#
+#    result = runp.result
+#    try:
+#        url = result[key]['json_files'][int(idx)]
+#        context = {
+#            'url': url,
+#            'key': key,
+#            'idx': idx,
+#            'runp':runp
+#        }
+#    except KeyError:
+#        context = None
+#        messages.add_message(request, messages.ERROR, 'No json available for graph visualization.')
+#
+#    return render(request, 'engine/result_json_preview.html', context)
+#
+#
+#def full_results_view(request, uuid, key, idx):
+#    import csv
+#    try:
+#        runp = RunningProcess.objects.get(task_id=uuid)
+#    except RunningProcess.DoesNotExist:
+#        raise Http404
+#
+#    result = runp.result
+#    try:
+#        filepath = result[key]['csv_files'][int(idx)]
+#        f = open(os.path.join(settings.MEDIA_ROOT, filepath), 'r')
+#        f.seek(0, 0)
+#        dialect = csv.Sniffer().sniff(f.readline(), delimiters=[';', ',', '\t'])
+#        f.seek(0, 0)
+#        reader = csv.reader(f, dialect)
+#        rows = ""
+#        r=[]
+#        for line in reader:
+#            r.append(line)
+#            rows += '<tr>'
+#            for col in line:
+#                rows += '<td>'+str(col)+'</td>'
+#            rows += '</tr>'
+#        context = {
+#            'url': filepath,
+#            'rows': rows,
+#            'r': r
+#        }
+#
+#    except KeyError:
+#        context = None
+#        messages.add_message(request, messages.ERROR, 'No json available for graph visualization.')
+#
+#    return render(request, 'engine/full_results_view.html', context)

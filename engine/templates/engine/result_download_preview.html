@@ -1,0 +1,76 @@
+{% load static %}
+{% block extrahead %}
+
+{% endblock %}
+<script type="application/javascript">
+    $(document).ready(function() {
+        $('#downloadform input[name="files"]').change(function() {
+            if ($(this).is(':checked')) {
+                $(this).closest('tr').attr('class','success')
+            } else {
+                $(this).closest('tr').removeAttr('class','success')
+            }
+            if( $('#downloadform tbody :checked').length){
+                $('#downloadsubmit').removeAttr('disabled')
+            } else {
+                $('#downloadsubmit').attr('disabled','disabled')
+            }
+        });
+        $('#selectall').change(function() {
+            if ($(this).is(':checked')) {
+                $('#downloadform tbody input[name="files"]').filter(':not(:checked)').click()
+            } else {
+                $('#downloadform tbody input[name="files"]').filter(':checked').click()
+            }
+        });
+    });
+</script>
+<div class="panel panel-default" style="margin-top: 10px;">
+    <div class="panel-heading" id="chart-desc">Available files for download</div>
+    <form role="form" method="POST" id="downloadform" action="{% url 'process_download_zip' %}">
+        <table class="table">
+            <thead>
+            <tr>
+                <th><input type="checkbox" value="" id="selectall"></th>
+                <th>File name</th>
+                <th>File type</th>
+                <th class="hidden-sm hidden-xs">Size</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% csrf_token %}
+            {% for t in tables %}
+                <tr>
+                    <td><input type="checkbox" name="files" value="{{ t.pk }}"></td>
+                    <td>{{ t.filename }}</td>
+                    <td>{{ t.filetype }}</td>
+                    <td class="hidden-sm hidden-xs">{{ t.filestore.size|filesizeformat }}</td>
+                    <td><a href="{{ t.filestore.url }}" target="_blank" class="btn btn-primary btn-xs" role="button">Download</a></td>
+                </tr>
+            {% endfor %}
+            {% for c in charts %}
+                <tr>
+                    <td><input type="checkbox" name="files" value="{{ c.pk }}"></td>
+                    <td>{{ c.filename }}</td>
+                    <td>{{ c.filetype }}</td>
+                    <td class="hidden-sm hidden-xs">{{ c.imagestore.size|filesizeformat }}</td>
+                    <td><a href="{{ c.imagestore.url }}" download="{{ c.filename }}" target="_blank" class="btn btn-primary btn-xs" role="button">Download</a></td>
+                </tr>
+            {% endfor %}
+            {% for g in graphs %}
+                <tr>
+                    <td><input type="checkbox" name="files" value="{{ g.pk }}"></td>
+                    <td>{{ g.filename }}</td>
+                    <td>{{ g.filetype }}</td>
+                    <td class="hidden-sm hidden-xs">{{ g.filestore.size|filesizeformat }}</td>
+                    <td><a href="{{ g.filestore.url }}" target="_blank" class="btn btn-primary btn-xs" role="button">Download</a></td>
+                </tr>
+            {% endfor %}
+            <tr><td colspan="5">
+                <button id="downloadsubmit" type="submit" class="btn btn-primary btn-lg btn-block" disabled="disabled">Download files</button>
+            </td></tr>
+            </tbody>
+        </table>
+    </form>
+</div>

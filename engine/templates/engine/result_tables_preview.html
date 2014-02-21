@@ -1,0 +1,89 @@
+{% load static %}
+{% block extrahead %}
+    <link href="{% static "datatables/css/dt_bootstrap.css" %}" rel="stylesheet">
+    <script src={% static 'datatables/js/jquery.dataTables.js' %}></script>
+    <script src={% static 'datatables/js/bootstrap3_dt.js' %}></script>
+{% endblock %}
+<script type="application/javascript">
+    $(document).ready(function() {
+        $("#tableslist").on('change', function() {
+            var uninitialized = $('#tablesview').filter(function() {
+                return $.fn.DataTable.fnIsDataTable(this);
+            });
+            if(uninitialized.length){
+                var tb = $('#tablesview').DataTable()
+                tb.fnClearTable(true)
+                tb.fnDestroy()
+            }
+            var pk = $("#tableslist option:selected").attr('pk');
+            var firstrow = eval($("#tableslist option:selected").attr('firstrow'));
+            firstrow.shift(); // TODO FIX tolgo il primo elemento!!!!
+            var aryJSONColTable=[];
+            for (var i=0; i < firstrow.length; i++ ) {
+                aryJSONColTable.push({
+                    "sTitle": firstrow[i],
+                    "aTargets": [i]
+                });
+            };
+            $('#tablesview').dataTable({
+                "bProcessing": true,
+                "bDeferRender": true,
+                "bSort" : false,
+                "aoColumnDefs": aryJSONColTable,
+                "sScrollX": "200px",
+                "sDom": "<'row'<'col-sm-6'l><'col-sm-6'f>r>" + "t" + "<'row'<'col-sm-6'i><'col-sm-6'p>>",
+                "sPaginationType": "bootstrap",
+                "oLanguage": {
+                    "sLengthMenu": "_MENU_ records per page"
+                },
+                "sWrapper": "dataTables_wrapper form-inline",
+                "sFilterInput": "form-control input-sm",
+                "sLengthSelect": "form-control input-sm",
+                "sAjaxSource": '/engine/datatables/' + pk + '/',
+                "fnRowCallback": function( nRow, aData, iDisplayIndex ) {
+                    /* Append the grade to the default row class name */
+                    for(var i=0; i<=aData.length; i++){
+                        if( aData[i] > 0.6 ){
+                            $('td:eq('+i+')', nRow).html('<span class="label label-info">'+aData[i]+'</span>');
+                        }
+                    }
+                },
+                "fnPreDrawCallback": function() {
+                    // gather info to compose a message
+                    return true;
+                },
+                "fnDrawCallback": function() {
+                    // in case your overlay needs to be put away automatically you can put it here
+                }
+            });
+            $('#tablesview_length label select').addClass('form-control');
+            $('#tablesview_filter label input').addClass('form-control');
+            $('#table-desc').html( $("#tableslist option:selected").val());
+        });
+
+        $("#tableslist").trigger("change")
+    });
+</script>
+<div class="row" style="padding-top: 10px;">
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Change tables</label>
+        <div class="col-sm-10">
+            <select class="form-control" id="tableslist">
+                {% for t in tables %}
+                    <option url="{{ t.filestore.url }}" pk="{{ t.pk }}" firstrow={{ t.get_first_row|safe }}>{{ t.filename }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</div>
+<div class="panel panel-default" style="margin-top: 10px;">
+    <div class="panel-heading" id="table-desc">t.0.filename</div>
+    <div class="panel-body">
+        <div class="col-sm-12" style="padding: 0px !important;">
+            <table class="table table-condensed table-striped" id="tablesview">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>

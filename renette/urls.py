@@ -34,7 +34,6 @@ urlpatterns = patterns('',
     (r'^robots\.txt$', include('robots.urls')),
     (r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap', {'sitemaps': sitemaps}),
 
-    
     # main app url
     url(regex='^$', view=cache_page(60 * 5)(MainView.as_view()), name='home'),
     url(r'^sendmail/$', 'renette.views.contact', name='sendmail'),

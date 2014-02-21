@@ -1,0 +1,223 @@
+{% load static %}
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static 'jquery-ui/jquery-ui.css' %}">
+    <script src="{% static 'jquery-ui/jquery-ui.js' %}"></script>
+    <script type="application/javascript" src="{% static 'js/sigma.js' %}"></script>
+    <script type="application/javascript" src="{% static 'js/sigma.parseJson.js' %}"></script>
+{% endblock %}
+
+<script>
+    $(function() {
+        $( "#slider-1" ).slider({
+            value:1,
+            min: 0,
+            max: 1,
+            step: 0.01,
+            slide: function( event, ui ) {
+                $( "#amount-1" ).val( ui.value );
+                sigInst1.iterEdges(function(n){
+                    if(n.size <= ui.value){
+                        n.hidden = 0;
+                    } else {
+                        n.hidden = 1;
+                    }
+                }).draw();
+            }
+        });
+        $( "#amount-1" ).val($( "#slider-1" ).slider( "value" ) );
+    });
+    $(function() {
+        $( "#slider-2" ).slider({
+            value:1,
+            min: 0,
+            max: 1,
+            step: 0.01,
+            slide: function( event, ui ) {
+                $( "#amount-2" ).val( ui.value );
+                sigInst2.iterEdges(function(n){
+                    if(n.size <= ui.value){
+                        n.hidden = 0;
+                    } else {
+                        n.hidden = 1;
+                    }
+                }).draw();
+            }
+        });
+        $( "#amount-2" ).val($( "#slider-2" ).slider( "value" ) );
+    });
+</script>
+<script type="application/javascript">
+    $(document).ready(function() {
+        $("#jsonlist-1").on('change', function() {
+            var url = $("#jsonlist-1 option:selected").attr('url');
+
+            if (!("sigInst1" in window)){
+                // Instanciate sigma.js and customize rendering :
+                sigInst1 = sigma.init(document.getElementById('sigma-1')).drawingProperties({
+                    defaultLabelColor: '#000',
+                    defaultLabelSize: 14,
+                    defaultLabelBGColor: '#fff',
+                    defaultLabelHoverColor: '#000',
+                    labelThreshold: 6,
+                    defaultEdgeType: 'curve'
+                }).graphProperties({
+                            minNodeSize: 0.2,
+                            maxNodeSize: 8,
+                            minEdgeSize: 1,
+                            maxEdgeSize: 5,
+                            sideMargin: 50
+                        }).mouseProperties({
+                            maxRatio: 32
+                        });
+            }
+            sigInst1.emptyGraph().draw();
+            if(url){
+                $('#json-desc-1').html( $("#tableslist option:selected").val());
+                sigInst1.parseJson(url);
+                sigInst1.draw();
+            } else {
+                $('#json-desc-1').html("No variable selected.");
+            }
+        });
+        $("#jsonlist-2").on('change', function() {
+            var url = $("#jsonlist-2 option:selected").attr('url');
+
+            if (!("sigInst2" in window)){
+                // Instanciate sigma.js and customize rendering :
+                sigInst2 = sigma.init(document.getElementById('sigma-2')).drawingProperties({
+                    defaultLabelColor: '#000',
+                    defaultLabelSize: 14,
+                    defaultLabelBGColor: '#fff',
+                    defaultLabelHoverColor: '#000',
+                    labelThreshold: 6,
+                    defaultEdgeType: 'curve'
+                }).graphProperties({
+                            minNodeSize: 0.2,
+                            maxNodeSize: 8,
+                            minEdgeSize: 1,
+                            maxEdgeSize: 5,
+                            sideMargin: 50
+                        }).mouseProperties({
+                            maxRatio: 32
+                        });
+            }
+            sigInst2.emptyGraph().draw();
+            if(url){
+                $('#json-desc-2').html( $("#tableslist option:selected").val());
+                sigInst2.parseJson(url);
+                sigInst2.draw();
+            } else {
+                $('#json-desc-2').html("No variable selected.");
+            }
+        });
+        $("#showjson2").click(function(btn){
+            if( !$("#showjson2").hasClass('active') ){
+                $("#jsondiv-1").removeClass('col-sm-12').addClass('col-sm-6');
+                $("#jsondiv-2").removeClass('hidden');
+                $("#showjson2").html('Single mode');
+            } else {
+                $("#jsondiv-1").removeClass('col-sm-6').addClass('col-sm-12');
+                $("#jsondiv-2").addClass('hidden');
+                $("#showjson2").html('Compare mode');
+            }
+            if ("sigInst1" in window){
+                sigInst1.resize();
+            }
+        })
+    });
+</script>
+<style type="text/css">
+        /* sigma.js context : */
+    .sigma-parent {
+        position: relative;
+        border-radius: 4px;
+        -moz-border-radius: 4px;
+        -webkit-border-radius: 4px;
+    {#    background: #222;#}
+        height: 600px;
+    }
+    .sigma-expand {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+    }
+    .buttons-container{
+        padding-bottom: 8px;
+        padding-top: 12px;
+    }
+</style>
+{#<div class="row" style="padding-top: 10px;">#}
+{#    #}
+{#</div>#}
+
+<div class="row">
+    <div class="col-sm-12" id="jsondiv-1">
+        <div class="row">
+            <form role="form">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Change graphs</label>
+                    <div class="col-sm-7">
+                        <select class="form-control" id="jsonlist-1">
+                            <option>-------</option>
+                            {% for j in json %}
+                                <option url="{{ j.filestore.url }}" pk="{{ j.pk }}" >{{ j.filename }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm-3">
+                        <button type="button" class="btn btn-default btn-block" data-toggle="button" id="showjson2">Dual mode</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="panel panel-default" style="margin-top: 10px;">
+            <div class="panel-heading" id="json-desc-1">
+                No variable selected.
+            </div>
+            <div class="panel-heading">
+                <label for="amount-1">Selected threshold:</label>
+                <input type="text" id="amount-1" style="border:0;">
+                <div id="slider-1"></div>
+            </div>
+            <div class="panel-body">
+                <div class="span12 sigma-parent" id="sigma-example-parent-1">
+                    <div class="sigma-expand" id="sigma-1"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 hidden" id="jsondiv-2">
+        <div class="row">
+            <form role="form">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Change graphs</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" id="jsonlist-2">
+                            <option>-------</option>
+                            {% for j in json %}
+                                <option url="{{ j.filestore.url }}" pk="{{ j.pk }}" >{{ j.filename }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="panel panel-default" style="margin-top: 10px;">
+            <div class="panel-heading" id="json-desc-2">
+                No variable selected.
+            </div>
+            <div class="panel-heading">
+                <label for="amount-2">Selected threshold:</label>
+                <input type="text" id="amount-2" style="border:0;">
+                <div id="slider-2"></div>
+            </div>
+            <div class="panel-body">
+                <div class="span12 sigma-parent" id="sigma-example-parent-2">
+                    <div class="sigma-expand" id="sigma-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
