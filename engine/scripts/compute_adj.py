@@ -29,6 +29,7 @@ class Mat2Adj:
         self.param = param
         self.mylist = rlc.TaggedList([])
         self.listname = []
+        self.error = []
         
     def loadfiles(self):
         """
@@ -62,8 +63,8 @@ class Mat2Adj:
                 fdir, fname = os.path.split(os.path.splitext(f)[0])
                 self.listname.append(fname)
                 rcount += 1
-            except IOError:
-                print "Can't load file %s" %f
+            except IOError, e:
+                self.error += e
                 
         if rcount == self.nfiles:
             return True
@@ -95,8 +96,9 @@ class Mat2Adj:
                               alpha=param['alpha'], DP=param['DP'],
                               tol=0.0, **{'var.thr': 1e-15})
             return_value = True
-        except ValueError:
+        except Exception, e:
             return_value = False
+            self.error = e
         
         self.computed = return_value
         return return_value
@@ -143,18 +145,24 @@ class Mat2Adj:
                 
                 # print colnames, rownames
                 # Write files csv ; separated
-                write_table(self.res[i], myfname, sep='\t',
-                            quote=False,
-                            **{
-                                'col.names': colnames,
-                                'row.names': rownames
-                            })
+                try:
+                    write_table(self.res[i], myfname, sep='\t',
+                                quote=False,
+                                **{
+                                    'col.names': colnames,
+                                    'row.names': rownames
+                                })
+                    self.results[self.listname[i]]['csv_files'] += [myfname]
+                except IOError, e:
+                    self.error += e
+
                 # Export to json
                 if export_json:
                     jname = ru.export_to_json(self.res[i], i=i, filepath=filepath, 
                                               perc=perc, 
                                               prefix='%s_%s_' % (self.listname[i], self.param['method']))
                     self.results[self.listname[i]]['json_files'] += [jname]
+                                            
 
                 # Export to graph format
                 if graph_format:
@@ -167,13 +175,13 @@ class Mat2Adj:
                 # Make some plots (degree distribution for now)
                 if plot:
                     plotname = ru.plot_degree_distrib(self.res[i], i=i, filepath=filepath, 
-                                           prefix='%s_%s_' % (self.listname[i], self.param['method']))
+                                                      prefix='%s_%s_' % (self.listname[i], self.param['method']))
                     self.results[self.listname[i]]['img_files'] += [plotname]
 
             return self.results
         else:
-            print 'No adjacency matrix computed, please run the compute method before.'
-            return False
+            self.error += 'No adjacency matrix computed, please run the compute method before.'
+            return self.error
     
     def save_RData(self, filepath='.', filename='adj.RData'):
 

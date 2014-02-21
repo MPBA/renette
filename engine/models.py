@@ -10,7 +10,6 @@ import os
 # Create your models here.
 from engine.utils import get_bootsrap_badge, is_number
 
-
 class RunningProcess(models.Model):
     #user = models.ForeignKey(User)
     process_name = models.CharField(max_length=40)
@@ -85,7 +84,8 @@ class Results(models.Model):
         ('graph', 'gml, graphml'),
         ('txt', 'text description'),
         ('json', 'json file'),
-        ('rdata', 'R compressed format, binary')
+        ('rdata', 'R compressed format, binary'),
+        ('error', 'Error during computation')
     )
     
     process_name = models.CharField(max_length=40)
