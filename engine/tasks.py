@@ -10,6 +10,35 @@ from django.db import DatabaseError, models
 from .models import Results, RunningProcess
 from django.core.files import File
 
+
+
+@celery.task(bind=True)
+def netdist(self, files, sep, param):
+    nd = compute_netdist.NetDist(files, sep, param)
+
+    tmpdir = str(uuid.uuid4())
+    result_path = os.path.join(settings.MEDIA_ROOT, settings.RESULT_PATH)
+    result_path_full = os.path.join(result_path, tmpdir)
+
+    if not os.path.exists(result_path_full):
+        os.makedirs(result_path_full)
+
+    self.update_state(state='RUNNING', meta='Load files...')
+    nd.loadfiles()
+
+    self.update_state(state='RUNNING', meta='Compute distance...')
+    nd.compute()
+
+    self.update_state(state='RUNNING', meta='Fetching result...')
+    result = nd.get_results(filepath=result_path_full, )
+    
+    if result:
+        sdb = save_to_db(result, pid=self.request.id, result_path_full=result_path_full)
+        print 'Saving to db %s' % 'Success' if sdb else 'Error'
+    
+    return result
+
+
 @celery.task(bind=True)
 def test_netdist(self, files, sep, param):
     nd = compute_netdist.NetDist(files, sep, param)
@@ -66,10 +95,16 @@ def netinf(self, files, sep, param):
     self.update_state(state='RUNNING', meta='Fetching result...')
     result = ad.get_results(filepath=result_path_full, )
         
-    if result:
-        
+    if type(result) is dict:
         sdb = save_to_db(result, pid=self.request.id, result_path_full=result_path_full)
         print 'Saving to db %s' % 'Success' if sdb else 'Error'
+    else:
+        if type(result) is list:
+            resdb = Results(process_name='Network Inference',
+                            filepath=result_path_full,
+                            filetype='Error',
+                            task_id=RunningProcess.objects.get(task_id=self.request.id)
+            )
     print result
     return True
 
@@ -144,7 +179,6 @@ def save_to_db(result, pid, result_path_full=settings.MEDIA_ROOT):
     """
     Save to Results db
     """
-    print 'I am the save to db %s' % pid
     for key in result.keys():
         val = result.get(key)
         for k in ['json_files', 'rdata', 'csv_files', 'img_files', 'graph_files']:

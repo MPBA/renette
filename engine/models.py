@@ -94,7 +94,8 @@ class Results(models.Model):
         ('graph', 'gml, graphml'),
         ('txt', 'text description'),
         ('json', 'jsoon file'),
-        ('rdata', 'R compressed format, binary')
+        ('rdata', 'R compressed format, binary'),
+        ('error', 'Error during computation')
     )
     
     process_name = models.CharField(max_length=40)
