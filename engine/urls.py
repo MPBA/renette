@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 
 from django.contrib import admin
 from .views import (NetworkDistanceClass, NetworkDistanceStep2Class, NetworkDistanceStep3Class,
-                    ProcessStatus, download_zip_file,
+                    download_zip_file,
                     NetworkInferenceClass, NetworkInferenceStep2Class, NetworkInferenceStep3Class, NetworkInferenceStep4Class,
                     NetworkStabilityClass, NetworkStabilityStep2Class, NetworkStabilityStep3Class, ProcessStatus2)
 admin.autodiscover()
@@ -68,12 +68,12 @@ urlpatterns = patterns('engine.views',
                        url(r'^process/list/$', 'process_list', name="process_list"),
                        url(r'^datatables/(?P<pk>\d+)/$', 'datatables', name="datatables"),
 
-                       url(regex='^process/graph/(.+)/(.+)/(\d+)/$',
-                           view='process_graph',
-                           name='process_graph'),
-
-                       url(regex='^results/full_view/(.+)/(.+)/(\d+)/$',
-                           view='full_results_view',
-                           name='full_results_view'),
+                       #url(regex='^process/graph/(.+)/(.+)/(\d+)/$',
+                       #    view='process_graph',
+                       #    name='process_graph'),
+                       #
+                       #url(regex='^results/full_view/(.+)/(.+)/(\d+)/$',
+                       #    view='full_results_view',
+                       #    name='full_results_view'),
                        )
 

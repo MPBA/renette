@@ -15,7 +15,7 @@
             step: 0.01,
             slide: function( event, ui ) {
                 $( "#amount-1" ).val( ui.value );
-                sigInst.iterEdges(function(n){
+                sigInst1.iterEdges(function(n){
                     if(n.size <= ui.value){
                         n.hidden = 0;
                     } else {
@@ -34,7 +34,7 @@
             step: 0.01,
             slide: function( event, ui ) {
                 $( "#amount-2" ).val( ui.value );
-                sigInst.iterEdges(function(n){
+                sigInst2.iterEdges(function(n){
                     if(n.size <= ui.value){
                         n.hidden = 0;
                     } else {
@@ -111,10 +111,18 @@
             }
         });
         $("#showjson2").click(function(btn){
-            a=btn;
-            $("#jsondiv-1").removeClass('col-sm-12').addClass('col-sm-6');
-            $("#jsondiv-2").removeClass('hidden');
-
+            if( !$("#showjson2").hasClass('active') ){
+                $("#jsondiv-1").removeClass('col-sm-12').addClass('col-sm-6');
+                $("#jsondiv-2").removeClass('hidden');
+                $("#showjson2").html('Single mode');
+            } else {
+                $("#jsondiv-1").removeClass('col-sm-6').addClass('col-sm-12');
+                $("#jsondiv-2").addClass('hidden');
+                $("#showjson2").html('Compare mode');
+            }
+            if ("sigInst1" in window){
+                sigInst1.resize();
+            }
         })
     });
 </script>
@@ -150,7 +158,7 @@
             <form role="form">
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Change graphs</label>
-                    <div class="col-sm-8">
+                    <div class="col-sm-7">
                         <select class="form-control" id="jsonlist-1">
                             <option>-------</option>
                             {% for j in json %}
@@ -158,8 +166,8 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-sm-2">
-                        <button type="button" class="btn btn-default btn-block" data-toggle="button" id="showjson2">Compare mode</button>
+                    <div class="col-sm-3">
+                        <button type="button" class="btn btn-default btn-block" data-toggle="button" id="showjson2">Dual mode</button>
                     </div>
                 </div>
             </form>
@@ -169,7 +177,7 @@
                 No variable selected.
             </div>
             <div class="panel-heading">
-                <label for="amount">Selected threshold:</label>
+                <label for="amount-1">Selected threshold:</label>
                 <input type="text" id="amount-1" style="border:0;">
                 <div id="slider-1"></div>
             </div>
@@ -201,7 +209,7 @@
                 No variable selected.
             </div>
             <div class="panel-heading">
-                <label for="amount">Selected threshold:</label>
+                <label for="amount-2">Selected threshold:</label>
                 <input type="text" id="amount-2" style="border:0;">
                 <div id="slider-2"></div>
             </div>

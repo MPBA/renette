@@ -1,59 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block extrahead %}
-
-    <script type="text/javascript" charset="utf-8">
-        /* Table initialisation */
-        $(document).ready(function() {
-            /* Pagination setup */
-{#            {% if charts_length %}#}
-{#                var options = {#}
-{#                    currentPage: 1,#}
-{#                    totalPages: {{ charts_length }},#}
-{#                    bootstrapMajorVersion: 3,#}
-{#                    numberOfPages: 10,#}
-{#                    size:"normal",#}
-{#                    onPageClicked: function(e,originalEvent,type,page){#}
-{#                        var idx = page - 1;#}
-{#                        $('#chart-img').attr("src",image_list[idx]);#}
-{#                        $('#chart-desc').html(image_list_desc[idx]);#}
-{#                    }#}
-{#                }#}
-{#                $('#imagespaginator').bootstrapPaginator(options);#}
-{##}
-{#                image_list = [];#}
-{#                image_list_desc = [];#}
-{#                {% for c in charts %}#}
-{#                    image_list.push('{{ c.imagestore.url }}')#}
-{#                    image_list_desc.push('{{ c.filename }}')#}
-{#                {% endfor %}#}
-{#            {% endif %}#}
-
-{#            // DOWNLOAD AREA#}
-{#            $('#downloadform input[name="files"]').change(function() {#}
-{#                if ($(this).is(':checked')) {#}
-{#                    $(this).closest('tr').attr('class','success')#}
-{#                } else {#}
-{#                    $(this).closest('tr').removeAttr('class','success')#}
-{#                }#}
-{#                if( $('#downloadform tbody :checked').length){#}
-{#                    $('#downloadsubmit').removeAttr('disabled')#}
-{#                } else {#}
-{#                    $('#downloadsubmit').attr('disabled','disabled')#}
-{#                }#}
-{#            });#}
-{#            $('#selectall').change(function() {#}
-{#                if ($(this).is(':checked')) {#}
-{#                    $('#downloadform tbody input[name="files"]').filter(':not(:checked)').click()#}
-{#                } else {#}
-{#                    $('#downloadform tbody input[name="files"]').filter(':checked').click()#}
-{#                }#}
-{#            });#}
-
-            //TRIGGER EVENT
-            {#                $("#tableslist").trigger("change")#}
-        });
-    </script>
 {% endblock %}
 {% block googleanalytics %}
 {% endblock %}
