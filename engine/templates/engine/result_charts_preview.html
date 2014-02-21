@@ -1,0 +1,48 @@
+{% load static %}
+{% block extrahead %}
+    <script src={% static 'js/bootstrap-paginator.js' %}></script>
+{% endblock %}
+<script type="application/javascript">
+    $(document).ready(function() {
+        {% if charts_length %}
+            var options = {
+                currentPage: 1,
+                totalPages: {{ charts_length }},
+                bootstrapMajorVersion: 3,
+                numberOfPages: 10,
+                size:"normal",
+                onPageClicked: function(e,originalEvent,type,page){
+                    var idx = page - 1;
+                    $('#chart-img').attr("src",image_list[idx]);
+                    $('#chart-desc').html(image_list_desc[idx]);
+                }
+            }
+            $('#imagespaginator').bootstrapPaginator(options);
+
+            image_list = [];
+            image_list_desc = [];
+            {% for c in charts %}
+                image_list.push('{{ c.imagestore.url }}')
+                image_list_desc.push('{{ c.filename }}')
+            {% endfor %}
+        {% endif %}
+        $("#tableslist").trigger("change")
+    });
+</script>
+<div class="panel panel-default" style="margin-top: 10px;">
+    <div class="panel-heading" id="chart-desc">{{ charts.0.filename }}</div>
+    <div class="panel-body">
+        <div class="row">
+            {% if charts %}
+                <img id="chart-img" src="{{ charts.0.imagestore.url }}" class="img-thumbnail img-responsive col-md-6 col-md-offset-3">
+            {% else %}
+                <h3>No charts available</h3>
+            {% endif %}
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <ul class="pagination pagination-sm " id="imagespaginator"></ul>
+            </div>
+        </div>
+    </div>
+</div>

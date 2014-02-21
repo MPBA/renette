@@ -1,247 +1,105 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block extrahead %}
-    <link href="{% static "datatables/css/dt_bootstrap.css" %}" rel="stylesheet">
-
-    <script src={% static 'datatables/js/jquery.dataTables.js' %}></script>
-    <script src={% static 'datatables/js/bootstrap3_dt.js' %}></script>
-    <script src={% static 'js/bootstrap-paginator.js' %}></script>
 
     <script type="text/javascript" charset="utf-8">
-    /* Table initialisation */
-            $(document).ready(function() {
-                $("#tableslist").on('change', function() {
-                    var uninitialized = $('#tablesview').filter(function() {
-                        return $.fn.DataTable.fnIsDataTable(this);
-                    });
-                    if(uninitialized.length){
-                        var tb = $('#tablesview').DataTable()
-                        tb.fnClearTable(true)
-                        tb.fnDestroy()
-                    }
-                    var pk = $("#tableslist option:selected").attr('pk');
-                    var firstrow = eval($("#tableslist option:selected").attr('firstrow'));
-                        firstrow.shift();
-                    var aryJSONColTable=[];
-                    for (var i=0; i < firstrow.length; i++ ) {
-                      aryJSONColTable.push({
-                                    "sTitle": firstrow[i],
-                                    "aTargets": [i]
-                       });
-                    };
-                    $('#tablesview').dataTable({
-                        "bProcessing": true,
-                        "aoColumnDefs": aryJSONColTable,
-                        "sScrollX": "200px",
-                        "sDom": "<'row'<'col-sm-6'l><'col-sm-6'f>r>" + "t" + "<'row'<'col-sm-6'i><'col-sm-6'p>>",
-                        "sPaginationType": "bootstrap",
-                        "oLanguage": {
-                            "sLengthMenu": "_MENU_ records per page"
-                        },
-                        "sWrapper": "dataTables_wrapper form-inline",
-                        "sFilterInput": "form-control input-sm",
-                        "sLengthSelect": "form-control input-sm",
-                        "sAjaxSource": '/engine/datatables/' + pk + "/",
-                        "fnRowCallback": function( nRow, aData, iDisplayIndex ) {
-                            /* Append the grade to the default row class name */
-                            for(var i=0; i<=aData.length; i++){
-                                if( aData[i] > 0.6 ){
-                                    $('td:eq('+i+')', nRow).html('<span class="label label-info">'+aData[i]+'</span>');
-                                }
-                            }
-                        }
-                    });
-                    $('#tablesview_length label select').addClass('form-control');
-                    $('#tablesview_filter label input').addClass('form-control');
-                    $('#table-desc').html( $("#tableslist option:selected").val());
-                });
+        /* Table initialisation */
+        $(document).ready(function() {
+            /* Pagination setup */
+{#            {% if charts_length %}#}
+{#                var options = {#}
+{#                    currentPage: 1,#}
+{#                    totalPages: {{ charts_length }},#}
+{#                    bootstrapMajorVersion: 3,#}
+{#                    numberOfPages: 10,#}
+{#                    size:"normal",#}
+{#                    onPageClicked: function(e,originalEvent,type,page){#}
+{#                        var idx = page - 1;#}
+{#                        $('#chart-img').attr("src",image_list[idx]);#}
+{#                        $('#chart-desc').html(image_list_desc[idx]);#}
+{#                    }#}
+{#                }#}
+{#                $('#imagespaginator').bootstrapPaginator(options);#}
+{##}
+{#                image_list = [];#}
+{#                image_list_desc = [];#}
+{#                {% for c in charts %}#}
+{#                    image_list.push('{{ c.imagestore.url }}')#}
+{#                    image_list_desc.push('{{ c.filename }}')#}
+{#                {% endfor %}#}
+{#            {% endif %}#}
 
-                /* Pagination setup */
-                {% if charts_length %}
-                var options = {
-                    currentPage: 1,
-                    totalPages: {{ charts_length }},
-                    bootstrapMajorVersion: 3,
-                    numberOfPages: 10,
-                    size:"normal",
-                    onPageClicked: function(e,originalEvent,type,page){
-                        var idx = page - 1;
-                        $('#chart-img').attr("src",image_list[idx]);
-                        $('#chart-desc').html(image_list_desc[idx]);
-                    }
-                }
-                $('#imagespaginator').bootstrapPaginator(options);
+{#            // DOWNLOAD AREA#}
+{#            $('#downloadform input[name="files"]').change(function() {#}
+{#                if ($(this).is(':checked')) {#}
+{#                    $(this).closest('tr').attr('class','success')#}
+{#                } else {#}
+{#                    $(this).closest('tr').removeAttr('class','success')#}
+{#                }#}
+{#                if( $('#downloadform tbody :checked').length){#}
+{#                    $('#downloadsubmit').removeAttr('disabled')#}
+{#                } else {#}
+{#                    $('#downloadsubmit').attr('disabled','disabled')#}
+{#                }#}
+{#            });#}
+{#            $('#selectall').change(function() {#}
+{#                if ($(this).is(':checked')) {#}
+{#                    $('#downloadform tbody input[name="files"]').filter(':not(:checked)').click()#}
+{#                } else {#}
+{#                    $('#downloadform tbody input[name="files"]').filter(':checked').click()#}
+{#                }#}
+{#            });#}
 
-                image_list = [];
-                image_list_desc = [];
-                {% for c in charts %}
-                    image_list.push('{{ c.imagestore.url }}')
-                    image_list_desc.push('{{ c.filename }}')
-                {% endfor %}
-                {% endif %}
-
-                // DOWNLOAD AREA
-                $('#downloadform input[name="files"]').change(function() {
-                    if ($(this).is(':checked')) {
-                        $(this).closest('tr').attr('class','success')
-                    } else {
-                        $(this).closest('tr').removeAttr('class','success')
-                    }
-                    if( $('#downloadform tbody :checked').length){
-                        $('#downloadsubmit').removeAttr('disabled')
-                    } else {
-                        $('#downloadsubmit').attr('disabled','disabled')
-                    }
-                });
-                $('#selectall').change(function() {
-                    if ($(this).is(':checked')) {
-                        $('#downloadform tbody input[name="files"]').filter(':not(:checked)').click()
-                    } else {
-                        $('#downloadform tbody input[name="files"]').filter(':checked').click()
-                    }
-                });
-
-                //TRIGGER EVENT
-                $("#tableslist").trigger("change")
-            });
-	    </script>
+            //TRIGGER EVENT
+            {#                $("#tableslist").trigger("change")#}
+        });
+    </script>
 {% endblock %}
 {% block googleanalytics %}
 {% endblock %}
 {% block container %}
 
-{#{% include 'engine/json_preview.html' %}#}
+    <div class="row row-offcanvas row-offcanvas-right">
+        <div class="col-md-12">
+            <div class="row">
+                <h1>Network inference result</h1>
+                <div class="col-6">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div><!--/span-->
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#tables" data-toggle="tab">Tables</a></li>
+                    <li><a href="#netvis" data-toggle="tab">Network visualization</a></li>
+                    <li><a href="#charts" data-toggle="tab">Charts</a></li>
+                    <li><a href="#download" data-toggle="tab">Download area</a></li>
+                </ul>
 
-<div class="row row-offcanvas row-offcanvas-right">
-
-    <div class="col-md-12">
-          <div class="row">
-            <h1>Network inference result</h1>
-            <div class="col-6">
-            {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">
-                <button type="button" class="close" data-dismiss="alert">&times;</button>
-                        <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
-            </div>
-            {% endfor %}
-            {% endif %}
-            </div><!--/span-->
-            <!-- Nav tabs -->
-            <ul class="nav nav-tabs">
-              <li class="active"><a href="#tables" data-toggle="tab">Tables</a></li>
-              <li><a href="#netvis" data-toggle="tab">Network visualization</a></li>
-              <li><a href="#charts" data-toggle="tab">Charts</a></li>
-              <li><a href="#download" data-toggle="tab">Download area</a></li>
-            </ul>
-
-            <!-- Tab panes -->
-            <div class="tab-content">
-              <div class="tab-pane active" id="tables">
-                  <div class="row" style="padding-top: 10px;">
-                  <div class="form-group">
-                    <label class="col-sm-2 control-label">Change tables</label>
-                    <div class="col-sm-10">
-                        <select class="form-control" id="tableslist">
-                            {% for t in tables %}
-                                <option url="{{ t.filestore.url }}" pk="{{ t.pk }}" firstrow={{ t.get_first_row|safe }}>{{ t.filename }}</option>
-                            {% endfor %}
-                        </select>
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    <div class="tab-pane active" id="tables">
+                        {% include 'engine/result_tables_preview.html' %}
                     </div>
-                  </div>
-                  </div>
-                  <div class="panel panel-default" style="margin-top: 10px;">
-                     <div class="panel-heading" id="table-desc">t.0.filename</div>
-                     <div class="panel-body">
-                          <div class="col-sm-12" style="padding: 0px !important;">
-                          <table class="table table-condensed table-striped" id="tablesview">
-                              <thead></thead>
-                              <tbody></tbody>
-                          </table>
-                          </div>
-                     </div>
-                  </div>
+                    <div class="tab-pane" id="netvis">
+                        {% include 'engine/result_json_preview.html' %}
+                    </div>
+                    <div class="tab-pane" id="charts">
+                        {% include 'engine/result_charts_preview.html' %}
+                    </div>
+                    <div class="tab-pane" id="download">
+                        {% include 'engine/result_download_preview.html' %}
+                    </div>
+                </div>
 
-              </div>
-              <div class="tab-pane" id="netvis">
-                {% include 'engine/json_preview.html' %}
-              </div>
-              <div class="tab-pane" id="charts">
-                  <div class="panel panel-default" style="margin-top: 10px;">
-                     <div class="panel-heading" id="chart-desc">{{ charts.0.filename }}</div>
-                     <div class="panel-body">
-                         <div class="row">
-                             {% if charts %}
-                             <img id="chart-img" src="{{ charts.0.imagestore.url }}" class="img-thumbnail img-responsive col-md-6 col-md-offset-3">
-                             {% else %}
-                                 <h3>No charts available</h3>
-                             {% endif %}
-                         </div>
-                         <div class="row">
-                             <div class="col-md-6 col-md-offset-3">
-                                <ul class="pagination pagination-sm " id="imagespaginator"></ul>
-                             </div>
-                         </div>
-                     </div>
-                  </div>
-              </div>
-              <div class="tab-pane" id="download">
-                  <div class="panel panel-default" style="margin-top: 10px;">
-                     <div class="panel-heading" id="chart-desc">Available files for download</div>
-                         <form role="form" method="POST" id="downloadform" action="{% url 'process_download_zip' %}">
-                         <table class="table">
-                            <thead>
-                            <tr>
-                              <th><input type="checkbox" value="" id="selectall"></th>
-                              <th>File name</th>
-                              <th>File type</th>
-                              <th class="hidden-sm hidden-xs">Size</th>
-                              <th></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% csrf_token %}
-                            {% for t in tables %}
-                            <tr>
-                              <td><input type="checkbox" name="files" value="{{ t.pk }}"></td>
-                              <td>{{ t.filename }}</td>
-                              <td>{{ t.filetype }}</td>
-                              <td class="hidden-sm hidden-xs">{{ t.filestore.size|filesizeformat }}</td>
-                              <td><a href="{{ t.filestore.url }}" target="_blank" class="btn btn-primary btn-xs" role="button">Download</a></td>
-                            </tr>
-                            {% endfor %}
-                            {% for c in charts %}
-                            <tr>
-                              <td><input type="checkbox" name="files" value="{{ c.pk }}"></td>
-                              <td>{{ c.filename }}</td>
-                              <td>{{ c.filetype }}</td>
-                              <td class="hidden-sm hidden-xs">{{ c.imagestore.size|filesizeformat }}</td>
-                              <td><a href="{{ c.imagestore.url }}" download="{{ c.filename }}" target="_blank" class="btn btn-primary btn-xs" role="button">Download</a></td>
-                            </tr>
-                            {% endfor %}
-                            {% for g in graphs %}
-                            <tr>
-                              <td><input type="checkbox" name="files" value="{{ g.pk }}"></td>
-                              <td>{{ g.filename }}</td>
-                              <td>{{ g.filetype }}</td>
-                              <td class="hidden-sm hidden-xs">{{ g.filestore.size|filesizeformat }}</td>
-                              <td><a href="{{ g.filestore.url }}" target="_blank" class="btn btn-primary btn-xs" role="button">Download</a></td>
-                            </tr>
-                            {% endfor %}
-                            <tr><td colspan="5">
-                                <button id="downloadsubmit" type="submit" class="btn btn-primary btn-lg btn-block" disabled="disabled">Download files</button>
-                            </td></tr>
-
-                            </tbody>
-                        </table>
-                        </form>
-                  </div>
-              </div>
-            </div>
-
-          </div><!--/row-->
-    </div><!--/span-->
-</div><!--/row-->
+            </div><!--/row-->
+        </div><!--/span-->
+    </div><!--/row-->
 {% endblock container %}
 
 

@@ -518,7 +518,7 @@ def process_graph(request, uuid, key, idx):
         context = None
         messages.add_message(request, messages.ERROR, 'No json available for graph visualization.')
 
-    return render(request, 'engine/json_preview.html', context)
+    return render(request, 'engine/result_json_preview.html', context)
 
 
 def full_results_view(request, uuid, key, idx):
