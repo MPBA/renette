@@ -13,7 +13,7 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpRespo
 from .utils import document_validator, get_bootsrap_badge, read_csv_results, handle_upload
 from .models import RunningProcess, Results
 from django.contrib import messages
-from engine.tasks import test_netdist, test_netinf, test_netstab, netinf
+from engine.tasks import test_netdist, test_netinf, test_netstab, netinf, netstab, netdist
 from django.conf import settings
 from tojson.decorators import render_to_json
 import djcelery
@@ -98,14 +98,17 @@ class NetworkStabilityStep3Class(View):
             'row.names': 1 if request.POST.get("row", False) else None
         }
         try:
+
             runp = RunningProcess(
                 process_name='Network stability',
                 inputs=param,
                 submited=datetime.now()
             )
-            t = test_netstab.delay(files, sep, param)
+            #t = test_netstab.delay(files, sep, param)
+            t = netstab.delay(files, sep, param)
             runp.task_id = t.id
-
+            print 'Hola'
+            
         except Exception, e:
             messages.add_message(self.request, messages.ERROR, 'Error: %s' % str(e))
 
@@ -122,6 +125,36 @@ class NetworkStabilityStep3Class(View):
 
         messages.add_message(self.request, messages.SUCCESS, 'Process submitted with success!!!')
         return render(request, self.template_name, context)
+
+
+class NetworkStabilityStep4Class(View):
+    template_name = 'engine/network_stability_4.html'
+
+    def get(self, request, uuid, **kwargs):
+        
+        task = djcelery.celery.AsyncResult(uuid)
+        
+        try:
+            runp = RunningProcess.objects.get(task_id=uuid)
+        except RunningProcess.DoesNotExist:
+            runp = None
+            messages.add_message(self.request, messages.ERROR, 'Some information not available!')
+
+        context = {
+            'runp': runp,
+            'tables': runp.results_set.filter(filetype='csv'),
+            'charts': runp.results_set.filter(filetype='img'),
+            'json': runp.results_set.filter(filetype='json'),
+            'graphs': runp.results_set.filter(filetype='graph'),
+            'rdata': runp.results_set.filter(filetype='rdata'),
+            'charts_length': runp.results_set.filter(filetype='img').count(),
+            'task': task,
+            'badge': get_bootsrap_badge(task.status)
+
+        }
+        
+        return render(request, self.template_name, context)
+
 
 
 class NetworkInferenceClass(View):
@@ -214,6 +247,9 @@ class NetworkInferenceStep4Class(View):
     template_name = 'engine/network_inference_4.html'
 
     def get(self, request, uuid, **kwargs):
+        
+        task = djcelery.celery.AsyncResult(uuid)
+        
         try:
             runp = RunningProcess.objects.get(task_id=uuid)
         except RunningProcess.DoesNotExist:
@@ -227,7 +263,10 @@ class NetworkInferenceStep4Class(View):
             'json': runp.results_set.filter(filetype='json'),
             'graphs': runp.results_set.filter(filetype='graph'),
             'rdata': runp.results_set.filter(filetype='rdata'),
-            'charts_length': runp.results_set.filter(filetype='img').count()
+            'charts_length': runp.results_set.filter(filetype='img').count(),
+            'task': task,
+            'badge': get_bootsrap_badge(task.status)
+
         }
 
         return render(request, self.template_name, context)
@@ -307,7 +346,8 @@ class NetworkDistanceStep3Class(View):
                 inputs=param,
                 submited=datetime.now()
             )
-            t = test_netdist.delay(files, sep, param)
+            # t = test_netdist.delay(files, sep, param)
+            t = netdist.delay(files, sep, param)
             runp.task_id = t.id
 
         except Exception, e:
@@ -325,6 +365,37 @@ class NetworkDistanceStep3Class(View):
             messages.add_message(self.request, messages.ERROR, 'Error: %s' % str(e))
 
         messages.add_message(self.request, messages.SUCCESS, 'Process submitted with success!!!')
+        return render(request, self.template_name, context)
+
+# Process status view from database
+class NetworkDistanceStep4Class(View):
+    template_name = 'engine/network_distance_4.html'
+
+    def get(self, request, uuid, **kwargs):
+        
+        task = djcelery.celery.AsyncResult(uuid)
+        
+        try:
+            runp = RunningProcess.objects.get(task_id=uuid)
+        except RunningProcess.DoesNotExist:
+            runp = None
+            messages.add_message(self.request, messages.ERROR, 'Some information not available!')
+
+        
+        print task.status
+        
+        context = {
+            'runp': runp,
+            'tables': runp.results_set.filter(filetype='csv'),
+            'charts': runp.results_set.filter(filetype='img'),
+            'json': runp.results_set.filter(filetype='json'),
+            'graphs': runp.results_set.filter(filetype='graph'),
+            'rdata': runp.results_set.filter(filetype='rdata'),
+            'charts_length': runp.results_set.filter(filetype='img').count(),
+            'task': task,
+            'badge': get_bootsrap_badge(task.status)
+        }
+
         return render(request, self.template_name, context)
 
 

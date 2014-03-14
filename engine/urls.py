@@ -1,27 +1,29 @@
 from django.conf.urls import patterns, include, url
 
 from django.contrib import admin
-from .views import (NetworkDistanceClass, NetworkDistanceStep2Class, NetworkDistanceStep3Class,
+from .views import (NetworkDistanceClass, NetworkDistanceStep2Class, NetworkDistanceStep3Class, NetworkDistanceStep4Class,
                     download_zip_file,
                     NetworkInferenceClass, NetworkInferenceStep2Class, NetworkInferenceStep3Class, NetworkInferenceStep4Class,
-                    NetworkStabilityClass, NetworkStabilityStep2Class, NetworkStabilityStep3Class, ProcessStatus2)
+                    NetworkStabilityClass, NetworkStabilityStep2Class, NetworkStabilityStep3Class, NetworkStabilityStep4Class, ProcessStatus2)
 admin.autodiscover()
 
 urlpatterns = patterns('engine.views',
 
-
-
                        url(regex='^network/distance/$',
                            view=NetworkDistanceClass.as_view(),
                            name='network_distance'),
-
+                       
                        url(regex='^network/distance/2$',
                            view=NetworkDistanceStep2Class.as_view(),
                            name='network_distance_2'),
-
+                       
                        url(regex='^network/distance/3$',
                            view=NetworkDistanceStep3Class.as_view(),
                            name='network_distance_3'),
+                       
+                       url(regex='^network/distance/4/(.+)/$',
+                           view=NetworkDistanceStep4Class.as_view(),
+                           name='network_distance_4'),
 
                        # url(regex='^process/status/(.+)/$',
                        #     view=ProcessStatus.as_view(),
@@ -62,6 +64,11 @@ urlpatterns = patterns('engine.views',
                        url(regex='^network/stability/3$',
                            view=NetworkStabilityStep3Class.as_view(),
                            name='network_stability_3'),
+                       
+                       url(regex='^network/stability/4/(.+)/$',
+                           view=NetworkStabilityStep4Class.as_view(),
+                           name='network_stability_4'),
+
 
                        url(r'^multiuploader/$', 'multiuploader'),
 

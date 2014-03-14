@@ -51,7 +51,8 @@ def write_Sd(Sd, filename='Sd.csv'):
     except IOError, e:
         print '%s' % e
         return False
-    
+
+
     fw.writerow(['node', 'Sd'])
     for j in xrange(Sd.shape[1]):
         try:
@@ -200,27 +201,27 @@ def csv2graph(csvfiles, seplist=[], param={},filepath='.', graph_format='gml'):
     return True
 
     
-def plot_mds (results, filepath=".", prefix='mds_'):
+def plot_mds (results, i, filepath='.', prefix='mds_'):
     """
     Plot the mds of the distances
     """
     grdevices = importr('grDevices')
     asdist = robjects.r['as.dist']
     
-    try:
-        mm = robjects.r.cmdscale(asdist(results),eig=True)
-        mmp = mm[0]
-        
-        grdevices.png(file=os.path.join(filepath, prefix + '.png'), width=512, height=512)
-        robjects.r.plot(mmp.rx(True,1),mmp.rx(True,2), type="n", col='red',
-                        ylab='Coord. 2', xlab='Coord. 1', main='Multi-Dimensional Scaling plot')
-        robjects.r.text(mmp.rx(True,1),mmp.rx(True,2), mmp.rownames)
-        grdevices.dev_off()
-        
-        return True
-        
-    except ValueError, e:
-        raise "%s Not conformable array dimension." % e
+    myfname = prefix + str(i) + '.png'
+    
+    mm = robjects.r.cmdscale(asdist(results),eig=True)
+    mmp = mm[0]
+    
+    print "MDS %s" % filepath
+    
+    grdevices.png(file=os.path.join(filepath, myfname), width=512, height=512)
+    robjects.r.plot(mmp.rx(True,1),mmp.rx(True,2), type="n", col='red',
+                    ylab='Coord. 2', xlab='Coord. 1', main='Multi-Dimensional Scaling plot')
+    robjects.r.text(mmp.rx(True,1),mmp.rx(True,2), mmp.rownames)
+    grdevices.dev_off()
+    
+    return myfname
         
 
 def igraph_layout (adjmat):
@@ -239,7 +240,7 @@ def plot_degree_distrib(adj_mat, i, filepath=".", prefix='ddist_'):
     grdevices = importr('grDevices')
     xyplot = lattice.xyplot
     rprint = robjects.globalenv.get("print")
-        
+    
     deg = robjects.r.rowSums(adj_mat)
     degdens = robjects.r.density(deg)
     
@@ -258,4 +259,26 @@ def plot_degree_distrib(adj_mat, i, filepath=".", prefix='ddist_'):
            
     return myfname
 
-
+def plot_degree_stab(dstab, i, myd, filepath=".", prefix='dstab_'):
+    """
+    Plot degree stability over resamplings
+    """
+    
+    lattice = importr('lattice')
+    grdevices = importr('grDevices')
+    levelplot = lattice.levelplot
+    rprint = robjects.globalenv.get("print")
+    
+    mat = dstab/myd - 1
+    p = levelplot(numpy2ri(mat), 
+                  xlab='Resamplings', ylab='Nodes', 
+                  main='Variation of node degree across resamplings',
+                  aspect='xy'
+    )
+    
+    myfname = prefix + str(i) + '.png'
+    grdevices.png(file=os.path.join(filepath, myfname), width=512, height=512)
+    rprint(p)
+    grdevices.dev_off()
+    
+    return myfname

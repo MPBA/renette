@@ -19,7 +19,8 @@ def netdist(self, files, sep, param):
     tmpdir = str(uuid.uuid4())
     result_path = os.path.join(settings.MEDIA_ROOT, settings.RESULT_PATH)
     result_path_full = os.path.join(result_path, tmpdir)
-
+    media_path = os.path.join(settings.RESULT_PATH, tmpdir)
+    
     if not os.path.exists(result_path_full):
         os.makedirs(result_path_full)
 
@@ -31,12 +32,23 @@ def netdist(self, files, sep, param):
 
     self.update_state(state='RUNNING', meta='Fetching result...')
     result = nd.get_results(filepath=result_path_full, )
+    pname = 'Network Distance'
     
-    if result:
-        sdb = save_to_db(result, pid=self.request.id, result_path_full=result_path_full)
+    if type(result) is dict:
+        sdb = save_to_db(result, pname=pname, pid=self.request.id, result_path_full=result_path_full)
+        ## sdb = save_to_db(result, pname=pname, pid=self.request.id, result_path_full=result_path_full)
+        
         print 'Saving to db %s' % 'Success' if sdb else 'Error'
+    else:
+        if type(result) is list:
+            resdb = Results(process_name='Network Distance',
+                            filepath=result_path_full,
+                            filetype='Error',
+                            task_id=RunningProcess.objects.get(task_id=self.request.id)
+            )
     
-    return result
+    print result
+    return True
 
 
 @celery.task(bind=True)
@@ -72,17 +84,13 @@ def test_netdist(self, files, sep, param):
 @celery.task(bind=True)
 def netinf(self, files, sep, param):
     
-    print self.request.id
-    
     ad = compute_adj.Mat2Adj(files, sep, param)
     
     tmpdir = str(uuid.uuid4())
-    print 'tmpdir %s' % tmpdir
     result_path = os.path.join(settings.MEDIA_ROOT, settings.RESULT_PATH)
     result_path_full = os.path.join(result_path, tmpdir)
     media_path = os.path.join(settings.RESULT_PATH, tmpdir)
     
-    print 'results full %s' % result_path_full
     
     if not os.path.exists(result_path_full):
         os.makedirs(result_path_full)
@@ -95,9 +103,10 @@ def netinf(self, files, sep, param):
     
     self.update_state(state='RUNNING', meta='Fetching result...')
     result = ad.get_results(filepath=result_path_full, )
-        
+    pname = 'Network Inference'
+    
     if type(result) is dict:
-        sdb = save_to_db(result, pid=self.request.id, result_path_full=result_path_full)
+        sdb = save_to_db(result, pname=pname, pid=self.request.id, result_path_full=result_path_full)
         print 'Saving to db %s' % 'Success' if sdb else 'Error'
     else:
         if type(result) is list:
@@ -141,6 +150,43 @@ def test_netinf(self, files, sep, param):
             result.update({key: val})
     return result
 
+@celery.task(bind=True)
+def netstab(self, files, sep, param):
+    ad = compute_netstab.NetStability(files, sep, param)
+    
+    tmpdir = str(uuid.uuid4())
+    result_path = os.path.join(settings.MEDIA_ROOT, settings.RESULT_PATH)
+    result_path_full = os.path.join(result_path, tmpdir)
+
+    if not os.path.exists(result_path_full):
+        os.makedirs(result_path_full)
+
+    self.update_state(state='RUNNING', meta='Load files...')
+    ad.loadfiles()
+
+    self.update_state(state='RUNNING', meta='Compute stability...')
+    ad.compute()
+
+    self.update_state(state='RUNNING', meta='Fetching result...')
+    result = ad.get_results(filepath=result_path_full, )
+    pname = 'Network Stability'
+    
+    if type(result) is dict:
+
+        sdb = save_to_db(result, pname=pname, pid=self.request.id, result_path_full=result_path_full)
+        print 'Saving to db %s' % 'Success' if sdb else 'Error'
+    else:
+        if type(result) is list:
+            resdb = Results(process_name='Network Stability',
+                            filepath=result_path_full,
+                            filetype='Error',
+                            task_id=RunningProcess.objects.get(task_id=self.request.id)
+            )
+            
+    return True
+
+
+
 
 @celery.task(bind=True)
 def test_netstab(self, files, sep, param):
@@ -175,7 +221,7 @@ def test_netstab(self, files, sep, param):
 
 
 
-def save_to_db(result, pid, result_path_full=settings.MEDIA_ROOT):
+def save_to_db(result, pname, pid, result_path_full=settings.MEDIA_ROOT):
     
     """
     Save to Results db
@@ -190,7 +236,7 @@ def save_to_db(result, pid, result_path_full=settings.MEDIA_ROOT):
                     print myn
                     try:
                         resdb = Results(
-                            process_name='Network Inference',
+                            process_name=pname,
                             filepath=result_path_full,
                             filetype=tp,
                             filename=myn,
@@ -208,7 +254,7 @@ def save_to_db(result, pid, result_path_full=settings.MEDIA_ROOT):
                             
                         # Store description in the DB
                         resdb.desc = mydesc
-                            
+                        
                         # Store files in the DB
                         if tp == 'csv':
                             f = open(os.path.join(result_path_full, myn))
@@ -230,6 +276,7 @@ def save_to_db(result, pid, result_path_full=settings.MEDIA_ROOT):
                             resdb.filestore.save(myn, File(f))
                             f.close()
                         if tp == 'img':
+                            print myn
                             f = open(os.path.join(result_path_full, myn))
                             resdb.imagestore.save(myn, File(f))
                             f.close()
