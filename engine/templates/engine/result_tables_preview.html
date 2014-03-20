@@ -46,6 +46,9 @@
                         if( aData[i] > 0.6 ){
                             $('td:eq('+i+')', nRow).html('<span class="label label-info">'+aData[i]+'</span>');
                         }
+                        if( i == 0 ){
+                            $('td:eq('+i+')', nRow).html('<b>'+aData[i]+'</b>');
+                        }
                     }
                 },
                 "fnPreDrawCallback": function() {

@@ -249,10 +249,6 @@ class NetworkDistanceStep2Class(View):
         removed_files = []
         dim = []
 
-        # if len(request.POST.getlist('uploaded')) < 2:
-        #     messages.add_message(self.request, messages.ERROR, 'You must upload at least 2 files!!!')
-        #     return redirect('network_distance')
-
         for filepath in request.POST.getlist('uploaded'):
             ex_first_row = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
             ex_first_col = request.POST['exclude_row_header'] if 'exclude_row_header' in request.POST else None
@@ -297,7 +293,6 @@ class NetworkDistanceStep3Class(View):
             'ga': float(request.POST.get("ga")) if request.POST.get("ga", False) else None,
             'components': True if components == 'True' else False,
             'rho':  float(request.POST.get("rho")) if request.POST.get("rho", False) else None,
-            #'sep': request.POST.get("sep", "\t"),
             'header': True if request.POST.get("col", False) else False,
             'row.names': 1 if request.POST.get("row", False) else None
         }
