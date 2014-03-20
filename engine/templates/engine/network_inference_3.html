@@ -4,7 +4,7 @@
     <script type="application/javascript">
     jQuery(document).ready(function(){
         setTimeout(function () {
-           window.location.href = "{% url 'process_status' uuid %}"; //will redirect to your blog page (an ex: blog.html)
+           window.location.href = "{% url 'network_inference_4' uuid %}"; //will redirect to your blog page (an ex: blog.html)
         }, 20000);
     });
     </script>
@@ -28,13 +28,13 @@
                <h3>Summary</h3>
                <div><span class="label label-info">Info</span> The page will automatically redirect in 20 seconds to show status of your pipeline.
                If you don't want to wait online, please <strong>copy and keep the following link</strong> to retrieve your result later:
-                   <code>https://renette.fbk.eu{% url 'process_status' uuid %}</code>
+                   <code>https://renette.fbk.eu{% url 'network_inference_4' uuid %}</code>
                </div>
                <div>
                 <span class="label label-warning">Warning</span> Your results will be available for 7 days!
                </div><p></p>
                <p>
-                   <a href="{% url 'process_status' uuid %}" role="button" type="button" class="btn btn-info btn-lg btn-block">Go to status page</a>
+                   <a href="{% url 'network_inference_4' uuid %}" role="button" type="button" class="btn btn-info btn-lg btn-block">Go to status page</a>
                </p>
 
                 <table class="table table-striped table-hover">
@@ -49,7 +49,7 @@
                 </table>
 
                 <div class="well well-sm">
-                    <p>Adjacence Method: <strong>{{ request.POST.methods }}</strong></p>
+                    <p>Inference Algorithm: <strong>{{ request.POST.methods }}</strong></p>
                     <p>P: <strong>{% if request.POST.p %}{{ request.POST.p }}{% else %}Not selected{% endif %}</strong></p>
                     <p>FDR: <strong>{% if request.POST.fdr %}{{ request.POST.fdr }}{% else %}Not selected{% endif %}</strong></p>
                     <p>alpha: <strong>{% if request.POST.alpha %}{{ request.POST.alpha }}{% else %}Not selected{% endif %}</strong></p>

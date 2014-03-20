@@ -49,7 +49,7 @@
                           <td>{{ runp.process_name }}</td>
                       </tr>
                       <tr>
-                          <td><strong>Selected params:</strong></td>
+                        <td><strong>Selected params:</strong></td>
                           <td><ul class="list-inline">{{ runp.to_pretty_inputs|safe }}</ul></td>
                       </tr>
                       <tr>
@@ -78,11 +78,7 @@
                       <tr>
                           <td><strong>Action:</strong></td>
                           <td>
-                              {% if download_btn %}
-                              <a  href="{% url 'process_download_zip' runp.pk %}" class="btn btn-success btn-xs" role="button">
-                                Download all files
-                              </a>
-                              {% endif %}
+			    <a class="btn btn-success" href="{% url 'network_inference_4' runp.task_id %}"><strong>Got to result page</strong></a>
                           </td>
                       </tr>
                       {% endif %}

@@ -12,10 +12,10 @@ import rutils as ru
 class NetDist:
     
     def __init__(self, filelist, seplist, param={}):
+        """
+        Initialize variables needed for the computation
+        """
         self.nfiles = len(filelist)
-        # if self.nfiles < 2:
-        #     raise IOError("Not enough file loaded")
-        
         self.filelist = filelist
         self.seplist = seplist
         # Check if the number of separators are equal to the numberr of file passed
@@ -25,9 +25,11 @@ class NetDist:
         self.mylist = rlc.TaggedList([])
         self.results = {}
         ## Warning message: diagonal not 0
-        self.e = []
-        self.stat = 'Success'
-        # self.dflag = False
+        self.listname = []
+        self.error = []
+        # self.e = []
+        # self.stat = 'Success'
+        # # self.dflag = False
         
     def loadfiles(self):
         """
@@ -46,7 +48,7 @@ class NetDist:
             if p in self.param:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
-
+        
         
         for f, s in zip(self.filelist, self.seplist):
             try:
@@ -71,18 +73,21 @@ class NetDist:
                     
                 self.mylist.append(dataf)
                 rcount += 1
-            except IOError, RRuntimeError:
-                print "Can't load file %s" % f
-        
-        if self.e:
-            self.e += 'Diagonal has values different from 0. \nSelf loop are not support in the current version.\nAutomatically set to 0 for the network computation in file:'
-            self.e.reverse()
-            self.stat = 'Warning'
+            except IOError, e:
+                self.error += e
+            
+            except RRuntimeError, e:
+                self.error += e
+                
+        # if self.e:
+        #     self.e += 'Diagonal has values different from 0. \nSelf loop are not support in the current version.\nAutomatically set to 0 for the network computation in file:'
+        #     self.e.reverse()
+        #     self.stat = 'Warning'
 
         if rcount == self.nfiles:
             return True
         else:
-            raise IOError('Cannot read all the files')
+            raise False # IOError('Cannot read all the files')
             
     def compute(self):
         """
@@ -122,19 +127,20 @@ class NetDist:
                                         ga=param['ga'], **{'n.cores': 1})
             return_value = True
         except ValueError, e:
-            print 'Error in computing network distance: %s' % str(e)
             return_value = False
+            self.error += e
+            ## print 'Error in computing network distance: %s' % str(e)
+            
         except RRuntimeError, e:
-            print 'Error in computing network distance: %s' % str(e)
             return_value = False
-
-        if return_value:
-            self.computed = True
-            return return_value
-        else:
-            raise Exception(e)
+            self.error += e
+            ## print 'Error in computing network distance: %s' % str(e)
+            
+            
+        self.computed = return_value
+        return return_value
     
-    def get_results(self, filepath='.'):
+    def get_results(self, filepath='.', export_json=True, graph_format='gml', plot=True, perc=30):
         
         """
         Get the results and save to csv files
@@ -146,20 +152,22 @@ class NetDist:
         rlist = robjects.r['list']
         results = {}
         
+        
         if self.computed:
             for i in xrange(len(self.res)):
+                print 'get_result1 %s' % filepath
                 myfname = os.path.join(filepath,
                                        names(self.res)[i] + '_distance.tsv')
-                
-                results[names(self.res)[i]] = {
+                print 'myfname %s' % myfname
+                self.results[names(self.res)[i]] = {
                     'csv_files': [names(self.res)[i] + '_distance.tsv'],
                     'img_files': [],
                     'json_files': [],
                     'graph_files': [],
                     'desc': '%s network distance' % names(self.res)[i],
                     'rdata': None,
-                    'messages': [ self.e if self.e else ''],
-                    'status': [ self.stat ]
+                    # 'messages': [ self.e if self.e else ''],
+                    # 'status': [ self.stat ]
                 }
 
                 try:
@@ -186,22 +194,24 @@ class NetDist:
                                 'col.names': ri.NA_Logical,
                                 'row.names': True
                             })
-            
-                print 'Test'
+                
+                print 'get_result2 %s' % filepath
                 if self.nfiles > 2:
                     try:
-                        aa = ru.plot_mds(self.res[i], 
+                        mds = ru.plot_mds(self.res[i],i, filepath = filepath,
                                          prefix=names(self.res)[i] + '_distance')
-                        results[names(self.res)[i]]['img_files'] += [names(self.res)[i] + '_distance.png']
+                        self.results[names(self.res)[i]]['img_files'] += [mds]
+                        ## self.results[names(self.res)[i]]['img_files'] += [names(self.res)[i] + '_distance.png']
                     except RRuntimeError, e:
-                        if self.stat == 'Success':
-                            self.stat = 'Warning'
-                        self.e += [e]
+                        self.error += e
+                        # if self.stat == 'Success':
+                        #     self.stat = 'Warning'
+                        # self.e += [e]
             
-            return results
+            return self.results
         else:
-            print "No distance computed"
-            return False
+            self.error += 'No distance computed'
+            return self.error
 
     def save_RData(self, filepath='.', filename='dists.RData'):
 

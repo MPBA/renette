@@ -13,14 +13,18 @@ class NetStability:
     
     def __init__(self, filelist, seplist, param={}):
         
+        self.nfiles = len(filelist)
         self.filelist = filelist
         self.seplist = seplist
+        self.results = {}
+        
         if len(self.filelist) != len(self.seplist):
-            raise IOError('Not conformable arrays')
-                    
-        self.mylist = rlc.TaggedList([])
-        self.nfiles = len(filelist)
+            raise IOError('Not enough separators')
+        
         self.param = param
+        self.mylist = rlc.TaggedList([])
+        self.listname = []
+        self.error = []
         
     def loadfiles (self):
 
@@ -53,9 +57,9 @@ class NetStability:
                 fdir, fname = os.path.split(os.path.splitext(f)[0])
                 self.listname.append(fname)
                 rcount += 1
-            except IOError:
-                print "Can't load file %s" %f
-        
+            except IOError, e:
+                self.error += e
+                
         if rcount == self.nfiles:
             return True
         else:
@@ -73,7 +77,8 @@ class NetStability:
         param = {'indicator': 'all', 'd': 'HIM', 'adj_method': 'cor', 
                  'method': 'montecarlo', 'k': 3, 'h': 20, 'FDR': 1e-3, 
                  'P': 6, 'measure': ri.NULL, 'alpha': 0.6, 'C': 15, 'DP': 1, 
-                 'save': True}
+                 'save': True, 'var_thr': 1e-15}
+
         for p in param.keys():
             if p in self.param:
                 if self.param[p] is not None:
@@ -102,25 +107,20 @@ class NetStability:
                                                save=param['save'],
                                                tol=0.0,
                                                **{'adj.method': param['adj_method'],
-                                                  'n.cores': 1, 'var.thr': 1e-15}))
+                                                  'n.cores': 1, 'var.thr': param['var_thr']}))
             return_value = True
             
         except IOError, e:
-            self.computed = False
             return_value = False
-            print 'Error during the computation of the stability indicators: %s' % str(e)
+            self.error = e
         except ri.RRuntimeError, e:
-            self.computed = False
             return_value = False
-            print 'Error during the computation of the stability indicators: %s' % str(e)
+            self.error += e
             
-        if return_value:
-            self.computed = True
-            return return_value
-        else:
-            raise Exception(e)
-    
-    def get_results(self, filepath='.', export_json=True, graph_format="gml", perc=10):
+        self.computed = return_value
+        return return_value
+        
+    def get_results(self, filepath='.', export_json=True, graph_format="gml", plot=True, perc=10):
         """
         Write the results on the file system
         """
@@ -134,11 +134,8 @@ class NetStability:
                 csvlist = []
                 tmp = self.res[i]
                 
-                # print tmp.rx2('S')
-                # print tmp.rx2('SI')
-                
                 # Initialize result dictionary
-                results[self.listname[i]] = {
+                self.results[self.listname[i]] = {
                     'csv_files': [],
                     'img_files': [],
                     'json_files': [],
@@ -157,28 +154,35 @@ class NetStability:
                     fw.writerow([np.mean(tmp.rx2('S')),np.mean(tmp.rx2('SI'))])
                     f.close()
                 except IOError, e:
-                    print '%s' % e
+                    self.error += e
                 
                 
-                Sd = np.array(tmp.rx2('Sd'))
-                Sw = np.array(tmp.rx2('Sw'))
+                try:
+                    Sd = np.array(tmp.rx2('Sd_boot'))
+                    Sw = np.array(tmp.rx2('Sw_boot'))
                 
+                except IndexError, e:
+                    self.error += e
+                    
+                    
                 # Compute the degree stability indicator
                 myfname = os.path.join(filepath,'%s_%s_Sd.tsv' 
                                        % (self.listname[i], self.met))
                 sdw = ru.write_Sd(Sd, myfname)
                 if sdw:
                     csvlist += ['%s_%s_Sd.tsv' % (self.listname[i], self.met)]
-                
-                # Compute the edge stability indicator
-                myfname = os.path.join(filepath,'%s_%s_Sw.tsv' % (self.listname[i], self.met))
+                        
+                        
                 # Write file for edge stability indicator
+                myfname = os.path.join(filepath,'%s_%s_Sw.tsv' % (self.listname[i], self.met))
                 sww = ru.write_Sw(Sw, N=Sd.shape[1], filename=myfname)
                 if sww:
                     csvlist += ['%s_%s_Sw.tsv' % (self.listname[i], self.met)]
+                    
 
                 # Write adjacency matrix on the whole dataset
-                myfname = os.path.join(filepath, '%s_%s_adj.tsv' % (self.listname[i], self.met) )
+                myfname = os.path.join(filepath, '%s_%s_adj.tsv' % (self.listname[i], self.met))
+                
                 csvlist += ['%s_%s_adj.tsv' % (self.listname[i], self.met)]
                 write_table(tmp.rx2('ADJ'),myfname,
                             sep='\t', quote=False, 
@@ -190,34 +194,34 @@ class NetStability:
                     jname = ru.export_to_json(tmp.rx2('ADJ'), i=i, 
                                               filepath=filepath, perc=perc,
                                               prefix="%s_%s_" % (self.listname[i], self.met))
-                    results[self.listname[i]]['json_files'] += [jname]
+                    self.results[self.listname[i]]['json_files'] += [jname]
                 
+                # Make some plots (degree distribution for now)
+                if plot:
+                    plotname = ru.plot_degree_distrib(self.res[i].rx2('ADJ'), i=i,
+                                                      filepath=filepath,
+                                                      prefix='%s_%s_ddist' %(self.listname[i], self.met)
+                    )
+                    self.results[self.listname[i]]['img_files'] += [plotname]
+                    myd = np.array(robjects.r.rowSums(tmp.rx2('ADJ')))
+                    plotname = ru.plot_degree_stab(Sd, i, myd,filepath=filepath,
+                                                   prefix='%s_%s_dstab' %(self.listname[i], self.met))
+                    self.results[self.listname[i]]['img_files'] += [plotname]
+
+                    
                 # Export to graph format    
                 if graph_format:
                     gname = ru.export_graph(tmp.rx2('ADJ'), i=i, filepath=filepath, 
                                             format=graph_format, 
                                             prefix="%s_%s_" % (self.listname[i], self.met))
-                    results[self.listname[i]]['graph_files'] += [gname]
+                    self.results[self.listname[i]]['graph_files'] += [gname]
                 
-                
-                # Write matrices given by resampling
-                # for j, a in enumerate(tmp.rx2('ADJlist')):
-                #     myfname = os.path.join(filepath, '%s_%s_res%d.tsv' 
-                #                         % (self.listname[i], self.met, j) )
-                #     csvlist += ['%s_%s_res%d.tsv' % (self.listname[i], self.met, j)]
-                #     #results[self.listname[i]]['csv_files'] += ['%s_%s_res%d.tsv' 
-                #     #                                          % (self.listname[i], self.met, j)]
-                #     write_table(tmp.rx2('ADJ'),myfname,
-                #                 sep='\t', quote=False, 
-                #                 **{'col.names': robjects.NA_Logical, 
-                #                    'row.names': True})
-
-                # Append the list of the files producted to the result dictionary    
-                results[self.listname[i]]['csv_files'] += csvlist
-            return results
+                    
+                self.results[self.listname[i]]['csv_files'] += csvlist
+            return self.results
         else:
-            raise Exception('Cannot compute the results')
-
+            self.error += 'Cannot compute the results'
+            return self.error
     
     def get_S (self):
         res = []

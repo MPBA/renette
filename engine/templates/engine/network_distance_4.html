@@ -6,7 +6,7 @@
   jQuery(document).ready(function(){
   {% if  runp.celery_task.status != 'SUCCESS' %}
   setTimeout(function () {
-  window.location.href = "{% url 'network_inference_4' runp.task_id %}"; //will redirect to your blog page (an ex: blog.html)
+  window.location.href = "{% url 'network_distance_4' runp.task_id %}"; //will redirect to your blog page (an ex: blog.html)
   }, 5000);
   {% else %}
   $("#show_res").click(function(){
@@ -14,8 +14,7 @@
   });
   {% endif %}
   });
-  
-    </script>
+</script>
 {% endblock %}
 {% block googleanalytics %}
 {% endblock %}
@@ -24,8 +23,7 @@
 <div class="row row-offcanvas row-offcanvas-right">
   <div class="col-md-12">
     <div class="row">
-      
-      <h1>Network inference results</h1>
+      <h1>Network Distance results</h1>
       <div class="col-6">
         {% if messages %}
         {% for message in messages %}
@@ -46,7 +44,7 @@
         <li><a href="#charts" data-toggle="tab">Charts</a></li>
         <li><a href="#download" data-toggle="tab">Download area</a></li>
       </ul>
-
+      
       <!-- Tab panes -->
       <div class="tab-content">
         <div class="tab-pane active" id="tables">
@@ -63,10 +61,8 @@
         </div>
       </div>
       </div>
+      
     </div><!--/row-->
   </div><!--/span-->
 </div><!--/row-->
 {% endblock container %}
-
-
-

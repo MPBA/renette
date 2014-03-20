@@ -115,7 +115,7 @@ class Mat2Adj:
         rmat = robjects.r['as.matrix']
 
         if self.computed:
-            for i in range(len(self.res)):
+            for i in xrange(len(self.res)):
                 myfname = os.path.join(filepath,
                                        self.listname[i] + '_adj.tsv')
                 
