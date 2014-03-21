@@ -1,74 +1,46 @@
 
 <div class="panel panel-default">
-  <div class="panel-heading">
-    <h3 class="panel-title">Tasks information</h3>
-  </div>
-  <div class="panel-body">
-    {#                      This is a preview of the data. The whole table are available by clicking the "Full result" button#}
-    {#                  </div>#}
-  <table class="table">
-    <tr>
-      <td style="width: 150px;"><strong>UUID:</strong></td>
-      <td>{{ task.id }}</td>
-    </tr>
-    <tr>
-      <td><strong>Type:</strong></td>
-      <td>{{ runp.process_name }}</td>
-    </tr>
-    <tr>
-      <td><strong>Selected params:</strong></td>
-      <td><ul class="list-inline">{{ runp.to_pretty_inputs|safe }}</ul></td>
-    </tr>
-    <tr>
-      {% if runp %}
-      <td><strong>Submitted:</strong></td>
-      <td>
-        {{ runp.submited }}
-      </td>
-      {% endif %}
-    </tr>
-    <tr>
-      <td><strong>Status:</strong></td>
-      <td><span class="label {{ badge }}"><strong>{{ task.status }}</strong></span></td>
-    </tr>
-    <tr>
-      {% if task.status == 'RUNNING' %}
-      <td><strong>Actual action:</strong></td>
-      <td>{{ task.info }}</td>
-      {% endif %}
-      {% if task.status == 'FAILURE' %}
-      <td><strong>Exception</strong></td>
-      <td>{{ task.info }}</td>
-      {% endif %}
-    </tr>
-    {% if task.status == 'SUCCESS' %}
-    <tr>
-      <td><strong>Action:</strong></td>
-      <td>
-        <div class="col-md-2-offset col-md-8 btn btn-success btn-xs" id="show_res">
-          <strong>Show results</strong>
-        </div>
-        
-      </td>
-    </tr>
-    <tr>
-      <td><strong>Note:</strong></td>
-      <td>
-        {% if tomanyresult %}
-        Too many result
-        {% else %}
-        No warning for process result.
-        {%  endif %}
-        {% for key, value in result.items %}
-        {% if value.tomanyfile %}
-        Too many file for {{ key }} result
-        {% endif %}
-        {% endfor %}
-      </td>
-    </tr>
-    {% endif %}
-  </table>
-</div>
+    <div class="panel-heading">
+        <h3 class="panel-title">Tasks information</h3>
+    </div>
+    <div class="panel-body">
+        <table class="table">
+            <tr>
+                <td style="width: 150px;"><strong>UUID:</strong></td>
+                <td>{{ task.id }}</td>
+            </tr>
+            <tr>
+                <td><strong>Type:</strong></td>
+                <td>{{ runp.process_name }}</td>
+            </tr>
+            <tr>
+                <td><strong>Selected params:</strong></td>
+                <td><ul class="list-inline">{{ runp.to_pretty_inputs|safe }}</ul></td>
+            </tr>
+            <tr>
+                {% if runp %}
+                    <td><strong>Submitted:</strong></td>
+                    <td>
+                        {{ runp.submited }}
+                    </td>
+                {% endif %}
+            </tr>
+            <tr>
+                <td><strong>Status:</strong></td>
+                <td><span class="label {{ badge }}"><strong>{{ task.status }}</strong></span></td>
+            </tr>
+            <tr>
+                {% if task.status == 'RUNNING' %}
+                    <td><strong>Actual action:</strong></td>
+                    <td>{{ task.info }}</td>
+                {% endif %}
+                {% if task.status == 'FAILURE' %}
+                    <td><strong>Exception</strong></td>
+                    <td>{{ task.info }}</td>
+                {% endif %}
+            </tr>
+        </table>
+    </div>
 </div><!--/span-->
 
 

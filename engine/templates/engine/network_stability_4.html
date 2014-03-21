@@ -1,68 +1,69 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block extrahead %}
-<script type="application/javascript">
-  
-  jQuery(document).ready(function(){
-  {% if  runp.celery_task.status != 'SUCCESS' %}
-  setTimeout(function () {
-  window.location.href = "{% url 'network_stability_4' runp.task_id %}"; //will redirect to your blog page (an ex: blog.html)
-  }, 5000);
-  {% else %}
-  $("#show_res").click(function(){
-  $("#id_res").show();
-  });
-  {% endif %}
-  });
-</script>
+    <script type="application/javascript">
+
+        jQuery(document).ready(function(){
+            {% if  runp.celery_task.status != 'SUCCESS' %}
+                setTimeout(function () {
+                    window.location.href = "{% url 'network_stability_4' runp.task_id %}"; //will redirect to your blog page (an ex: blog.html)
+                }, 5000);
+            {% else %}
+                $("#show_res").click(function(){
+                    $("#id_res").show();
+                });
+            {% endif %}
+        });
+    </script>
 {% endblock %}
 {% block googleanalytics %}
 {% endblock %}
 {% block container %}
 
-<div class="row row-offcanvas row-offcanvas-right">
-  <div class="col-md-12">
-    <div class="row">
-      <h1>Network Stability results</h1>
-      <div class="col-6">
-        {% if messages %}
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">
-          <button type="button" class="close" data-dismiss="alert">&times;</button>
-          <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
-        </div>
-        {% endfor %}
-        {% endif %}
-      </div><!--/span-->
-      <!-- Nav tabs -->
-      
-      {% include 'engine/process_status_2.html' %}
-      <div id="id_res" style="display:none">
-      <ul class="nav nav-tabs">
-        <li class="active"><a href="#tables" data-toggle="tab">Tables</a></li>
-        <li><a href="#netvis" data-toggle="tab">Network visualization</a></li>
-        <li><a href="#charts" data-toggle="tab">Charts</a></li>
-        <li><a href="#download" data-toggle="tab">Download area</a></li>
-      </ul>
-      
-      <!-- Tab panes -->
-      <div class="tab-content">
-        <div class="tab-pane active" id="tables">
-          {% include 'engine/result_tables_preview.html' %}
-        </div>
-        <div class="tab-pane" id="netvis">
-          {% include 'engine/result_json_preview.html' %}
-        </div>
-        <div class="tab-pane" id="charts">
-          {% include 'engine/result_charts_preview.html' %}
-        </div>
-        <div class="tab-pane" id="download">
-          {% include 'engine/result_download_preview.html' %}
-        </div>
-      </div>
-      </div>
-      
+    <div class="row row-offcanvas row-offcanvas-right">
+        <div class="col-md-12">
+            <div class="row">
+                <h1>Network Stability results</h1>
+                <div class="col-6">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div><!--/span-->
+                <!-- Nav tabs -->
+
+                {% include 'engine/process_status_2.html' %}
+                {% if task.status == 'SUCCESS' %}
+                <div id="id_res">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#tables" data-toggle="tab">Tables</a></li>
+                        <li><a href="#netvis" data-toggle="tab">Network visualization</a></li>
+                        <li><a href="#charts" data-toggle="tab">Charts</a></li>
+                        <li><a href="#download" data-toggle="tab">Download area</a></li>
+                    </ul>
+
+                    <!-- Tab panes -->
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tables">
+                            {% include 'engine/result_tables_preview.html' %}
+                        </div>
+                        <div class="tab-pane" id="netvis">
+                            {% include 'engine/result_json_preview.html' %}
+                        </div>
+                        <div class="tab-pane" id="charts">
+                            {% include 'engine/result_charts_preview.html' %}
+                        </div>
+                        <div class="tab-pane" id="download">
+                            {% include 'engine/result_download_preview.html' %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div><!--/row-->
+        </div><!--/span-->
     </div><!--/row-->
-  </div><!--/span-->
-</div><!--/row-->
 {% endblock container %}

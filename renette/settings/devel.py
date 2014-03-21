@@ -144,7 +144,7 @@ RESULT_PATH = 'results'
 ##BROKER_URL = 'amqp://renette:renette@geopg.fbk.eu:50010/renette'
 BROKER_URL = 'redis://localhost:6379/0'
 # List of modules to import when celery starts.
-#CELERY_IMPORTS = ('myapp.tasks', )
+# CELERY_IMPORTS = ('myapp.tasks', )
 ## Using the database to store task state and results.pip
 CELERY_TRACK_STARTED = True
 ## CELERY_RESULT_BACKEND = "amqp"

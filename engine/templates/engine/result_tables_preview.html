@@ -7,17 +7,13 @@
 <script type="application/javascript">
     $(document).ready(function() {
         $("#tableslist").on('change', function() {
-            var uninitialized = $('#tablesview').filter(function() {
-                return $.fn.DataTable.fnIsDataTable(this);
-            });
-            if(uninitialized.length){
-                var tb = $('#tablesview').DataTable()
-                tb.fnClearTable(true)
-                tb.fnDestroy()
-            }
+            $("#maintable").html('<table class="table table-condensed table-striped" id="tablesview"><thead></thead><tbody></tbody></table>')
+
+            // elaborazione della prima riga
+            firstrow = eval($("#tableslist option:selected").attr('firstrow'));
+
             var pk = $("#tableslist option:selected").attr('pk');
-            var firstrow = eval($("#tableslist option:selected").attr('firstrow'));
-            firstrow.shift(); // TODO FIX tolgo il primo elemento!!!!
+
             var aryJSONColTable=[];
             for (var i=0; i < firstrow.length; i++ ) {
                 aryJSONColTable.push({
@@ -25,7 +21,7 @@
                     "aTargets": [i]
                 });
             };
-            $('#tablesview').dataTable({
+            mytable = $('#tablesview').dataTable({
                 "bProcessing": true,
                 "bDeferRender": true,
                 "bSort" : false,
@@ -40,17 +36,17 @@
                 "sFilterInput": "form-control input-sm",
                 "sLengthSelect": "form-control input-sm",
                 "sAjaxSource": '/engine/datatables/' + pk + '/',
-                "fnRowCallback": function( nRow, aData, iDisplayIndex ) {
-                    /* Append the grade to the default row class name */
-                    for(var i=0; i<=aData.length; i++){
-                        if( aData[i] > 0.6 ){
-                            $('td:eq('+i+')', nRow).html('<span class="label label-info">'+aData[i]+'</span>');
-                        }
-                        if( i == 0 ){
-                            $('td:eq('+i+')', nRow).html('<b>'+aData[i]+'</b>');
-                        }
-                    }
-                },
+{#                "fnRowCallback": function( nRow, aData, iDisplayIndex ) {#}
+{#                    /* Append the grade to the default row class name */#}
+{#                    for(var i=0; i<=aData.length; i++){#}
+{#                        if( aData[i] > 0.6 ){#}
+{#                            $('td:eq('+i+')', nRow).html('<span class="label label-info">'+aData[i]+'</span>');#}
+{#                        }#}
+{#                        if( i == 0 ){#}
+{#                            $('td:eq('+i+')', nRow).html('<b>'+aData[i]+'</b>');#}
+{#                        }#}
+{#                    }#}
+{#                },#}
                 "fnPreDrawCallback": function() {
                     // gather info to compose a message
                     return true;
@@ -63,7 +59,6 @@
             $('#tablesview_filter label input').addClass('form-control');
             $('#table-desc').html( $("#tableslist option:selected").val());
         });
-
         $("#tableslist").trigger("change")
     });
 </script>
@@ -82,11 +77,7 @@
 <div class="panel panel-default" style="margin-top: 10px;">
     <div class="panel-heading" id="table-desc">t.0.filename</div>
     <div class="panel-body">
-        <div class="col-sm-12" style="padding: 0px !important;">
-            <table class="table table-condensed table-striped" id="tablesview">
-                <thead></thead>
-                <tbody></tbody>
-            </table>
+        <div class="col-sm-12" style="padding: 0px !important;" id="maintable">
         </div>
     </div>
 </div>

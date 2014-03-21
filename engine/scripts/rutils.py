@@ -91,7 +91,7 @@ def export_to_json(reslist, i, filepath='.', perc=10, prefix='graph_', weight=Tr
     direct = 'directed'
     
     # Write a graph file for each result
-    response = {'nodes': [], 'links': []}
+    response = {'nodes': [], 'edges': []}
     tmpr = np.array(reslist)
     
     # Check if the matrix is symmetric
@@ -144,7 +144,7 @@ def export_to_json(reslist, i, filepath='.', perc=10, prefix='graph_', weight=Tr
         except:
             mynode = n
         
-        response['nodes'].append({'label': '%s' % str(mynode), 'id': n, 
+        response['nodes'].append({'label': '%s' % str(mynode), 'id': 'n%d' % n,
                                   'size': '%.2f' % tmpr[n,:].sum(), 
                                   'x': gcoorda[n,0],
                                   'y': gcoorda[n,1],
@@ -160,8 +160,10 @@ def export_to_json(reslist, i, filepath='.', perc=10, prefix='graph_', weight=Tr
             start = 1
         for j in xrange(start,N):
             if (tmp[n,j] >= thr):
-                response['links'].append({'source': n, 
-                                          'target': j, 
+                response['edges'].append({
+                                          'id': 'e%d-%d' % (n, j),
+                                          'source':  'n%d' % n,
+                                          'target':  'n%d' % j,
                                           'weights': tmp[n, j]})
     
     # Write json file for sigmajs

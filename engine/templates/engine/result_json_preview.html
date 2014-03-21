@@ -2,8 +2,9 @@
 {% block extrahead %}
     <link rel="stylesheet" href="{% static 'jquery-ui/jquery-ui.css' %}">
     <script src="{% static 'jquery-ui/jquery-ui.js' %}"></script>
-    <script type="application/javascript" src="{% static 'js/sigma.js' %}"></script>
-    <script type="application/javascript" src="{% static 'js/sigma.parseJson.js' %}"></script>
+    <script type="application/javascript" src="{% static 'js/sigma.min.js' %}"></script>
+    <script type="application/javascript" src="{% static 'js/plugins/sigma.parsers.json.min.js' %}"></script>
+    <script type="application/javascript" src="{% static 'js/plugins/sigma.plugins.neighborhoods.min.js' %}"></script>
 {% endblock %}
 
 <script>
@@ -47,29 +48,157 @@
     });
 </script>
 <script type="application/javascript">
-    $(document).ready(function() {
-        $("#jsonlist-1").on('change', function() {
-            var url = $("#jsonlist-1 option:selected").attr('url');
+$(document).ready(function() {
+    sigma.classes.graph.addMethod('neighbors', function(nodeId) {
+        var k,
+                neighbors = {},
+                index = this.allNeighborsIndex[nodeId] || {};
 
-            if (!("sigInst1" in window)){
-                // Instanciate sigma.js and customize rendering :
-                sigInst1 = sigma.init(document.getElementById('sigma-1')).drawingProperties({
-                    defaultLabelColor: '#000',
-                    defaultLabelSize: 14,
-                    defaultLabelBGColor: '#fff',
-                    defaultLabelHoverColor: '#000',
-                    labelThreshold: 6,
-                    defaultEdgeType: 'curve'
-                }).graphProperties({
-                            minNodeSize: 0.2,
-                            maxNodeSize: 8,
-                            minEdgeSize: 1,
-                            maxEdgeSize: 5,
-                            sideMargin: 50
-                        }).mouseProperties({
-                            maxRatio: 32
+        for (k in index)
+            neighbors[k] = this.nodesIndex[k];
+
+        return neighbors;
+    });
+    $("#jsonlist-1").on('change', function() {
+        var url = $("#jsonlist-1 option:selected").attr('url');
+        sigma.parsers.json(
+                url,
+                { // Here is the ID of the DOM element that
+                    // will contain the graph:
+                    container: 'sigma-1'
+                },
+                function(s) {
+
+
+                    s.graph.nodes().forEach(function(n) {
+                        n.originalColor = n.color;
+                    });
+                    s.graph.edges().forEach(function(e) {
+                        e.originalColor = e.color;
+                    });
+
+                    // When a node is clicked, we check for each node
+                    // if it is a neighbor of the clicked one. If not,
+                    // we set its color as grey, and else, it takes its
+                    // original color.
+                    // We do the same for the edges, and we only keep
+                    // edges that have both extremities colored.
+                    s.bind('clickNode', function(e) {
+                        var nodeId = e.data.node.id,
+                                toKeep = s.graph.neighbors(nodeId);
+                        toKeep[nodeId] = e.data.node;
+
+                        s.graph.nodes().forEach(function(n) {
+                            if (toKeep[n.id])
+                                n.color = n.originalColor;
+                            else
+                                n.color = '#eee';
                         });
-            }
+
+                        s.graph.edges().forEach(function(e) {
+                            var src = toKeep[e.source],
+                                    trg = toKeep[e.target]
+
+                            if (src && trg){
+                                if(trg.cluster == src.cluster) {
+                                    e.color = e.originalColor;
+                                } else if (nodeId == trg.id){
+                                    e.color = src.color
+                                } else if (nodeId != trg.id){
+                                    e.color = trg.color
+                                }
+                            } else {
+                                e.color = '#eee';
+                            }
+                        });
+
+                        // Since the data has been modified, we need to
+                        // call the refresh method to make the colors
+                        // update effective.
+                        s.refresh();
+                    });
+
+                    // When the stage is clicked, we just color each
+                    // node and edge with its original color.
+                    s.bind('clickStage', function(e) {
+                        s.graph.nodes().forEach(function(n) {
+                            n.color = n.originalColor;
+                        });
+
+                        s.graph.edges().forEach(function(e) {
+                            e.color = e.originalColor;
+                        });
+
+                        // Same as in the previous event:
+                        s.refresh();
+                    });
+
+
+
+                }
+        );
+    });
+
+    $("#jssdonlist-1").on('change', function() {
+        var url = $("#jsonlist-1 option:selected").attr('url');
+
+        if (!("sigInst1" in window)){
+            // Instanciate sigma.js and customize rendering :
+            sigInst1 = sigma.init(document.getElementById('sigma-1')).drawingProperties({
+                defaultLabelColor: '#000',
+                defaultLabelSize: 14,
+                defaultLabelBGColor: '#fff',
+                defaultLabelHoverColor: '#000',
+                labelThreshold: 6,
+                defaultEdgeType: 'curve'
+            }).graphProperties({
+                        minNodeSize: 0.2,
+                        maxNodeSize: 8,
+                        minEdgeSize: 1,
+                        maxEdgeSize: 5,
+                        sideMargin: 50
+                    }).mouseProperties({
+                        maxRatio: 32
+                    });
+            sigInst1.graph.nodes().forEach(function(n) {
+                n.originalColor = n.color;
+            });
+            sigInst1.graph.edges().forEach(function(e) {
+                e.originalColor = e.color;
+            });
+            sigInst1.bind('clickNode', function(e) {
+                var nodeId = e.data.node.id,
+                        toKeep = s.graph.neighbors(nodeId);
+                toKeep[nodeId] = e.data.node;
+
+                sigInst1.graph.nodes().forEach(function(n) {
+                    if (toKeep[n.id])
+                        n.color = n.originalColor;
+                    else
+                        n.color = '#eee';
+                });
+
+                sigInst1.graph.edges().forEach(function(e) {
+                    if (toKeep[e.source] && toKeep[e.target])
+                        e.color = e.originalColor;
+                    else
+                        e.color = '#eee';
+                });
+                sigInst1.refresh();
+            });
+            sigInst1.bind('clickStage', function(e) {
+                sigInst1.graph.nodes().forEach(function(n) {
+                    n.color = n.originalColor;
+                });
+
+                sigInst1.graph.edges().forEach(function(e) {
+                    e.color = e.originalColor;
+                });
+
+                // Same as in the previous event:
+                sigInst1.refresh();
+            });
+
             sigInst1.emptyGraph().draw();
             if(url){
                 $('#json-desc-1').html( $("#tableslist option:selected").val());
@@ -78,53 +207,55 @@
             } else {
                 $('#json-desc-1').html("No variable selected.");
             }
-        });
-        $("#jsonlist-2").on('change', function() {
-            var url = $("#jsonlist-2 option:selected").attr('url');
-
-            if (!("sigInst2" in window)){
-                // Instanciate sigma.js and customize rendering :
-                sigInst2 = sigma.init(document.getElementById('sigma-2')).drawingProperties({
-                    defaultLabelColor: '#000',
-                    defaultLabelSize: 14,
-                    defaultLabelBGColor: '#fff',
-                    defaultLabelHoverColor: '#000',
-                    labelThreshold: 6,
-                    defaultEdgeType: 'curve'
-                }).graphProperties({
-                            minNodeSize: 0.2,
-                            maxNodeSize: 8,
-                            minEdgeSize: 1,
-                            maxEdgeSize: 5,
-                            sideMargin: 50
-                        }).mouseProperties({
-                            maxRatio: 32
-                        });
-            }
-            sigInst2.emptyGraph().draw();
-            if(url){
-                $('#json-desc-2').html( $("#tableslist option:selected").val());
-                sigInst2.parseJson(url);
-                sigInst2.draw();
-            } else {
-                $('#json-desc-2').html("No variable selected.");
-            }
-        });
-        $("#showjson2").click(function(btn){
-            if( !$("#showjson2").hasClass('active') ){
-                $("#jsondiv-1").removeClass('col-sm-12').addClass('col-sm-6');
-                $("#jsondiv-2").removeClass('hidden');
-                $("#showjson2").html('Single mode');
-            } else {
-                $("#jsondiv-1").removeClass('col-sm-6').addClass('col-sm-12');
-                $("#jsondiv-2").addClass('hidden');
-                $("#showjson2").html('Compare mode');
-            }
-            if ("sigInst1" in window){
-                sigInst1.resize();
-            }
-        })
+        }
     });
+
+    $("#jsonlist-2").on('change', function() {
+        var url = $("#jsonlist-2 option:selected").attr('url');
+
+        if (!("sigInst2" in window)){
+            // Instanciate sigma.js and customize rendering :
+            sigInst2 = sigma.init(document.getElementById('sigma-2')).drawingProperties({
+                defaultLabelColor: '#000',
+                defaultLabelSize: 14,
+                defaultLabelBGColor: '#fff',
+                defaultLabelHoverColor: '#000',
+                labelThreshold: 6,
+                defaultEdgeType: 'curve'
+            }).graphProperties({
+                        minNodeSize: 0.2,
+                        maxNodeSize: 8,
+                        minEdgeSize: 1,
+                        maxEdgeSize: 5,
+                        sideMargin: 50
+                    }).mouseProperties({
+                        maxRatio: 32
+                    });
+        }
+        sigInst2.emptyGraph().draw();
+        if(url){
+            $('#json-desc-2').html( $("#tableslist option:selected").val());
+            sigInst2.parseJson(url);
+            sigInst2.draw();
+        } else {
+            $('#json-desc-2').html("No variable selected.");
+        }
+    });
+    $("#showjson2").click(function(btn){
+        if( !$("#showjson2").hasClass('active') ){
+            $("#jsondiv-1").removeClass('col-sm-12').addClass('col-sm-6');
+            $("#jsondiv-2").removeClass('hidden');
+            $("#showjson2").html('Single mode');
+        } else {
+            $("#jsondiv-1").removeClass('col-sm-6').addClass('col-sm-12');
+            $("#jsondiv-2").addClass('hidden');
+            $("#showjson2").html('Compare mode');
+        }
+        if ("sigInst1" in window){
+            sigInst1.resize();
+        }
+    })
+});
 </script>
 <style type="text/css">
         /* sigma.js context : */

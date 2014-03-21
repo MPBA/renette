@@ -13,3 +13,4 @@ engine/scripts/data/data_phenotype/
 *.sqlite3
 *.rdb
 ../renette/lib*
+celerybeat-schedule
