@@ -21,7 +21,7 @@ def write_Sw (Sw, N, filename='Sw.csv'):
     except IOError, e:
         print '%s' % e
         return False
-    
+        
     fw.writerow(['from', 'to', 'Sw'])
     # Create link combinations
     links = combinations(range(N),2)
@@ -144,7 +144,8 @@ def export_to_json(reslist, i, filepath='.', perc=10, prefix='graph_', weight=Tr
         except:
             mynode = n
         
-        response['nodes'].append({'label': '%s' % str(mynode), 'id': 'n%d' % n,
+        response['nodes'].append({'label': 'Degree = %.3f\nCluster = %d' % (tmpr[n,:].sum(), mm[n]), 
+                                  'id': 'n%d' % n,
                                   'size': '%.2f' % tmpr[n,:].sum(), 
                                   'x': gcoorda[n,0],
                                   'y': gcoorda[n,1],
@@ -233,7 +234,7 @@ def igraph_layout (adjmat):
     
     
     
-def plot_degree_distrib(adj_mat, i, filepath=".", prefix='ddist_'):
+def plot_degree_distrib(adj_mat, i, filepath='.', prefix='ddist_'):
     """
     Compute degree distribution and plot using lattice
     """
@@ -258,7 +259,32 @@ def plot_degree_distrib(adj_mat, i, filepath=".", prefix='ddist_'):
     rprint(p)
     grdevices.dev_off()
     
-           
+    return myfname
+
+
+def plot_edge_distrib(adj_mat, i, filepath='.', prefix='edist_'):
+    """
+    Compute degree distribution and plot using lattice
+    """
+    
+    lattice = importr('lattice')
+    grdevices = importr('grDevices')
+    xyplot = lattice.densityplot
+    uptri = robjects.r['upper.tri']
+    rprint = robjects.globalenv.get("print")
+    
+    idx = robjects.r.c(uptri(adj_mat))
+    
+    deg = robjects.r.c(adj_mat.rx(idx))
+    p = xyplot(deg, type='l', lwd=3, 
+               xlab='Edge Degree', ylab='Density',
+               main='Edge weight degree distribution', **{'plot.points':False})
+    
+    myfname = prefix + str(i) + '.png'
+    grdevices.png(file=os.path.join(filepath, myfname), width=512, height=512)
+    rprint(p)
+    grdevices.dev_off()
+    
     return myfname
 
 def plot_degree_stab(dstab, i, myd, filepath=".", prefix='dstab_'):
@@ -283,4 +309,58 @@ def plot_degree_stab(dstab, i, myd, filepath=".", prefix='dstab_'):
     rprint(p)
     grdevices.dev_off()
     
+    return myfname
+
+def get_hubs (adj_mat, i, quart=90, stab_mat=[], stab_mat_all=[], filepath=".", prefix="hubs"):
+    
+    """
+    Find hubs in an adjacency matrix
+    NB Suppose matrices are weighted and undirected
+    """
+    
+    names = robjects.r['colnames']
+    grdevices = importr('grDevices')
+    rprint = robjects.globalenv.get("print")
+    boxplot = robjects.r['boxplot']
+
+
+    adjmat = np.array(adj_mat)
+    deg = adjmat.sum(axis=1)
+    
+    ## Set hub percentile to 90 [1,100]
+    thr = np.percentile(deg, quart)
+    
+    idx = np.where(deg>=thr)[0]
+    ii = np.argsort(deg[idx])[::-1]
+        
+    try:
+        nn = names(adj_mat)
+    except:
+        nn = []
+        
+    myfname = '%s_%d.tsv' % (prefix, i)
+    filename = os.path.join(filepath, myfname)
+    try:
+        f = open(filename, 'wb')
+        fw = csv.writer(f, delimiter='\t', lineterminator='\n')
+    except IOError, e:
+        print '%s' % e
+        
+    fw.writerow(['Node Id', 'Node Degree', 'Stability' if stab_mat else None])
+    # grdevices.png(file='culo.png', width=512, height=512)           
+    for z,j in enumerate(ii):
+        fw.writerow([nn[idx[j]] if nn else idx[j], deg[idx[j]], 
+                     1 - deg[idx[j]]/stab_mat[idx[j]] if stab_mat else None])
+        # if stab_mat_all:
+        #     print idx[j]
+        #     print z
+        #     ## print stab_mat_all.rx2
+        #     print stab_mat_all
+        #     myfname = '%s_%d.png'
+        #     tmp = np.array(stab_mat_all)
+
+        #     boxplot(stab_mat_all, add=False if z==1 else True)
+
+    f.close()
+    ##grdevices.dev_off()
     return myfname

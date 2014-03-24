@@ -49,7 +49,7 @@ class NetDist:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
         
-        
+
         for f, s in zip(self.filelist, self.seplist):
             try:
                 dataf = DataFrame.from_csvfile(f,
@@ -60,6 +60,7 @@ class NetDist:
 
                 dataf = asmatrix(dataf)
                 
+              
                 # Should be the diagonal set to 0?
                 # Do it for all the inputs, just to be sure
                 zcount = 0
@@ -67,7 +68,7 @@ class NetDist:
                     if (dataf.rx[i+1,i+1][0] - 0.0 >= 1e-8):
                         zcount += 1
                         dataf.rx[i+1,i+1] = 0
-                
+
                 if zcount:
                     self.e += f
                     
@@ -155,10 +156,8 @@ class NetDist:
         
         if self.computed:
             for i in xrange(len(self.res)):
-                print 'get_result1 %s' % filepath
                 myfname = os.path.join(filepath,
                                        names(self.res)[i] + '_distance.tsv')
-                print 'myfname %s' % myfname
                 self.results[names(self.res)[i]] = {
                     'csv_files': [names(self.res)[i] + '_distance.tsv'],
                     'img_files': [],
@@ -166,8 +165,6 @@ class NetDist:
                     'graph_files': [],
                     'desc': '%s network distance' % names(self.res)[i],
                     'rdata': None,
-                    # 'messages': [ self.e if self.e else ''],
-                    # 'status': [ self.stat ]
                 }
 
                 try:
@@ -195,19 +192,37 @@ class NetDist:
                                 'row.names': True
                             })
                 
-                print 'get_result2 %s' % filepath
                 if self.nfiles > 2:
                     try:
                         mds = ru.plot_mds(self.res[i],i, filepath = filepath,
                                          prefix=names(self.res)[i] + '_distance')
                         self.results[names(self.res)[i]]['img_files'] += [mds]
-                        ## self.results[names(self.res)[i]]['img_files'] += [names(self.res)[i] + '_distance.png']
                     except RRuntimeError, e:
                         self.error += e
-                        # if self.stat == 'Success':
-                        #     self.stat = 'Warning'
-                        # self.e += [e]
+                        
+            self.results['input'] = {
+                'csv_files': [],
+                'img_files': [],
+                'json_files': [],
+                'graph_files': [],
+                'desc': 'network distance' ,
+                'rdata': None,
+            }
             
+            for j, f in enumerate(self.mylist):
+                hname = ru.get_hubs(f, j, 90, 
+                                    filepath=filepath, 
+                                    prefix='%d_hubs' % j)
+                
+                self.results['input']['csv_files'] += [hname]
+                if export_json:
+                    
+                    jname = ru.export_to_json(f, i=j, filepath=filepath, 
+                                              perc=perc, 
+                                              prefix='%d_%s' % (j, 'topology'))
+                    self.results['input']['json_files'] += [jname]
+
+
             return self.results
         else:
             self.error += 'No distance computed'

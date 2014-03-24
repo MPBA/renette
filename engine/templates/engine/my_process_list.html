@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load engine_tags %}
+
 
 {% block container %}
 <div class="row row-offcanvas row-offcanvas-right">
@@ -18,7 +20,7 @@
             {% endif %}
             <div class="panel panel-default">
                   <div class="panel-heading">
-                    <h3 class="panel-title">Runned process (this session)</h3>
+                    <h3 class="panel-title">Run process (this session)</h3>
                   </div>
                   <div class="panel-body">
 	              A summary of all the submitted process.
@@ -49,7 +51,8 @@
                                     Download all files
                                   </a>
                                   {% endif %}
-                                  <a  href="{% url 'process_status' r.task_id %}" target="_blank" class="btn btn-info btn-xs" role="button">
+				  
+				  <a  href="{% url r.process_name|match_url r.task_id %}" target="_blank" class="btn btn-info btn-xs" role="button">
                                     View details
                                   </a>
                                   </td>

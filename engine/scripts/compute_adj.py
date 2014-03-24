@@ -155,7 +155,14 @@ class Mat2Adj:
                     self.results[self.listname[i]]['csv_files'] += [myfname]
                 except IOError, e:
                     self.error += e
+                    
 
+                ## Get hubs in the network
+                hname = ru.get_hubs(self.res[i], i, 90, 
+                                    filepath=filepath, 
+                                    prefix='%s_%s_hubs' % (self.listname[i], self.param['method']))
+                self.results[self.listname[i]]['csv_files'] += [hname]
+                
                 # Export to json
                 if export_json:
                     jname = ru.export_to_json(self.res[i], i=i, filepath=filepath, 
@@ -174,10 +181,17 @@ class Mat2Adj:
                 
                 # Make some plots (degree distribution for now)
                 if plot:
+                    ## Degree distribution
                     plotname = ru.plot_degree_distrib(self.res[i], i=i, filepath=filepath, 
-                                                      prefix='%s_%s_' % (self.listname[i], self.param['method']))
+                                                      prefix='ddist_%s_%s_' % (self.listname[i], self.param['method']))
                     self.results[self.listname[i]]['img_files'] += [plotname]
-
+                    
+                    ## Edge weight distribution
+                    plotname = ru.plot_edge_distrib(self.res[i], i=i, filepath=filepath, 
+                                                    prefix='edist_%s_%s_' % (self.listname[i], self.param['method']))
+                    self.results[self.listname[i]]['img_files'] += [plotname]
+                    
+                    
             return self.results
         else:
             self.error += 'No adjacency matrix computed, please run the compute method before.'

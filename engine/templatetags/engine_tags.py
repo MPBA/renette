@@ -16,7 +16,20 @@ def current(context, url_name, return_value=' active', **kwargs):
     matches = current_url_equals(context, url_name, **kwargs)
     return return_value if matches else ''
 
+@register.filter
+def match_url (value):
+    return_value = '' 
+    if value == 'Network inference':
+        return_value = 'network_inference_4'
+    
+    if value == 'Network stability':
+        return_value = 'network_stability_4'
 
+    if value == 'Network distance':
+        return_value = 'network_distance_4'
+        
+    return return_value
+        
 def current_url_equals(context, url_name, **kwargs):
     resolved = False
     try:

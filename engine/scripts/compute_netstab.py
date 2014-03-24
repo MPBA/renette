@@ -189,6 +189,12 @@ class NetStability:
                             **{'col.names': robjects.NA_Logical, 
                                'row.names': True})
                 
+                hname = ru.get_hubs(tmp.rx2('ADJ'), i=i, stab_mat=tmp.rx2('Sd'),
+                                    stab_mat_all=tmp.rx2('Sd_boot'),
+                                    filepath=filepath, 
+                                    prefix='%s_%s_hubs' % (self.listname[i], self.met))
+                csvlist += [hname]
+                                
                 # export to json for visualization
                 if export_json:
                     jname = ru.export_to_json(tmp.rx2('ADJ'), i=i, 
