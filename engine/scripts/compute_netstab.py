@@ -212,9 +212,9 @@ class NetStability:
                     )
                     self.results[self.listname[i]]['img_files'] += [plotname]
                     myd = np.array(robjects.r.rowSums(tmp.rx2('ADJ')))
-                    plotname = ru.plot_degree_stab(Sd, i, myd,filepath=filepath,
-                                                   prefix='%s_%s_dstab' %(self.listname[i], self.met))
-                    self.results[self.listname[i]]['img_files'] += [plotname]
+                    # plotname = ru.plot_degree_stab(Sd, i, myd,filepath=filepath,
+                    #                                prefix='%s_%s_dstab' %(self.listname[i], self.met))
+                    # self.results[self.listname[i]]['img_files'] += [plotname]
 
                     
                 # Export to graph format    
