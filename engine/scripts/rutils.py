@@ -128,8 +128,11 @@ def export_to_json(reslist, i, filepath='.', perc=10, prefix='graph_', weight=Tr
     gcoorda = np.array(gcoord)
     
     # Get communities 
-    gmm = igraph.spinglass_community(g, weights=ww)
-    mm = igraph.membership(gmm)
+    try:
+        gmm = igraph.spinglass_community(g, weights=ww)
+        mm = igraph.membership(gmm)
+    except:
+        mm = [0 for j in xrange(tmpr.shape[0])]
     cm = np.empty(len(mm), dtype='S8')
     
     # Assign color to each community
