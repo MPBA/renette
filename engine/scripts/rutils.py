@@ -322,8 +322,8 @@ def get_hubs (adj_mat, i, quart=90, stab_mat=[], stab_mat_all=[], filepath=".", 
     grdevices = importr('grDevices')
     rprint = robjects.globalenv.get("print")
     boxplot = robjects.r['boxplot']
-
-
+    points = robjects.r['points']
+    
     adjmat = np.array(adj_mat)
     deg = adjmat.sum(axis=1)
     
@@ -332,7 +332,7 @@ def get_hubs (adj_mat, i, quart=90, stab_mat=[], stab_mat_all=[], filepath=".", 
     
     idx = np.where(deg>=thr)[0]
     ii = np.argsort(deg[idx])[::-1]
-        
+    
     try:
         nn = names(adj_mat)
     except:
@@ -340,27 +340,32 @@ def get_hubs (adj_mat, i, quart=90, stab_mat=[], stab_mat_all=[], filepath=".", 
         
     myfname = '%s_%d.tsv' % (prefix, i)
     filename = os.path.join(filepath, myfname)
+    
     try:
         f = open(filename, 'wb')
         fw = csv.writer(f, delimiter='\t', lineterminator='\n')
     except IOError, e:
         print '%s' % e
-        
+    
     fw.writerow(['Node Id', 'Node Degree', 'Stability' if stab_mat else None])
-    # grdevices.png(file='culo.png', width=512, height=512)           
-    for z,j in enumerate(ii):
+
+    for j in ii:
         fw.writerow([nn[idx[j]] if nn else idx[j], deg[idx[j]], 
                      1 - deg[idx[j]]/stab_mat[idx[j]] if stab_mat else None])
-        # if stab_mat_all:
-        #     print idx[j]
-        #     print z
-        #     ## print stab_mat_all.rx2
-        #     print stab_mat_all
-        #     myfname = '%s_%d.png'
-        #     tmp = np.array(stab_mat_all)
-
-        #     boxplot(stab_mat_all, add=False if z==1 else True)
-
     f.close()
-    ##grdevices.dev_off()
+    if stab_mat_all:
+        ridx = robjects.IntVector(idx[ii] + 1) # NB R indexing starts from 1
+        pname = '%s_%d.png' % (prefix, i)
+        bnames = names(stab_mat_all)
+        if not bnames:
+            bnames = robjects.StrVector(['Node_%d' % n for n in (idx[ii] + 1)])
+
+        ## Plotting hubs stability
+        grdevices.png(file=os.path.join(filepath,pname), width=512, height=512)
+        boxplot(stab_mat_all.rx(True, ridx), names=bnames, col='grey80')
+        points(robjects.IntVector(np.arange(len(ii)) + 1), 
+               robjects.FloatVector(deg[idx[ii]]), pch=19)
+        grdevices.dev_off()
+        myfname = [myfname, pname]
+        
     return myfname

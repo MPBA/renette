@@ -188,13 +188,15 @@ class NetStability:
                             sep='\t', quote=False, 
                             **{'col.names': robjects.NA_Logical, 
                                'row.names': True})
-                
+
+                ## Get hubs and plot stability
                 hname = ru.get_hubs(tmp.rx2('ADJ'), i=i, stab_mat=tmp.rx2('Sd'),
                                     stab_mat_all=tmp.rx2('Sd_boot'),
                                     filepath=filepath, 
                                     prefix='%s_%s_hubs' % (self.listname[i], self.met))
-                csvlist += [hname]
-                                
+                csvlist += [hname[0]]
+                self.results[self.listname[i]]['img_files'] += [hname[1]]
+                
                 # export to json for visualization
                 if export_json:
                     jname = ru.export_to_json(tmp.rx2('ADJ'), i=i, 
