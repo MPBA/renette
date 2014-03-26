@@ -351,7 +351,7 @@ def get_hubs (adj_mat, i, quart=90, stab_mat=[], stab_mat_all=[], filepath=".", 
 
     for j in ii:
         fw.writerow([nn[idx[j]] if nn else idx[j], deg[idx[j]], 
-                     1 - deg[idx[j]]/stab_mat[idx[j]] if stab_mat else None])
+                     stab_mat[idx[j]] if stab_mat else None])
     f.close()
     if stab_mat_all:
         ridx = robjects.IntVector(idx[ii] + 1) # NB R indexing starts from 1
