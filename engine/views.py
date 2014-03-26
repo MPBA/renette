@@ -341,7 +341,6 @@ class NetworkDistanceStep3Class(View):
                 inputs=param,
                 submited=datetime.now()
             )
-            # t = test_netdist.delay(files, sep, param)
             t = netdist.delay(files, sep, param)
             runp.task_id = t.id
 
@@ -392,49 +391,6 @@ class NetworkDistanceStep4Class(View):
         }
 
         return render(request, self.template_name, context)
-
-
-#class ProcessStatus(View):
-#    template_name = 'engine/process_status.html'
-#
-#    def get(self, request, uuid, **kwargs):
-#        task = djcelery.celery.AsyncResult(uuid)
-#
-#        try:
-#            runp = RunningProcess.objects.get(task_id=uuid)
-#        except RunningProcess.DoesNotExist:
-#            runp = None
-#            messages.add_message(self.request, messages.ERROR, 'Some information not available!')
-#
-#        context = {
-#            'uuid': uuid, ### TODO: e' nei models, riferirsi a quello
-#            'task': task, ### TODO: e' nei models, riferirisi a quello
-#            'badge': get_bootsrap_badge(task.status), ### TODO: e' nei model, riferirsi a quello
-#            'runp': runp
-#        }
-#
-#        if task.status == 'SUCCESS':
-#            result = task.result
-#            idx = 0
-#            if isinstance(result, dict):
-#                context['download_btn'] = True  ### TODO: e' nei models
-#                for key in result.keys():
-#                    if idx == 3:
-#                        context['tomanyresult'] = True #todo too
-#                        break
-#                    idx += 1
-#
-#                    val = result.get(key)
-#                    csvlist, tomanyfile = read_csv_results(val['csv_files'])
-#                    if csvlist:
-#                        val['csv_tables'] = csvlist
-#                        val['tomanyfile'] = tomanyfile
-#                    else:
-#                        messages.add_message(self.request, messages.ERROR, 'Cannot find the results file!')
-#                    result.update({key: val})
-#
-#            context['result'] = result
-#        return render(request, self.template_name, context)
 
 
 # Process status view from database
@@ -563,61 +519,3 @@ def process_list(request):
         context = None
         messages.add_message(request, messages.ERROR, 'Sorry, unexpected error occured. Try again.')
     return render(request, 'engine/my_process_list.html', context)
-
-
-#def process_graph(request, uuid, key, idx):
-#    try:
-#        runp = RunningProcess.objects.get(task_id=uuid)
-#    except RunningProcess.DoesNotExist:
-#        raise Http404
-#
-#    result = runp.result
-#    try:
-#        url = result[key]['json_files'][int(idx)]
-#        context = {
-#            'url': url,
-#            'key': key,
-#            'idx': idx,
-#            'runp':runp
-#        }
-#    except KeyError:
-#        context = None
-#        messages.add_message(request, messages.ERROR, 'No json available for graph visualization.')
-#
-#    return render(request, 'engine/result_json_preview.html', context)
-#
-#
-#def full_results_view(request, uuid, key, idx):
-#    import csv
-#    try:
-#        runp = RunningProcess.objects.get(task_id=uuid)
-#    except RunningProcess.DoesNotExist:
-#        raise Http404
-#
-#    result = runp.result
-#    try:
-#        filepath = result[key]['csv_files'][int(idx)]
-#        f = open(os.path.join(settings.MEDIA_ROOT, filepath), 'r')
-#        f.seek(0, 0)
-#        dialect = csv.Sniffer().sniff(f.readline(), delimiters=[';', ',', '\t'])
-#        f.seek(0, 0)
-#        reader = csv.reader(f, dialect)
-#        rows = ""
-#        r=[]
-#        for line in reader:
-#            r.append(line)
-#            rows += '<tr>'
-#            for col in line:
-#                rows += '<td>'+str(col)+'</td>'
-#            rows += '</tr>'
-#        context = {
-#            'url': filepath,
-#            'rows': rows,
-#            'r': r
-#        }
-#
-#    except KeyError:
-#        context = None
-#        messages.add_message(request, messages.ERROR, 'No json available for graph visualization.')
-#
-#    return render(request, 'engine/full_results_view.html', context)

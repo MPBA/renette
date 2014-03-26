@@ -5,6 +5,7 @@
     <script type="application/javascript" src="{% static 'js/sigma.min.js' %}"></script>
     <script type="application/javascript" src="{% static 'js/plugins/sigma.parsers.json.min.js' %}"></script>
     <script type="application/javascript" src="{% static 'js/plugins/sigma.plugins.neighborhoods.min.js' %}"></script>
+    <script type="application/javascript" src="{% static 'js/plugins/sigma.layout.forceAtlas2.min.js' %}"></script>
 {% endblock %}
 
 <script>
@@ -15,14 +16,18 @@
             max: 1,
             step: 0.01,
             slide: function( event, ui ) {
+                // full graph
+                sigmaInst1.dispatchEvent('clickStage');
                 $( "#amount-1" ).val( ui.value );
-                sigInst1.iterEdges(function(n){
-                    if(n.size <= ui.value){
-                        n.hidden = 0;
+
+                sigmaInst1.graph.edges().forEach(function(n) {
+                    if(n.weights <= ui.value){
+                        n.hidden = false;
                     } else {
-                        n.hidden = 1;
+                        n.hidden = true;
                     }
-                }).draw();
+                })
+                sigmaInst1.refresh();
             }
         });
         $( "#amount-1" ).val($( "#slider-1" ).slider( "value" ) );
@@ -34,14 +39,18 @@
             max: 1,
             step: 0.01,
             slide: function( event, ui ) {
+                // full graph
+                sigmaInst2.dispatchEvent('clickStage');
                 $( "#amount-2" ).val( ui.value );
-                sigInst2.iterEdges(function(n){
-                    if(n.size <= ui.value){
-                        n.hidden = 0;
+
+                sigmaInst2.graph.edges().forEach(function(n) {
+                    if(n.weights <= ui.value){
+                        n.hidden = false;
                     } else {
-                        n.hidden = 1;
+                        n.hidden = true;
                     }
-                }).draw();
+                })
+                sigmaInst2.refresh();
             }
         });
         $( "#amount-2" ).val($( "#slider-2" ).slider( "value" ) );
@@ -52,23 +61,50 @@ $(document).ready(function() {
     sigma.classes.graph.addMethod('neighbors', function(nodeId) {
         var k,
                 neighbors = {},
-                index = this.allNeighborsIndex[nodeId] || {};
+                index = this.allNeighborsIndex[nodeId] || {},
+                val = $( "#slider-1" ).slider( "value" );
 
-        for (k in index)
-            neighbors[k] = this.nodesIndex[k];
-
+        for (k in index) {
+            var edg = index[k];
+            if (edg[Object.keys(edg)[0]].weights <= val){
+                neighbors[k] = this.nodesIndex[k];
+            }
+        }
         return neighbors;
     });
+    sigma.classes.graph.addMethod('max', function(edges) {
+        var weights = [],
+                max;
+
+        edges.forEach(function(e){
+            weights.push(e.weights)
+        })
+
+        max = Math.max.apply( Math, weights );
+
+        return max;
+    });
+
     $("#jsonlist-1").on('change', function() {
         var url = $("#jsonlist-1 option:selected").attr('url');
+        $("#sigma-parent-1").html('<div class="sigma-expand" id="sigma-1"></div>')
+        if(!url){
+            $("#forceatlas1").html('Start atlas');
+            $("#forceatlas1").attr('disabled', true);
+            $("#forceatlas1").removeClass('active');
+            return
+        }
         sigma.parsers.json(
                 url,
-                { // Here is the ID of the DOM element that
-                    // will contain the graph:
-                    container: 'sigma-1'
+                {
+                    container: 'sigma-1',
+                    type: 'canvas'
                 },
                 function(s) {
-
+                    sigmaInst1 = s;
+                    max = s.graph.max(s.graph.edges());
+                    $("#slider-1").slider("option", "max", max);
+                    $("#forceatlas1").removeAttr("disabled");
 
                     s.graph.nodes().forEach(function(n) {
                         n.originalColor = n.color;
@@ -128,119 +164,98 @@ $(document).ready(function() {
                         s.graph.edges().forEach(function(e) {
                             e.color = e.originalColor;
                         });
-
                         // Same as in the previous event:
                         s.refresh();
                     });
-
-
-
                 }
         );
     });
 
-    $("#jssdonlist-1").on('change', function() {
-        var url = $("#jsonlist-1 option:selected").attr('url');
-
-        if (!("sigInst1" in window)){
-            // Instanciate sigma.js and customize rendering :
-            sigInst1 = sigma.init(document.getElementById('sigma-1')).drawingProperties({
-                defaultLabelColor: '#000',
-                defaultLabelSize: 14,
-                defaultLabelBGColor: '#fff',
-                defaultLabelHoverColor: '#000',
-                labelThreshold: 6,
-                defaultEdgeType: 'curve'
-            }).graphProperties({
-                        minNodeSize: 0.2,
-                        maxNodeSize: 8,
-                        minEdgeSize: 1,
-                        maxEdgeSize: 5,
-                        sideMargin: 50
-                    }).mouseProperties({
-                        maxRatio: 32
-                    });
-            sigInst1.graph.nodes().forEach(function(n) {
-                n.originalColor = n.color;
-            });
-            sigInst1.graph.edges().forEach(function(e) {
-                e.originalColor = e.color;
-            });
-            sigInst1.bind('clickNode', function(e) {
-                var nodeId = e.data.node.id,
-                        toKeep = s.graph.neighbors(nodeId);
-                toKeep[nodeId] = e.data.node;
-
-                sigInst1.graph.nodes().forEach(function(n) {
-                    if (toKeep[n.id])
-                        n.color = n.originalColor;
-                    else
-                        n.color = '#eee';
-                });
-
-                sigInst1.graph.edges().forEach(function(e) {
-                    if (toKeep[e.source] && toKeep[e.target])
-                        e.color = e.originalColor;
-                    else
-                        e.color = '#eee';
-                });
-                sigInst1.refresh();
-            });
-            sigInst1.bind('clickStage', function(e) {
-                sigInst1.graph.nodes().forEach(function(n) {
-                    n.color = n.originalColor;
-                });
-
-                sigInst1.graph.edges().forEach(function(e) {
-                    e.color = e.originalColor;
-                });
-
-                // Same as in the previous event:
-                sigInst1.refresh();
-            });
-
-            sigInst1.emptyGraph().draw();
-            if(url){
-                $('#json-desc-1').html( $("#tableslist option:selected").val());
-                sigInst1.parseJson(url);
-                sigInst1.draw();
-            } else {
-                $('#json-desc-1').html("No variable selected.");
-            }
-        }
-    });
-
     $("#jsonlist-2").on('change', function() {
         var url = $("#jsonlist-2 option:selected").attr('url');
+        $("#sigma-parent-2").html('<div class="sigma-expand" id="sigma-2"></div>')
+        if(!url){
+            $("#forceatlas1").html('Start atlas');
+            $("#forceatlas1").attr('disabled', true);
+            $("#forceatlas1").removeClass('active');
+            return
+        }
+        sigma.parsers.json(
+                url,
+                {
+                    container: 'sigma-2'
+                },
+                function(s) {
+                    sigmaInst2 = s;
+                    max = s.graph.max(s.graph.edges());
+                    $("#slider-2").slider("option", "max", max);
+                    $("#forceatlas2").removeAttr("disabled");
 
-        if (!("sigInst2" in window)){
-            // Instanciate sigma.js and customize rendering :
-            sigInst2 = sigma.init(document.getElementById('sigma-2')).drawingProperties({
-                defaultLabelColor: '#000',
-                defaultLabelSize: 14,
-                defaultLabelBGColor: '#fff',
-                defaultLabelHoverColor: '#000',
-                labelThreshold: 6,
-                defaultEdgeType: 'curve'
-            }).graphProperties({
-                        minNodeSize: 0.2,
-                        maxNodeSize: 8,
-                        minEdgeSize: 1,
-                        maxEdgeSize: 5,
-                        sideMargin: 50
-                    }).mouseProperties({
-                        maxRatio: 32
+                    s.graph.nodes().forEach(function(n) {
+                        n.originalColor = n.color;
                     });
-        }
-        sigInst2.emptyGraph().draw();
-        if(url){
-            $('#json-desc-2').html( $("#tableslist option:selected").val());
-            sigInst2.parseJson(url);
-            sigInst2.draw();
-        } else {
-            $('#json-desc-2').html("No variable selected.");
-        }
+                    s.graph.edges().forEach(function(e) {
+                        e.originalColor = e.color;
+                    });
+
+                    // When a node is clicked, we check for each node
+                    // if it is a neighbor of the clicked one. If not,
+                    // we set its color as grey, and else, it takes its
+                    // original color.
+                    // We do the same for the edges, and we only keep
+                    // edges that have both extremities colored.
+                    s.bind('clickNode', function(e) {
+                        var nodeId = e.data.node.id,
+                                toKeep = s.graph.neighbors(nodeId);
+                        toKeep[nodeId] = e.data.node;
+
+                        s.graph.nodes().forEach(function(n) {
+                            if (toKeep[n.id])
+                                n.color = n.originalColor;
+                            else
+                                n.color = '#eee';
+                        });
+
+                        s.graph.edges().forEach(function(e) {
+                            var src = toKeep[e.source],
+                                    trg = toKeep[e.target]
+
+                            if (src && trg){
+                                if(trg.cluster == src.cluster) {
+                                    e.color = e.originalColor;
+                                } else if (nodeId == trg.id){
+                                    e.color = src.color
+                                } else if (nodeId != trg.id){
+                                    e.color = trg.color
+                                }
+                            } else {
+                                e.color = '#eee';
+                            }
+                        });
+
+                        // Since the data has been modified, we need to
+                        // call the refresh method to make the colors
+                        // update effective.
+                        s.refresh();
+                    });
+
+                    // When the stage is clicked, we just color each
+                    // node and edge with its original color.
+                    s.bind('clickStage', function(e) {
+                        s.graph.nodes().forEach(function(n) {
+                            n.color = n.originalColor;
+                        });
+
+                        s.graph.edges().forEach(function(e) {
+                            e.color = e.originalColor;
+                        });
+                        // Same as in the previous event:
+                        s.refresh();
+                    });
+                }
+        );
     });
+
     $("#showjson2").click(function(btn){
         if( !$("#showjson2").hasClass('active') ){
             $("#jsondiv-1").removeClass('col-sm-12').addClass('col-sm-6');
@@ -251,10 +266,32 @@ $(document).ready(function() {
             $("#jsondiv-2").addClass('hidden');
             $("#showjson2").html('Compare mode');
         }
-        if ("sigInst1" in window){
-            sigInst1.resize();
+        if ("sigmaInst1" in window){
+            sigmaInst1.renderers[0].resize()
+            sigmaInst1.refresh();
+
         }
-    })
+    });
+
+    $("#forceatlas1").click(function(btn){
+        if( !$("#forceatlas1").hasClass('active') ){
+            sigmaInst1.startForceAtlas2();
+            $("#forceatlas1").html('Stop atlas');
+        } else {
+            sigmaInst1.stopForceAtlas2();
+            $("#forceatlas1").html('Start atlas');
+        }
+    });
+    $("#forceatlas2").click(function(btn){
+        if( !$("#forceatlas2").hasClass('active') ){
+            sigmaInst2.startForceAtlas2();
+            $("#forceatlas2").html('Stop atlas');
+        } else {
+            sigmaInst2.stopForceAtlas2();
+            $("#forceatlas2").html('Start atlas');
+        }
+    });
+
 });
 </script>
 <style type="text/css">
@@ -279,9 +316,7 @@ $(document).ready(function() {
         padding-top: 12px;
     }
 </style>
-{#<div class="row" style="padding-top: 10px;">#}
-{#    #}
-{#</div>#}
+
 
 <div class="row">
     <div class="col-sm-12" id="jsondiv-1">
@@ -308,13 +343,20 @@ $(document).ready(function() {
                 No variable selected.
             </div>
             <div class="panel-heading">
-                <label for="amount-1">Selected threshold:</label>
-                <input type="text" id="amount-1" style="border:0;">
-                <div id="slider-1"></div>
+                <div class="row">
+                    <div class="col-sm-9">
+                        <label for="amount-1">Selected threshold:</label>
+                        <input type="text" id="amount-1" style="border:0;">
+                        <div id="slider-1"></div>
+                    </div>
+                    <div class="col-sm-3">
+                        <button type="button" class="btn btn-primary btn-block" data-toggle="button" id="forceatlas1" disabled>Start atlas</button>
+                    </div>
+                </div>
             </div>
             <div class="panel-body">
-                <div class="span12 sigma-parent" id="sigma-example-parent-1">
-                    <div class="sigma-expand" id="sigma-1"></div>
+                <div class="span12 sigma-parent" id="sigma-parent-1">
+                    {#                    <div class="sigma-expand" id="sigma-1"></div>#}
                 </div>
             </div>
         </div>
@@ -340,12 +382,19 @@ $(document).ready(function() {
                 No variable selected.
             </div>
             <div class="panel-heading">
-                <label for="amount-2">Selected threshold:</label>
-                <input type="text" id="amount-2" style="border:0;">
-                <div id="slider-2"></div>
+                <div class="row">
+                    <div class="col-sm-9">
+                        <label for="amount-2">Selected threshold:</label>
+                        <input type="text" id="amount-2" style="border:0;">
+                        <div id="slider-2"></div>
+                    </div>
+                    <div class="col-sm-3">
+                        <button type="button" class="btn btn-primary btn-block" data-toggle="button" id="forceatlas2" disabled>Start atlas</button>
+                    </div>
+                </div>
             </div>
             <div class="panel-body">
-                <div class="span12 sigma-parent" id="sigma-example-parent-2">
+                <div class="span12 sigma-parent" id="sigma-parent-2">
                     <div class="sigma-expand" id="sigma-2"></div>
                 </div>
             </div>
