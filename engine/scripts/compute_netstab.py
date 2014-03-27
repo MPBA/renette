@@ -188,7 +188,9 @@ class NetStability:
                             sep='\t', quote=False, 
                             **{'col.names': robjects.NA_Logical, 
                                'row.names': True})
-
+                
+                print tmp.rx2('Sd_boot')
+                
                 ## Get hubs and plot stability
                 hname = ru.get_hubs(tmp.rx2('ADJ'), i=i, stab_mat=tmp.rx2('Sd'),
                                     stab_mat_all=tmp.rx2('Sd_boot'),
@@ -212,6 +214,12 @@ class NetStability:
                     )
                     self.results[self.listname[i]]['img_files'] += [plotname]
                     myd = np.array(robjects.r.rowSums(tmp.rx2('ADJ')))
+                    
+                    plotname = ru.plot_edge_distrib(self.res[i].rx2('ADJ'), i=i, filepath=filepath, 
+                                                    prefix='%s_%s_edist' % (self.listname[i], self.param['method']))
+                    self.results[self.listname[i]]['img_files'] += [plotname]
+
+
                     # plotname = ru.plot_degree_stab(Sd, i, myd,filepath=filepath,
                     #                                prefix='%s_%s_dstab' %(self.listname[i], self.met))
                     # self.results[self.listname[i]]['img_files'] += [plotname]

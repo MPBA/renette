@@ -4,7 +4,7 @@
     <script type="application/javascript">
 
         jQuery(document).ready(function(){
-            {% if  runp.celery_task.status != 'SUCCESS' %}
+            {% if  runp.celery_task.status == 'RUNNING' %}
                 setTimeout(function () {
                     window.location.href = "{% url 'network_stability_4' runp.task_id %}"; //will redirect to your blog page (an ex: blog.html)
                 }, 5000);

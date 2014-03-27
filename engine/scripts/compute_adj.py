@@ -238,7 +238,7 @@ class Mat2Adj:
             print 'No objects found in the %s file' % filename
             return False
         except RRuntimeError, e:
-            print 'No oject found in this %s: %s' % (filename, str(e))
+            print 'No object found in this %s: %s' % (filename, str(e))
             return False
 
     # def export_to_json(self, filepath=".", perc=90):

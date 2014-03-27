@@ -54,9 +54,10 @@ class NetworkStabilityStep2Class(View):
                               })
             else:
                 removed_files.append(ret_file)
-
+        
+        
         if len(files) < 1:
-            messages.add_message(self.request, messages.ERROR, 'No valid file...')
+            messages.add_message(self.request, messages.ERROR, 'Your files properties are not valid.')
             return redirect('network_stability')
 
         context = {
@@ -186,6 +187,10 @@ class NetworkInferenceStep2Class(View):
                               })
             else:
                 removed_files.append(ret_file)
+        if len(files) < 1:
+            messages.add_message(self.request, messages.ERROR, 'Your files properties are not valid.')
+            return redirect('network_inference')
+
         context = {
                    'uploaded_files': files,
                    'max_ga': max_ga,
@@ -303,7 +308,7 @@ class NetworkDistanceStep2Class(View):
                 removed_files.append(ret_file)
 
         if len(files) < 1:
-            messages.add_message(self.request, messages.ERROR, 'Your files properties are not .....')
+            messages.add_message(self.request, messages.ERROR, 'Your files properties are not valid.')
             return redirect('network_distance')
         elif not all(x == dim[0] for x in dim):
             messages.add_message(self.request, messages.ERROR, 'Your files dim are not equal')

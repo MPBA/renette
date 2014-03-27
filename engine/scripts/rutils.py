@@ -107,6 +107,7 @@ def export_to_json(reslist, i, filepath='.', perc=10, prefix='graph_', weight=Tr
         thr = np.percentile(tmp[tmp > 0.0], 100-perc)
     except:
         thr = 0.0
+    ## thr = 1e-3
     
     # Create the graph object
     g = gadj(reslist, mode=direct, weighted=weight, diag=False)
@@ -147,7 +148,7 @@ def export_to_json(reslist, i, filepath='.', perc=10, prefix='graph_', weight=Tr
         except:
             mynode = n
         
-        response['nodes'].append({'label': 'Degree = %.3f\nCluster = %d' % (tmpr[n,:].sum(), mm[n]), 
+        response['nodes'].append({'label': 'Node: %s\n Cluster = %d' % (mynode, mm[n]), 
                                   'id': 'n%d' % n,
                                   'size': '%.2f' % tmpr[n,:].sum(), 
                                   'x': gcoorda[n,0],
@@ -219,7 +220,7 @@ def plot_mds (results, i, filepath='.', prefix='mds_'):
     mm = robjects.r.cmdscale(asdist(results),eig=True)
     mmp = mm[0]
     
-    print "MDS %s" % filepath
+    ## print "MDS %s" % filepath
     
     grdevices.png(file=os.path.join(filepath, myfname), width=512, height=512)
     robjects.r.plot(mmp.rx(True,1),mmp.rx(True,2), type="n", col='red',
@@ -247,8 +248,11 @@ def plot_degree_distrib(adj_mat, i, filepath='.', prefix='ddist_'):
     xyplot = lattice.xyplot
     rprint = robjects.globalenv.get("print")
     
-    deg = robjects.r.rowSums(adj_mat)
-    degdens = robjects.r.density(deg)
+    try:
+        deg = robjects.r.rowSums(adj_mat)
+        degdens = robjects.r.density(deg, **{'na.rm':True})
+    except:
+        myfname = ''
     
     myf = robjects.Formula('y ~ x')
     myf.getenvironment()['x'] = degdens.rx2['x']
@@ -349,7 +353,7 @@ def get_hubs (adj_mat, i, quart=90, stab_mat=[], stab_mat_all=[], filepath=".", 
         fw = csv.writer(f, delimiter='\t', lineterminator='\n')
     except IOError, e:
         print '%s' % e
-    
+        
     fw.writerow(['Node Id', 'Node Degree', 'Stability' if stab_mat else None])
 
     for j in ii:
@@ -359,15 +363,17 @@ def get_hubs (adj_mat, i, quart=90, stab_mat=[], stab_mat_all=[], filepath=".", 
     if stab_mat_all:
         ridx = robjects.IntVector(idx[ii] + 1) # NB R indexing starts from 1
         pname = '%s_%d.png' % (prefix, i)
-        bnames = names(stab_mat_all)
-        if not bnames:
+        try:
+            bnames = names(stab_mat_all).rx(ridx)
+        except:
+            ## if not bnames:
             bnames = robjects.StrVector(['Node_%d' % n for n in (idx[ii] + 1)])
 
         ## Plotting hubs stability
         grdevices.png(file=os.path.join(filepath,pname), width=512, height=512)
         boxplot(stab_mat_all.rx(True, ridx), names=bnames, col='grey80')
         points(robjects.IntVector(np.arange(len(ii)) + 1), 
-               robjects.FloatVector(deg[idx[ii]]), pch=19)
+               robjects.FloatVector(deg[idx[ii]]), pch=19, col="red")
         grdevices.dev_off()
         myfname = [myfname, pname]
         

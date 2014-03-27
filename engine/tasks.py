@@ -47,7 +47,7 @@ def netdist(self, files, sep, param):
                             task_id=RunningProcess.objects.get(task_id=self.request.id)
             )
     
-    print result
+    ## print result
     return True
 
 
@@ -115,7 +115,7 @@ def netinf(self, files, sep, param):
                             filetype='Error',
                             task_id=RunningProcess.objects.get(task_id=self.request.id)
             )
-    print result
+    ## print result
     return True
 
 
@@ -233,7 +233,7 @@ def save_to_db(result, pname, pid, result_path_full=settings.MEDIA_ROOT):
             if val[k]:
                 for i in range(len(val[k])):
                     myn = val[k][i]
-                    print myn
+                    ## print myn
                     try:
                         resdb = Results(
                             process_name=pname,
@@ -276,7 +276,7 @@ def save_to_db(result, pname, pid, result_path_full=settings.MEDIA_ROOT):
                             resdb.filestore.save(myn, File(f))
                             f.close()
                         if tp == 'img':
-                            print myn
+                            ## print myn
                             f = open(os.path.join(result_path_full, myn))
                             resdb.imagestore.save(myn, File(f))
                             f.close()

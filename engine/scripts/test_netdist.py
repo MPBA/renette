@@ -8,11 +8,12 @@ import rutils as ru
 if __name__ == '__main__':
 
     #print 'Test adjacency'
-    #myparam = {'method':'ARACNE','row.names': None,'header': True, 'measure': None}
-    #ad = ca.Mat2Adj(['data/microbiome_Acidobacteria_0.0-diet.csv'], seplist=['\t'], param = myparam)
-    #print ad.loadfiles()
-    #print ad.compute()
-    #print ad.get_results(export_json=True, graph_format=False, plot=True)
+    # myparam = {'method':'CLR','row.names': None,'header': True, 'measure': None, 'col.names': True}
+    ## ad = ca.Mat2Adj(['data/microbiome_Acidobacteria_0.0-diet.csv'], seplist=['\t'], param = myparam)
+    # ad = ca.Mat2Adj(['/home/michele/work/HCC_data/data/HUMAN_HCC_MALE_1.dat','/home/michele/work/HCC_data/data/HUMAN_HCC_MALE_1.dat'], seplist=['\t', '\t'], param = myparam)
+    # print ad.loadfiles()
+    # print ad.compute()
+    # print ad.get_results(export_json=True, graph_format=False, plot=True)
     # ad.save_RData()
     # ad.get_results_fromRData()
     # p
@@ -27,11 +28,18 @@ if __name__ == '__main__':
     ## print nd.save_RData()
     
     #
-    ##print 'Test Stability'
-    myparam = {'d': 'HIM', 'rho': None,'sep': '\t','header': True,
-               'adj_method': 'ARACNE','var_thr':0.0 }
-    ##
-    ns = cs.NetStability(['data/microbiome_Acidobacteria_0.0-diet.csv'], ['\t'], param=myparam)
+    print 'Test Stability'
+    myparam = {'d': 'HIM', 'rho': None,
+               'sep': ['\t'],
+               'header': True,
+               'adj_method': 'CLR','var_thr':0.0, 'tol':0.0 }
+    
+    print myparam
+    ###
+    #ns = cs.NetStability(['data/microbiome_Acidobacteria_0.0-diet.csv'], ['\t'], param=myparam)
+    # ns = cs.NetStability(['/home/michele/work/HCC_data/data/HUMAN_HCC_MALE_1.dat','/home/michele/work/HCC_data/data/HUMAN_HCC_MALE_-1.dat', '/home/michele/work/HCC_data/data/HUMAN_HCC_FEMALE_1.dat', '/home/michele/work/HCC_data/data/HUMAN_HCC_FEMALE_-1.dat'],['\t' for i in range(4)],  param=myparam)
+    ns = cs.NetStability(['/home/michele/work/HCC_data/data/HUMAN_HCC_MALE_1.dat'],['\t'],  param=myparam)
+    
     ns.loadfiles()
     ns.compute()
     print ns.get_results(export_json=True, graph_format=False, plot=True)
