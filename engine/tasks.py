@@ -6,7 +6,7 @@ import uuid
 import celery
 import os
 from django.conf import settings
-from engine.scripts import compute_netdist, compute_adj, compute_netstab
+from engine.scripts import compute_netdist, compute_adj, compute_netstab, compute_stats
 from .models import Results, RunningProcess
 from django.core.files import File
 
@@ -218,6 +218,49 @@ def test_netstab(self, files, sep, param):
             val['rdata'] = os.path.join(settings.RESULT_PATH, tmpdir, val['rdata']) if val['rdata'] else None
             result.update({key: val})
     return result
+
+
+@celery.task(bind=True)
+def netstats(self, files, sep, param):
+    nd = compute_stats.NetStats(files, sep, param)
+
+    tmpdir = str(uuid.uuid4())
+    result_path = os.path.join(settings.MEDIA_ROOT, settings.RESULT_PATH)
+    result_path_full = os.path.join(result_path, tmpdir)
+    media_path = os.path.join(settings.RESULT_PATH, tmpdir)
+    
+    if not os.path.exists(result_path_full):
+        os.makedirs(result_path_full)
+
+    self.update_state(state='RUNNING', meta='Load files...')
+    nd.loadfiles()
+
+    self.update_state(state='RUNNING', meta='Compute distance...')
+    nd.compute()
+
+    self.update_state(state='RUNNING', meta='Fetching result...')
+    result = nd.get_results(filepath=result_path_full, )
+    pname = 'Network Statistics'
+    
+    if type(result) is dict:
+        sdb = save_to_db(result, pname=pname, pid=self.request.id, result_path_full=result_path_full)
+        ## sdb = save_to_db(result, pname=pname, pid=self.request.id, result_path_full=result_path_full)
+        
+        print 'Saving to db %s' % 'Success' if sdb else 'Error'
+    else:
+        if type(result) is list:
+            resdb = Results(process_name='Network Statistics',
+                            filepath=result_path_full,
+                            filetype='Error',
+                            task_id=RunningProcess.objects.get(task_id=self.request.id)
+            )
+    
+    ## print result
+    return True
+
+
+
+
 
 
 

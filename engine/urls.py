@@ -4,7 +4,9 @@ from django.contrib import admin
 from .views import (NetworkDistanceClass, NetworkDistanceStep2Class, NetworkDistanceStep3Class, NetworkDistanceStep4Class,
                     download_zip_file,
                     NetworkInferenceClass, NetworkInferenceStep2Class, NetworkInferenceStep3Class, NetworkInferenceStep4Class,
-                    NetworkStabilityClass, NetworkStabilityStep2Class, NetworkStabilityStep3Class, NetworkStabilityStep4Class, ProcessStatus2)
+                    NetworkStabilityClass, NetworkStabilityStep2Class, NetworkStabilityStep3Class, NetworkStabilityStep4Class, 
+                    NetworkStatsClass, NetworkStatsStep2Class, NetworkStatsStep3Class, NetworkStatsStep4Class, 
+                    ProcessStatus2)
 admin.autodiscover()
 
 urlpatterns = patterns('engine.views',
@@ -24,6 +26,24 @@ urlpatterns = patterns('engine.views',
                        url(regex='^network/distance/4/(.+)/$',
                            view=NetworkDistanceStep4Class.as_view(),
                            name='network_distance_4'),
+
+
+                       url(regex='^network/stats/$',
+                           view=NetworkStatsClass.as_view(),
+                           name='network_stats'),
+                       
+                       url(regex='^network/stats/2$',
+                           view=NetworkStatsStep2Class.as_view(),
+                           name='network_stats_2'),
+                       
+                       url(regex='^network/stats/3$',
+                           view=NetworkStatsStep3Class.as_view(),
+                           name='network_stats_3'),
+                       
+                       url(regex='^network/stats/4/(.+)/$',
+                           view=NetworkStatsStep4Class.as_view(),
+                           name='network_stats_4'),
+
 
                        # url(regex='^process/status/(.+)/$',
                        #     view=ProcessStatus.as_view(),

@@ -4,6 +4,7 @@ from rpy2.robjects.packages import importr
 from rpy2.robjects.numpy2ri import numpy2ri
 from rpy2.robjects.vectors import DataFrame
 from random import randrange
+import rpy2.rinterface as ri
 import numpy as np
 import os.path
 import csv
@@ -134,6 +135,7 @@ def export_to_json(reslist, i, filepath='.', perc=10, prefix='graph_', weight=Tr
         mm = igraph.membership(gmm)
     except:
         mm = [0 for j in xrange(tmpr.shape[0])]
+        
     cm = np.empty(len(mm), dtype='S8')
     
     # Assign color to each community

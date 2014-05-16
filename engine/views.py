@@ -13,7 +13,7 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpRespo
 from .utils import document_validator, get_bootsrap_badge, read_csv_results, handle_upload
 from .models import RunningProcess, Results
 from django.contrib import messages
-from engine.tasks import test_netdist, test_netinf, test_netstab, netinf, netstab, netdist
+from engine.tasks import test_netdist, test_netinf, test_netstab, netinf, netstab, netdist, netstats
 from django.conf import settings
 from tojson.decorators import render_to_json
 import djcelery
@@ -25,6 +25,8 @@ from datetime import datetime
 import magic
 
 
+## ClassView computing stability of networks
+##--------------------------------------------------
 class NetworkStabilityClass(View):
     template_name = 'engine/network_stability.html'
 
@@ -157,7 +159,8 @@ class NetworkStabilityStep4Class(View):
         return render(request, self.template_name, context)
 
 
-
+## ClassView computing inference of networks
+##--------------------------------------------------
 class NetworkInferenceClass(View):
     template_name = 'engine/network_inference.html'
 
@@ -276,6 +279,9 @@ class NetworkInferenceStep4Class(View):
 
         return render(request, self.template_name, context)
 
+
+## ClassView computing distance between network
+##--------------------------------------------------
 
 class NetworkDistanceClass(View):
     template_name = 'engine/network_distance.html'
@@ -396,6 +402,164 @@ class NetworkDistanceStep4Class(View):
         }
 
         return render(request, self.template_name, context)
+
+
+
+## ClassView computing statistic on network
+##--------------------------------------------------
+
+
+class NetworkStatsClass(View):
+    template_name = 'engine/network_stats.html'
+
+    def get(self, request, **kwargs):
+        context = {'step2': 'network_stats_2'}
+        return render(request, self.template_name, context)
+
+
+class NetworkStatsStep2Class(View):
+    template_name = 'engine/network_stats_2.html'
+
+    def post(self, request):
+        files = []
+        removed_files = []
+        dim = []
+
+        for filepath in request.POST.getlist('uploaded'):
+            ex_first_row = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
+            ex_first_col = request.POST['exclude_row_header'] if 'exclude_row_header' in request.POST else None
+            valid, ret_file = document_validator(filepath, ex_first_row, ex_first_col)
+            if valid['is_valid'] and valid['is_cubic']:
+                dim.append(valid['nrow'])
+                ## max_ga = valid['nrow']
+                files.append({'name': ret_file.name,
+                              'prop': valid,
+                              'path': filepath
+                              })
+            else:
+                removed_files.append(ret_file)
+
+        if len(files) < 1:
+            messages.add_message(self.request, messages.ERROR, 'Your files properties are not valid.')
+            return redirect('network_stats')
+        elif not all(x == dim[0] for x in dim):
+            messages.add_message(self.request, messages.ERROR, 'Your files dim are not equal')
+            return redirect('network_stats')
+
+        context = {
+                   'uploaded_files': files,
+                   # 'max_ga': max_ga,
+                   'removed_files': removed_files
+                  }
+        return render(request, self.template_name, context)
+
+
+class NetworkStatsStep3Class(View):
+    template_name = 'engine/network_stats_3.html'
+
+    def post(self, request):
+        files = []
+        for file in request.POST.getlist('file'):
+            files.append(os.path.join(settings.MEDIA_ROOT, file))
+
+        components = request.POST.get("components", 'True')
+        sep = request.POST.getlist('sep')
+        param = {
+            # 'd': request.POST.get("distance", "HIM"),
+            # 'ga': float(request.POST.get("ga")) if request.POST.get("ga", False) else None,
+            # 'components': True if components == 'True' else False,
+            # 'rho':  float(request.POST.get("rho")) if request.POST.get("rho", False) else None,
+            'header': True if request.POST.get("col", False) else False,
+            'row.names': 1 if request.POST.get("row", False) else None
+        }
+        try:
+            runp = RunningProcess(
+                process_name='Network stats',
+                inputs=param,
+                submited=datetime.now()
+            )
+            t = netstats.delay(files, sep, param)
+            runp.task_id = t.id
+
+        except Exception, e:
+            messages.add_message(self.request, messages.ERROR, 'Error: %s' % str(e))
+
+        try:
+            runp.save()
+            context = {'files': files, 'task': t, 'uuid': t.id}
+
+            session = self.request.session.get('runp',[])
+            session.append(runp.pk)
+            self.request.session['runp'] = session
+        except DatabaseError, e:
+            t.revoke(terminate=True)
+            messages.add_message(self.request, messages.ERROR, 'Error: %s' % str(e))
+
+        messages.add_message(self.request, messages.SUCCESS, 'Process submitted with success!!!')
+        return render(request, self.template_name, context)
+
+# Process status view from database
+class NetworkStatsStep4Class(View):
+    template_name = 'engine/network_stats_4.html'
+
+    def get(self, request, uuid, **kwargs):
+        
+        task = djcelery.celery.AsyncResult(uuid)
+        
+        try:
+            runp = RunningProcess.objects.get(task_id=uuid)
+        except RunningProcess.DoesNotExist:
+            runp = None
+            messages.add_message(self.request, messages.ERROR, 'Some information not available!')
+
+        
+        print task.status
+        
+        context = {
+            'runp': runp,
+            'tables': runp.results_set.filter(filetype='csv'),
+            'charts': runp.results_set.filter(filetype='img'),
+            'json': runp.results_set.filter(filetype='json'),
+            'graphs': runp.results_set.filter(filetype='graph'),
+            'rdata': runp.results_set.filter(filetype='rdata'),
+            'charts_length': runp.results_set.filter(filetype='img').count(),
+            'task': task,
+            'badge': get_bootsrap_badge(task.status)
+        }
+
+        return render(request, self.template_name, context)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # Process status view from database
