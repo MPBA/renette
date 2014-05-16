@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extrahead %}
+    <script type="application/javascript">
+        jQuery(document).ready(function(){
+            setTimeout(function () {
+                window.location.href = "{% url 'network_stats_4' uuid %}"; //will redirect to your blog page (an ex: blog.html)
+            }, 20000);
+        });
+    </script>
+{% endblock %}
+{% block container %}
+    <div class="row row-offcanvas row-offcanvas-right">
+        <div class="col-md-12 col-md-9">
+            <div class="row">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                <h1>Network Statistics [Step 3/3]</h1>
+                <div class="col-6">
+                    {% if task %}
+                        <h3>Summary</h3>
+                        <div class="bs-callout bs-callout-danger">
+                            <h4>Attention</h4>
+                            The page will automatically redirect in 20 seconds to show status of your pipeline.
+                            If you don't want to wait online, please <strong>copy and keep the following link</strong> to retrieve your result later:
+                            <code>https://renette.fbk.eu{% url 'network_distance_4' uuid %}</code>
+                            <div>
+                                Your results will be available for 7 days!
+                            </div>
+                        </div>
+                        <p>
+                            <a href="{% url 'network_distance_4' uuid %}" role="button" type="button" class="btn btn-info btn-lg btn-block">Go to status page</a>
+                        </p>
+                    {% endif %}
+                </div><!--/span-->
+            </div><!--/row-->
+        </div><!--/span-->
+        {% include "navigation.html" %}
+    </div><!--/row-->
+{% endblock container %}
+
+
+

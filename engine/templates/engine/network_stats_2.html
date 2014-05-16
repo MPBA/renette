@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extrahead %}
+     <script type="text/javascript" src="{% static 'js/jquery.numeric.js' %}"></script>
+     <script type="text/javascript" src="{% static 'js/jquery-ui.js' %}"></script>
+     <script type="text/javascript" src="{% static 'js/validate.js' %}"></script>
+     <script type="text/javascript">
+       jQuery(document).ready(function(){
+
+          $("#id_distance").change(function(){
+       
+            var conceptName = $('#id_distance').find(":selected").val();
+            if (conceptName=='HIM') {
+                $("#id_rho").removeAttr('disabled');
+                $("#id_ga").removeAttr('disabled');
+                $("#id_components").removeAttr('disabled');
+                $("#id_all_rho").show();
+                $("#id_all_ga").show();
+                $("#id_all_components").show();                
+            }
+            if (conceptName=='IM') {
+                $("#id_rho").prop('disabled', true);
+                $("#id_ga").removeAttr('disabled');
+                $("#id_components").prop('disabled', true);
+                $("#id_all_rho").hide();
+                $("#id_all_components").hide();
+                $("#id_all_ga").show();
+            }
+            if (conceptName=='H') {
+                $("#id_rho").prop('disabled', true);
+                $("#id_ga").prop('disabled', true);
+                $("#id_components").prop('disabled', true);
+                $("#id_all_rho").hide();
+                $("#id_all_ga").hide();
+                $("#id_all_components").hide();
+            }
+            if (conceptName=='') {
+                $("#id_rho").prop('disabled', true);
+                $("#id_ga").prop('disabled', true);
+                $("#id_components").prop('disabled', true);
+		}
+          });
+            max_ga = {{ max_ga }}
+            $("#myform").validate();
+            $('#id_ga').rules('add', {
+                required: false,
+                digits: false,
+                max: max_ga
+           });
+        });
+
+    </script>
+{% endblock %}
+{% block container %}
+<div class="row row-offcanvas row-offcanvas-right">
+        <div class="col-md-12 col-md-9">
+
+
+          <div class="row">
+            <h1>Network Statistics [Step 2/3]</h1>
+            <div class="col-6">
+               {% if removed_files %}
+               <h3>Dropped Files</h3>
+
+                <table class="table table-striped table-hover">
+                    <thead>
+                      <tr>
+                        <th>Filename</th>
+                      </tr>
+                    </thead>
+                    {% for f in removed_files %}
+                        <tr><td>{{f}}</td></tr>
+                    {% endfor %}
+                </table>
+                {% else %}
+                    <h3>All selected files uploaded with success</h3>
+                {% endif %}
+              <h3>Uploaded Files</h3>
+                  <table class="table table-striped table-hover">
+                    <thead>
+                      <tr>
+                        <th>Filename</th>
+                        <th>Type</th>
+                        <th># Rows</th>
+                        <th># Cols</th>
+                        <th>Separator</th>
+                      </tr>
+                    </thead>
+                    {% for f in uploaded_files %}
+                        <tr>
+                            <td>{{f.name}}</td>
+                            <td>{{f.prop.mimetype}}</td>
+                            <td>{{f.prop.nrow}}</td>
+                            <td>{{f.prop.ncol}}</td>
+                            <td>
+                                {% if f.prop.separator == '	' %}
+                                    TAB
+                                {% else %}
+                                    {{f.prop.separator}}
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+                </table>
+                <div class="col-md-6">
+                <form method="POST" role="form" class="form-horizontal" id="myform" action="{% url 'network_stats_3' %}">
+                  {% csrf_token %}
+                  <fieldset>
+
+<!--                     <div class="form-group"> -->
+<!--                       <label for="id_distance">Distance</label> -->
+<!--                       <select id="id_distance" class="form-control" name="distance" required> -->
+<!-- {#                        <option value="">--------</option>#} -->
+<!--                         <option value="HIM" selected>HIM</option> -->
+<!--                         <option value="IM">Ipsen Mikhailov</option> -->
+<!--                         <option value="H">Hamming</option> -->
+<!--                       </select> -->
+<!--                     </div> -->
+<!--                     <div class="form-group" id="id_all_rho"> -->
+<!--                       <label for="id_rho">rho</label> -->
+<!--                       <input type="text" class="positive form-control" name="rho" id="id_rho" value="1"> -->
+<!--                     </div> -->
+<!--                     <div class="form-group" id="id_all_ga"> -->
+<!--                       <label for="id_ga">ga</label> -->
+<!--                       <input type="text" class="positive form-control" name="ga" id="id_ga" value=""> -->
+<!--                     </div> -->
+<!--                     <div class="form-group" id="id_all_components"> -->
+<!--                       <label for="id_components">Components</label> -->
+<!--                       <select id="id_components" class="form-control" name="components"> -->
+<!--                         <option value='True'>True</option> -->
+<!--                         <option value='False'>False</option> -->
+<!--                       </select> -->
+<!--                     </div> -->
+                    {% for f in uploaded_files %}
+                    <input type="hidden" name="file" value="{{ f.path }}">
+                    <input type="hidden" name="sep" value="{{ f.prop.separator }}">
+                    {% endfor %}
+                    <input type="hidden" name="col" value="{{ request.POST.exclude_col_header }}">
+                    <input type="hidden" name="row" value="{{ request.POST.exclude_row_header }}">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                  </fieldset>
+                </form>
+                <script type="text/javascript">
+                     $(".numeric").numeric();
+                     $(".integer").numeric(false, function() { alert("Integers only"); this.value = ""; this.focus(); });
+                     $(".positive").numeric({ negative: false }, function() { alert("No negative values"); this.value = ""; this.focus(); });
+                     $(".positive-integer").numeric({ decimal: false, negative: false }, function() { alert("Positive integers only"); this.value = ""; this.focus(); });
+                     $("#remove").click(
+                        function(e)
+                        {
+                            e.preventDefault();
+                            $(".numeric,.integer,.positive").removeNumeric();
+                        }
+                     );
+                </script>
+                </div>
+            </div><!--/span-->
+
+
+          </div><!--/row-->
+        </div><!--/span-->
+        {% include "navigation.html" %}
+      </div><!--/row-->
+{% endblock container %}
+
+
+
