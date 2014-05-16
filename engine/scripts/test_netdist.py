@@ -30,7 +30,9 @@ if __name__ == '__main__':
     
     print 'Test Network Stats'
     myparam = {'d': 'HIM','components': True, 'rho': None,'sep': '\t','row.names': 1, 'header': True}
-    nd = cns.NetStats(filelist=['data/test_data_2.csv'], seplist=['\t'], param=myparam)
+    ## nd = cns.NetStats(filelist=['data/test_data_2.csv'], seplist=['\t'], param=myparam)
+    nd = cns.NetStats(filelist=['/home/michele/work/HCC_data/data/HUMAN_HCC_MALE_1_adj.dat'], seplist=['\t'], param=myparam)    
+
     ## , 'data/test_data_1.csv', 'data/test_data_2.csv', 'data/test_data_3.csv'], seplist=['\t' for i in xrange(4)], param=myparam)
     print nd.loadfiles()
     print nd.compute()

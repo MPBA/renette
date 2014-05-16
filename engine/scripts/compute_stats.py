@@ -3,12 +3,14 @@ import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
 from rpy2.robjects.vectors import DataFrame, ListVector
 import rpy2.rlike.container as rlc
-from rpy2.robjects.numpy2ri import numpy2ri
+import rpy2.robjects.numpy2ri 
+rpy2.robjects.numpy2ri.activate()
 import rpy2.rinterface as ri
 import numpy as np
 import os.path
 import rutils as ru
 import net_stats as ns
+import csv
 
 class NetStats:
     
@@ -119,9 +121,9 @@ class NetStats:
             
         ## Insert here the measure to compute
         try:
+            self.netres = []
             for r in self.mylist:
                 netstat = ns.Net_Stats(r)
-                print r.ncol
                 degres = np.empty((r.ncol,11))
                 ## degres = []
                 # print
@@ -151,6 +153,8 @@ class NetStats:
                 print '10'
                 degres[:,10] = np.array(netstat.evcent_by_community())
                 print '11'
+                self.netres += [[ netstat.modularity().rx(1)[0],netstat.radius().rx(1)[0],netstat.density().rx(1)[0]]]
+                print self.netres
                 # print mm
                 # print degres[0]
                 # print netstat.radius()
@@ -227,10 +231,25 @@ class NetStats:
                 np.savetxt(filename,self.res[i], header='\t'.join(head), delimiter='\t' )
                 self.results[self.listname[i]]['csv_files'] += [myfname]
                 
+                myfname = '%s_%d_net_stats.csv' % (self.listname[i],i)
+                filename = os.path.join(filepath, myfname)
+                try:
+                    f = open(filename, 'wb')
+                    fw = csv.writer(f, delimiter='\t')
+                except IOError, e:
+                    self.e += e
+                fw.writerow(['Modularity', 'Radius', 'Density'])
+                print self.netres[i]
+                fw.writerow([np.float(n) for n in self.netres[i]])
+                f.close()
+                self.results[self.listname[i]]['csv_files'] += [myfname]
+                
                 hname = ru.get_hubs(self.mylist[i], i, 90, 
                                     filepath=filepath, 
                                     prefix='%s_hubs' % self.listname[i])
                 self.results[self.listname[i]]['csv_files'] += [hname]
+                
+                
                 
                 
                 # if self.nfiles > 2:

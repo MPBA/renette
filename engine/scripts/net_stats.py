@@ -66,8 +66,11 @@ class Net_Stats:
             print 'Ciao'
             
         self.mm = mm
-        
+        self.gmm = gmm
         return self.mm
+
+    def modularity(self):
+        return self.igraph.modularity(self.gmm)
 
 
     def degree (self):
@@ -131,7 +134,10 @@ class Net_Stats:
 
     def radius (self):
         return self.igraph.radius(self.g)
-    
+        
+    def density (self):
+        return self.igraph.graph_density(self.g)
+
     def alphac (self, comm=True):
         
         return self.igraph.alpha_centrality(self.g)

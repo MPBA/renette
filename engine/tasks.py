@@ -235,7 +235,7 @@ def netstats(self, files, sep, param):
     self.update_state(state='RUNNING', meta='Load files...')
     nd.loadfiles()
 
-    self.update_state(state='RUNNING', meta='Compute distance...')
+    self.update_state(state='RUNNING', meta='Compute statistics...')
     nd.compute()
 
     self.update_state(state='RUNNING', meta='Fetching result...')
