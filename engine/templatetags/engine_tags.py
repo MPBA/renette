@@ -27,6 +27,8 @@ def match_url (value):
 
     if value == 'Network distance':
         return_value = 'network_distance_4'
+    if value == 'Network stats':
+        return_value = 'network_stats_4'
         
     return return_value
         

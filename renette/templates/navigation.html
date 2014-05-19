@@ -5,6 +5,6 @@
         <a href="{% url 'network_inference' %}" class="list-group-item {% ifequal runp.process_name 'Network inference' %}{% current 'process_status' %}{% endifequal %}  {% current 'network_inference' %} {% current 'network_inference_2' %}{% current 'network_inference_3' %}"><strong>Network Inference</strong></a>
         <a href="{% url 'network_stability' %}" class="list-group-item {% ifequal runp.process_name 'Network stability' %}{% current 'process_status' %}{% endifequal %}  {% current 'network_stability' %} {% current 'network_stability_2' %}{% current 'network_stability_3' %}"><strong>Network Stability</strong></a>
 	<a href="{% url 'network_stats' %}" class="list-group-item {% ifequal runp.process_name 'Network Statistics' %}{% current 'process_status' %}{% endifequal %}  {% current 'network_stats' %} {% current 'network_stats_2' %}{% current 'network_stats_3' %}"><strong>Network Statistics</strong></a>
-        <a href="{% url 'process_list' %}" class="list-group-item {% current 'process_list' %}"><strong>My process list</strong></a>
+        <a href="{% url 'process_list' %}" class="list-group-item"><strong>My process list</strong></a>
     </div>
 </div><!--/span-->

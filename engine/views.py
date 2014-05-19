@@ -664,18 +664,18 @@ def multiuploader(request):
     else: #GET
         messages.add_message(request, messages.ERROR, 'Bad request')
         context = {}
-        return render(request, 'engine/network_distance.html', context)
+    return render(request, 'engine/network_distance.html', context)
 
 
 def process_list(request):
     try:
         session = request.session.get('runp', [])
-
+    
         if len(session):
             runp = RunningProcess.objects.filter(pk__in=session)
         else:
             runp = []
-
+            
         context = {
             'runp': runp
         }
@@ -687,4 +687,5 @@ def process_list(request):
     except Exception, e:
         context = None
         messages.add_message(request, messages.ERROR, 'Sorry, unexpected error occured. Try again.')
-    return render(request, 'engine/my_process_list.html', context)
+        return render(request, 'engine/my_process_list.html', context)
+    

@@ -10,6 +10,7 @@ from .views import (NetworkDistanceClass, NetworkDistanceStep2Class, NetworkDist
 admin.autodiscover()
 
 urlpatterns = patterns('engine.views',
+                       url(r'^process/list/$', 'process_list', name="process_list"),
 
                        url(regex='^network/distance/$',
                            view=NetworkDistanceClass.as_view(),
@@ -92,7 +93,7 @@ urlpatterns = patterns('engine.views',
 
                        url(r'^multiuploader/$', 'multiuploader'),
 
-                       url(r'^process/list/$', 'process_list', name="process_list"),
+                       
                        url(r'^datatables/(?P<pk>\d+)/$', 'datatables', name="datatables"),
 
                        #url(regex='^process/graph/(.+)/(.+)/(\d+)/$',

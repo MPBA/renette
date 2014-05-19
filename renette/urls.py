@@ -44,7 +44,7 @@ urlpatterns = patterns('',
     url(r'^test/celery/$', 'renette.views.test_celery'),
 
     # engine urls
-    (r'^engine/', include('engine.urls')),
+    url(r'^engine/', include('engine.urls')),
 
     # admin area
     url(r'^admin/', include(admin.site.urls)),
