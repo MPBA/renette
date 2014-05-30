@@ -64,12 +64,15 @@ def document_validator(filepath, ex_first_row, ex_first_col):
             # save last row
             temp_list.append(line)
 
+        print ex_first_row
+        if not ex_first_row:
+            print "Ciao"
+            
         # check char in first row and first col
         if not ex_first_row and not float(temp_list[0][-1]):
             raise ValueError
         if not ex_first_col and not float(temp_list[-1][0]):
             raise ValueError
-
         ncol = (len(temp_list[0]) - 1) if ex_first_col else len(temp_list[0])
         nrow = (reader.line_num - 1) if ex_first_col else reader.line_num
 
@@ -80,13 +83,16 @@ def document_validator(filepath, ex_first_row, ex_first_col):
         return_value = {'is_valid': True, 'nrow': nrow, 'ncol': ncol, 'separator': dialect.delimiter,
                         'mimetype': mimetype, 'is_cubic': is_cubic}
     except csv.Error:
+        print "Csv"
         return_value = {'is_valid': False}
         file = None
     except Exception:
         return_value = {'is_valid': False}
+        print "Exc"
         file = None
     except ValueError:
         return_value = {'is_valid': False}
+        print "Value"
         file = file
 
     return return_value, file

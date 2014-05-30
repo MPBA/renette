@@ -11,6 +11,7 @@ import numpy as np
 import os.path
 import csv
 import json
+from rpy2.rinterface._rinterface import RRuntimeError
 # numpy2ri.activate()
 
 class Net_Stats:
@@ -41,6 +42,7 @@ class Net_Stats:
         
         
         # Create the graph object
+        print reslist
         self.g = self.gadj(reslist, mode=direct, weighted=weight, diag=False)
         # self.gp = igraph.Graph.Weighted_Adjacency(tmp.tolist())
         
@@ -56,22 +58,31 @@ class Net_Stats:
         """
         
         # Initialize communities to 0
-        mm = [0 for j in xrange(self.adj.shape[0])]
+        mm = [1 for j in xrange(self.adj.shape[0])]
         
         # Get communities 
         try:
             gmm = self.igraph.spinglass_community(self.g, weights=self.ww)
             mm = self.igraph.membership(gmm)
-        except:
-            print 'Ciao'
-            
+            self.comm = True
+        except UnboundLocalError, e:
+            ## gmm = False
+            self.comm = True
+        except RRuntimeError, e:
+            ## gmm = False
+            self.comm = True
+
         self.mm = mm
-        self.gmm = gmm
+        ## self.gmm = gmm
+        
         return self.mm
-
+        
+        
     def modularity(self):
-        return self.igraph.modularity(self.gmm)
-
+        if self.comm:
+            return self.igraph.modularity(self.g, self.mm)
+        else:
+            return False
 
     def degree (self):
         tmp = self.igraph.graph_strength(self.g)
@@ -80,17 +91,20 @@ class Net_Stats:
         
     def degree_by_community(self):
         # Get node degree by community
-        comdeg = np.empty(len(self.mm))
-        for m in np.unique(self.mm):
-            idxtmp = np.where(self.mm == m)[0]
-            tmps = self.adj[:,idxtmp][idxtmp,:]
-            comdeg[idxtmp] = tmps.sum(axis=1)
+        if self.comm:
+            comdeg = np.empty(len(self.mm))
+            for m in np.unique(self.mm):
+                idxtmp = np.where(self.mm == m)[0]
+                tmps = self.adj[:,idxtmp][idxtmp,:]
+                comdeg[idxtmp] = tmps.sum(axis=1)
             
-        return comdeg
+            return comdeg
+        else:
+            return False
 
     def pgrank(self):
         """
-        Return pagerank by
+        Return pagerank
         """
         tmp = self.igraph.page_rank(self.g)[0]
         
@@ -99,73 +113,103 @@ class Net_Stats:
     
     def pgrank_by_community(self):
         """
-        Get node degree by community
+        Get page rank by community
         """
-        compg = np.empty(self.adj.shape[0])
-        ## rmat = robjects.r['matrix']
-        for m in np.unique(self.mm):
+        if self.comm:
+            compg = np.empty(self.adj.shape[0])
 
-            idxtmp = np.where(self.mm == m)[0]
-            tmps = self.adj[:,idxtmp][idxtmp,:]
-            ## nr, nc = tmps.shape
-            # tmpsr = robjects.FloatVector(tmps)
-            ## print nc, nr
-            ## tmpr = rmat(tmps,nrow=nc, ncol=nr, byrow=True)
-            ## print tmpr
-            gp = self.gadj(tmps,mode="undirected", weighted=True, diag=False)
-            compg[idxtmp] = self.igraph.page_rank(gp)[0]
-            
-        return compg
-    
+            for m in np.unique(self.mm):
+                idxtmp = np.where(self.mm == m)[0]
+                tmps = self.adj[:,idxtmp][idxtmp,:]
+                gp = self.gadj(tmps,mode="undirected", weighted=True, diag=False)
+                compg[idxtmp] = self.igraph.page_rank(gp)[0]
+
+            return compg
+        else:
+            return False
+
     def eccentricity (self):
+        """
+        Return eccentricity
+        """
         return self.igraph.eccentricity(self.g)
 
     def ecc_by_community (self):
-        compg = np.empty(self.adj.shape[0])
-        
-        for m in np.unique(self.mm):
-            idxtmp = np.where(self.mm == m)[0]
-            tmps = self.adj[:,idxtmp][idxtmp,:]
-            gp = self.gadj(tmps,mode="undirected", weighted=True, diag=False)
-            compg[idxtmp] = self.igraph.eccentricity(gp)[0]
-        
-        return compg
-
+        """
+        Return eccentricity for each community in the graph
+        """
+        if self.comm:
+            compg = np.empty(self.adj.shape[0])
+            
+            for m in np.unique(self.mm):
+                idxtmp = np.where(self.mm == m)[0]
+                tmps = self.adj[:,idxtmp][idxtmp,:]
+                gp = self.gadj(tmps,mode="undirected", weighted=True, diag=False)
+                compg[idxtmp] = self.igraph.eccentricity(gp)[0]
+            
+            return compg
+        else:
+            return False
 
     def radius (self):
+        """
+        Compute the radius of the graph
+        """
+        
         return self.igraph.radius(self.g)
         
     def density (self):
+        """
+        Compute the density of the graph
+        """
+        
         return self.igraph.graph_density(self.g)
 
     def alphac (self, comm=True):
+        """
+        Compute the alpha centrality for the given graph
+        """
         
         return self.igraph.alpha_centrality(self.g)
     
     def alphac_by_community (self, comm=True):
-        
-        tmp = np.empty(self.adj.shape[0])
-        for m in np.unique(self.mm):
-            idxtmp = np.where(self.mm == m)[0]
-            tmps = self.adj[:,idxtmp][idxtmp,:]
-            gp = self.gadj(tmps,mode="undirected", weighted=True, diag=False)
-            tmp[idxtmp] = self.igraph.alpha_centrality(gp)
-                
-        return tmp
+        """
+        Compute the alpha centrality for each community
+        """
+
+        if self.comm:
+            tmp = np.empty(self.adj.shape[0])
+            for m in np.unique(self.mm):
+                idxtmp = np.where(self.mm == m)[0]
+                tmps = self.adj[:,idxtmp][idxtmp,:]
+                gp = self.gadj(tmps,mode="undirected", weighted=True, diag=False)
+                tmp[idxtmp] = self.igraph.alpha_centrality(gp)
+            
+            return tmp
+        else:
+            return False
 
     def evcent (self):
-        
+        """
+        Compute the eigenvalue centrality
+        """
         return self.igraph.evcent(self.g)[0]#, weights=self.ww)
     
     def evcent_by_community (self, comm=True):
+        """
+        Compute the eigenvalue centrality for each community
+        """
         
-        tmp = np.empty(self.adj.shape[0])
-        for m in np.unique(self.mm):
-            idxtmp = np.where(self.mm == m)[0]
-            ww = np.empty(len(idxtmp))
-            tmps = self.adj[:,idxtmp][idxtmp,:]
-            gp = self.gadj(tmps,mode="undirected", weighted=True, diag=False)
-            tmp[idxtmp] = self.igraph.evcent(gp)[0]
+        if self.comm:
+            tmp = np.empty(self.adj.shape[0])
+            for m in np.unique(self.mm):
+                idxtmp = np.where(self.mm == m)[0]
+                ww = np.empty(len(idxtmp))
+                tmps = self.adj[:,idxtmp][idxtmp,:]
+                gp = self.gadj(tmps,mode="undirected", weighted=True, diag=False)
+                tmp[idxtmp] = self.igraph.evcent(gp)[0]
                 
-        return tmp
+            return tmp
+        else:
+            return False
             

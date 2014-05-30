@@ -95,7 +95,7 @@ class NetStats:
         if rcount == self.nfiles:
             return True
         else:
-            raise False # IOError('Cannot read all the files')
+            return False # IOError('Cannot read all the files')
             
     def compute(self):
         """
@@ -130,36 +130,18 @@ class NetStats:
                 ## mm = netstat.compute_modularity()
                 ## degres += [np.array(mm)]
                 ## print netstat.pgrank(comm=mm)
-                print 'Degree'
                 degres[:,0] = np.array(netstat.degree())
-                print '1'
                 degres[:,1] = np.array(netstat.compute_modularity())
-                print '2'
                 degres[:,2] = np.array(netstat.degree_by_community())
-                print '3'
                 degres[:,3] = np.array(netstat.pgrank())
-                print '4'
                 degres[:,4] = np.array(netstat.pgrank_by_community())
-                print '5'
                 degres[:,5] = np.array(netstat.eccentricity())
-                print '6'
                 degres[:,6] = np.array(netstat.ecc_by_community())
-                print '7'
                 degres[:,7] = np.array(netstat.alphac())
-                print '8'
                 degres[:,8] = np.array(netstat.alphac_by_community())
-                print '9'
                 degres[:,9] = np.array(netstat.evcent())
-                print '10'
                 degres[:,10] = np.array(netstat.evcent_by_community())
-                print '11'
                 self.netres += [[ netstat.modularity().rx(1)[0],netstat.radius().rx(1)[0],netstat.density().rx(1)[0]]]
-                print self.netres
-                # print mm
-                # print degres[0]
-                # print netstat.radius()
-                # print compute_modularity()
-                # print degree_by_community()
                 self.res += [degres]
             return_value = True
         except ValueError, e:

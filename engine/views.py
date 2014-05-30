@@ -429,6 +429,7 @@ class NetworkStatsStep2Class(View):
             ex_first_row = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
             ex_first_col = request.POST['exclude_row_header'] if 'exclude_row_header' in request.POST else None
             valid, ret_file = document_validator(filepath, ex_first_row, ex_first_col)
+            print valid
             if valid['is_valid'] and valid['is_cubic']:
                 dim.append(valid['nrow'])
                 ## max_ga = valid['nrow']
