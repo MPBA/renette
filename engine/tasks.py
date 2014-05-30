@@ -231,13 +231,15 @@ def netstats(self, files, sep, param):
     
     if not os.path.exists(result_path_full):
         os.makedirs(result_path_full)
-
+    
+    print "Load"
     self.update_state(state='RUNNING', meta='Load files...')
     nd.loadfiles()
-
+    
+    print "Compute"
     self.update_state(state='RUNNING', meta='Compute statistics...')
     nd.compute()
-
+    
     self.update_state(state='RUNNING', meta='Fetching result...')
     result = nd.get_results(filepath=result_path_full, )
     pname = 'Network Statistics'

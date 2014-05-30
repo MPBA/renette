@@ -31,10 +31,7 @@ class NetStats:
         self.listname = []
         self.error = []
         self.res = [] 
-        # self.e = []
-        # self.stat = 'Success'
-        # # self.dflag = False
-        
+  
     def loadfiles(self):
         """
         Load files into R environment
@@ -52,7 +49,6 @@ class NetStats:
             if p in self.param:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
-        
 
         for f, s in zip(self.filelist, self.seplist):
             try:
@@ -86,11 +82,6 @@ class NetStats:
             
             except RRuntimeError, e:
                 self.error += e
-                
-        # if self.e:
-        #     self.e += 'Diagonal has values different from 0. \nSelf loop are not support in the current version.\nAutomatically set to 0 for the network computation in file:'
-        #     self.e.reverse()
-        #     self.stat = 'Warning'
 
         if rcount == self.nfiles:
             return True
@@ -103,33 +94,16 @@ class NetStats:
         package
 
         """
-        
-        ## If one file is passed, then compute the distance with the empty network
-        # if self.nfiles == 1:
-        #     tmp = np.array(self.mylist[0])
-        #     # Create the empty network
-        #     emp = robjects.r.matrix(0,nrow=tmp.shape[0], ncol=tmp.shape[1])
-        #     # Append to the data list
-        #     self.mylist.append(emp)
-            
-        #     # Update the list of 'input' files
-        #     self.filelist += ['empty'] 
-            
-        #     # Check if there are other warnings
-        #     # self.e += ['One file provided: computing distance between %s and empty network' % self.filelist[0]]
-        #     self.stat = 'Warning'
-            
+        names = robjects.r['colnames']
+        self.mynames = []
         ## Insert here the measure to compute
         try:
             self.netres = []
             for r in self.mylist:
                 netstat = ns.Net_Stats(r)
-                degres = np.empty((r.ncol,11))
-                ## degres = []
-                # print
-                ## mm = netstat.compute_modularity()
-                ## degres += [np.array(mm)]
-                ## print netstat.pgrank(comm=mm)
+                nn = np.array(netstat.ret_names())
+                self.mynames.append(nn)
+                degres = np.empty((robjects.r.length(nn)[0],11))
                 degres[:,0] = np.array(netstat.degree())
                 degres[:,1] = np.array(netstat.compute_modularity())
                 degres[:,2] = np.array(netstat.degree_by_community())
@@ -143,10 +117,13 @@ class NetStats:
                 degres[:,10] = np.array(netstat.evcent_by_community())
                 self.netres += [[ netstat.modularity().rx(1)[0],netstat.radius().rx(1)[0],netstat.density().rx(1)[0]]]
                 self.res += [degres]
+
             return_value = True
         except ValueError, e:
             return_value = False
             self.error += e
+            print 'merda: %s' %e
+                    
             ## print 'Error in computing network distance: %s' % str(e)
             
         self.computed = return_value
@@ -205,12 +182,20 @@ class NetStats:
                 
                 myfname = '%s_%d_node_stats.csv' % (self.listname[i],i)
                 filename = os.path.join(filepath, myfname)
-                head = ['Degree', 'Communities', 'Degree_by_community',
+                head = ['Node', 'Degree', 'Communities', 'Degree_by_community',
                         'PageRank', 'PageRank_by_Community', 
                         'Eccentricity', 'Eccentricity_by_community', 
                         'AlphaCentr', 'AlphaCentr_by_community',
                         'EigenCentrality', 'EigenCentrality_by_community']
-                np.savetxt(filename,self.res[i], header='\t'.join(head), delimiter='\t' )
+                
+                with open(filename, 'wb') as ff:
+                    fw = csv.writer(ff, delimiter='\t', lineterminator='\n')
+                    fw.writerow(head)
+                    for l in zip(self.mynames[i], self.res[i]):
+                        tmpl = [l[0]]
+                        tmpl.extend(l[1])
+                        fw.writerow(tmpl)
+                
                 self.results[self.listname[i]]['csv_files'] += [myfname]
                 
                 myfname = '%s_%d_net_stats.csv' % (self.listname[i],i)
@@ -221,7 +206,7 @@ class NetStats:
                 except IOError, e:
                     self.e += e
                 fw.writerow(['Modularity', 'Radius', 'Density'])
-                print self.netres[i]
+
                 fw.writerow([np.float(n) for n in self.netres[i]])
                 f.close()
                 self.results[self.listname[i]]['csv_files'] += [myfname]

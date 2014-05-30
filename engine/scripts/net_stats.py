@@ -20,8 +20,32 @@ class Net_Stats:
         """
         Initialize the statistic class of python
         """
+        # Import R functions
+        names = robjects.r['colnames']
+        nn = names(reslist)
+        rlist = robjects.r['list']
+        
+        # Create numpy array from R matrix
         self.adj = np.array(reslist)
         
+        # Select only variables with a variance != 0
+        adjvar = self.adj.var(axis=0)
+        idx = 1 - np.isclose(adjvar,0)
+        idx = idx.astype('bool')
+        self.adj = self.adj[:,idx][idx,:]
+        self.nn = nn.rx(np.where(idx)[0] + 1)
+        
+        # Set matrix names
+        colnames = ri.StrSexpVector(self.nn)
+        rownames = ri.StrSexpVector(self.nn)
+        adj = robjects.r.matrix(self.adj, nrow=self.adj.shape[0])
+        adj.do_slot_assign("dimnames", rlist(
+            ri.StrSexpVector(colnames),
+            ri.StrSexpVector(rownames)
+        ))
+
+        # Import igraph package from R
+        # NB think on using python igraph package
         self.igraph = importr('igraph')
         self.gadj = self.igraph.graph_adjacency
         direct = 'directed'
@@ -39,19 +63,22 @@ class Net_Stats:
             thr = np.percentile(tmp[tmp > 0.0], 100-perc)
         except:
             thr = 0.0
-        
-        
+                
         # Create the graph object
-        print reslist
-        self.g = self.gadj(reslist, mode=direct, weighted=weight, diag=False)
-        # self.gp = igraph.Graph.Weighted_Adjacency(tmp.tolist())
-        
+        self.g = self.gadj(adj, mode=direct, weighted=weight, diag=False )
+                
         # Check for weights attribute
         self.ww = ri.NULL
         if weight:
             self.ww = self.igraph.get_edge_attribute(self.g, "weight")
         
     
+    def ret_names (self):
+        """
+        Return names of the matrix after cutting out variables with zero variance
+        """
+        return self.nn
+        
     def compute_modularity(self, mod_meth = 'spinglass'):
         """
         Compute network modularity
@@ -66,15 +93,12 @@ class Net_Stats:
             mm = self.igraph.membership(gmm)
             self.comm = True
         except UnboundLocalError, e:
-            ## gmm = False
             self.comm = True
         except RRuntimeError, e:
-            ## gmm = False
             self.comm = True
 
         self.mm = mm
-        ## self.gmm = gmm
-        
+                
         return self.mm
         
         
