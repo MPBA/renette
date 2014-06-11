@@ -30,8 +30,9 @@ class NetStats:
         ## Warning message: diagonal not 0
         self.listname = []
         self.error = []
-        self.res = [] 
-  
+        self.e = []
+        self.res = []
+
     def loadfiles(self):
         """
         Load files into R environment

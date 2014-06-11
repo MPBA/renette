@@ -27,7 +27,7 @@ class NetDist:
         ## Warning message: diagonal not 0
         self.listname = []
         self.error = []
-        # self.e = []
+        self.e = []
         # self.stat = 'Success'
         # # self.dflag = False
         

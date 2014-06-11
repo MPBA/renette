@@ -172,6 +172,7 @@ def export_to_json(reslist, i, filepath='.', perc=10, prefix='graph_', weight=Tr
                                           'source':  'n%d' % n,
                                           'target':  'n%d' % j,
                                           'weights': tmp[n, j]})
+    print response
     
     # Write json file for sigmajs
     try:
