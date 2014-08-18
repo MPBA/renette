@@ -28,7 +28,6 @@ urlpatterns = patterns('engine.views',
                            view=NetworkDistanceStep4Class.as_view(),
                            name='network_distance_4'),
 
-
                        url(regex='^network/stats/$',
                            view=NetworkStatsClass.as_view(),
                            name='network_stats'),

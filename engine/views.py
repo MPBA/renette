@@ -126,7 +126,7 @@ class NetworkStabilityStep3Class(View):
             messages.add_message(self.request, messages.ERROR, 'Error: %s' % str(e))
 
         messages.add_message(self.request, messages.SUCCESS, 'Process submitted with success!!!')
-        return render(request, self.template_name, context)
+        return render(request, self.template_name,  context)
 
 
 class NetworkStabilityStep4Class(View):

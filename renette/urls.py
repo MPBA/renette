@@ -43,7 +43,7 @@ urlpatterns = patterns('',
     url(r'^test/rabbitmq/$', 'renette.views.test_rabbitmq'),
     url(r'^test/celery/$', 'renette.views.test_celery'),
 
-                       # engine urls
+    # engine urls
     url(r'^engine/', include('engine.urls')),
 
     # admin area
