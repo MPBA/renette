@@ -59,8 +59,8 @@ WSGI_APPLICATION = 'renette.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
-
-DATABASES = {settings.RESULT_PATH
+# settings.RESULT_PATH,
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
