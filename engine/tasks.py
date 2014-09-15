@@ -11,7 +11,6 @@ from .models import Results, RunningProcess
 from django.core.files import File
 
 
-
 @celery.task(bind=True)
 def netdist(self, files, sep, param):
     nd = compute_netdist.NetDist(files, sep, param)
