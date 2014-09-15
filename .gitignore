@@ -10,7 +10,9 @@ renette/settings/local_settings.py
 renette/*.bk
 engine/scripts/data/data_phenotype/
 .*
-*.sqlite3
+*.sqlite3*
 *.rdb
 ../renette/lib*
 celerybeat-schedule
+*.json
+*.tsv

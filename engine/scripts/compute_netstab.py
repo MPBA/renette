@@ -216,7 +216,7 @@ class NetStability:
                     myd = np.array(robjects.r.rowSums(tmp.rx2('ADJ')))
                     
                     plotname = ru.plot_edge_distrib(self.res[i].rx2('ADJ'), i=i, filepath=filepath, 
-                                                    prefix='%s_%s_edist' % (self.listname[i], self.param['method']))
+                                                    prefix='%s_%s_edist' % (self.listname[i], self.met))
                     self.results[self.listname[i]]['img_files'] += [plotname]
 
 

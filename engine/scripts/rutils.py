@@ -258,8 +258,8 @@ def plot_degree_distrib(adj_mat, i, filepath='.', prefix='ddist_'):
         myfname = ''
     
     myf = robjects.Formula('y ~ x')
-    myf.getenvironment()['x'] = degdens.rx2['x']
-    myf.getenvironment()['y'] = degdens.rx2['y']
+    myf.getenvironment()['x'] = degdens.rx2('x')
+    myf.getenvironment()['y'] = degdens.rx2('y')
     p = xyplot(myf, type='l', lwd=3, 
                xlab='Node Degree', ylab='Density',
                main='Node degree distribution')

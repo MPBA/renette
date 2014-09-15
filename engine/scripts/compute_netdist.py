@@ -3,7 +3,6 @@ import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
 from rpy2.robjects.vectors import DataFrame, ListVector
 import rpy2.rlike.container as rlc
-from rpy2.robjects.numpy2ri import numpy2ri
 import rpy2.rinterface as ri
 import numpy as np
 import os.path
@@ -48,7 +47,6 @@ class NetDist:
             if p in self.param:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
-        
 
         for f, s in zip(self.filelist, self.seplist):
             try:
@@ -65,7 +63,7 @@ class NetDist:
                 # Do it for all the inputs, just to be sure
                 zcount = 0
                 for i in xrange(dataf.ncol):
-                    if (dataf.rx[i+1,i+1][0] - 0.0 >= 1e-8):
+                    if (dataf.rx(i+1,i+1)[0] - 0.0 >= 1e-8):
                         zcount += 1
                         dataf.rx[i+1,i+1] = 0
 

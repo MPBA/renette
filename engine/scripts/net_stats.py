@@ -1,21 +1,13 @@
-from itertools import combinations
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
-## from rpy2.robjects.numpy2ri import numpy2ri
-import rpy2.robjects.numpy2ri
-rpy2.robjects.numpy2ri.activate()
-from rpy2.robjects.vectors import DataFrame
-from random import randrange
+from rpy2.robjects.numpy2ri import numpy2ri
 import rpy2.rinterface as ri
 import numpy as np
-import os.path
-import csv
-import json
 from rpy2.rinterface._rinterface import RRuntimeError
-# numpy2ri.activate()
+robjects.conversion.py2ri = numpy2ri
 
 class Net_Stats:
-    
+
     def __init__ (self, reslist, weight=True):
         """
         Initialize the statistic class of python
@@ -24,16 +16,16 @@ class Net_Stats:
         names = robjects.r['colnames']
         nn = names(reslist)
         rlist = robjects.r['list']
-        
         # Create numpy array from R matrix
         self.adj = np.array(reslist)
-        
+
         # Select only variables with a variance != 0
         adjvar = self.adj.var(axis=0)
         idx = 1 - np.isclose(adjvar,0)
         idx = idx.astype('bool')
         self.adj = self.adj[:,idx][idx,:]
-        self.nn = nn.rx(np.where(idx)[0] + 1)
+        idxtmp = np.where(idx)[0] + 1
+        self.nn = nn.rx(idxtmp)
         
         # Set matrix names
         colnames = ri.StrSexpVector(self.nn)
@@ -49,7 +41,6 @@ class Net_Stats:
         self.igraph = importr('igraph')
         self.gadj = self.igraph.graph_adjacency
         direct = 'directed'
-        
         # Check if the matrix is symmetric
         ck = (np.triu(self.adj).transpose() - np.tril(self.adj))
         if not ck.all():
@@ -59,11 +50,12 @@ class Net_Stats:
             tmp = self.adj
         
         # Apply thresholding
+        perc = 0.0
         try:
             thr = np.percentile(tmp[tmp > 0.0], 100-perc)
         except:
             thr = 0.0
-                
+
         # Create the graph object
         self.g = self.gadj(adj, mode=direct, weighted=weight, diag=False )
                 
@@ -86,8 +78,7 @@ class Net_Stats:
         
         # Initialize communities to 0
         mm = [1 for j in xrange(self.adj.shape[0])]
-        
-        # Get communities 
+        # Get communities
         try:
             gmm = self.igraph.spinglass_community(self.g, weights=self.ww)
             mm = self.igraph.membership(gmm)

@@ -1,16 +1,14 @@
 from rpy2.rinterface._rinterface import RRuntimeError
 import rpy2.robjects as robjects
-from rpy2.robjects.packages import importr
-from rpy2.robjects.vectors import DataFrame, ListVector
+from rpy2.robjects.vectors import DataFrame
 import rpy2.rlike.container as rlc
-import rpy2.robjects.numpy2ri 
-rpy2.robjects.numpy2ri.activate()
+import os.path
+import net_stats as ns
+import csv
 import rpy2.rinterface as ri
 import numpy as np
 import os.path
 import rutils as ru
-import net_stats as ns
-import csv
 
 class NetStats:
     
@@ -43,14 +41,12 @@ class NetStats:
         names = robjects.r['names']
         
         ## Set the default parameter for reading from csv
-        param = {'header': True, 'as_is': True, 'row.names': ri.NULL}
-        
-        ## Check the correct parameter and set the default        
+        param = {'header': True, 'as_is': True, 'row.names': ri.RNULLArg}
+        ## Check the correct parameter and set the default
         for p in param.keys():
             if p in self.param:
                 if self.param[p] is not None:
                     param[p] = self.param[p]
-
         for f, s in zip(self.filelist, self.seplist):
             try:
                 dataf = DataFrame.from_csvfile(f,
@@ -60,13 +56,12 @@ class NetStats:
                                                row_names=param['row.names'])
 
                 dataf = asmatrix(dataf)
-                
-              
+
                 # Should be the diagonal set to 0?
                 # Do it for all the inputs, just to be sure
                 zcount = 0
                 for i in xrange(dataf.ncol):
-                    if (dataf.rx[i+1,i+1][0] - 0.0 >= 1e-8):
+                    if (dataf.rx(i+1,i+1)[0] - 0.0 >= 1e-8):
                         zcount += 1
                         dataf.rx[i+1,i+1] = 0
 
@@ -123,10 +118,8 @@ class NetStats:
         except ValueError, e:
             return_value = False
             self.error += e
-            print 'merda: %s' %e
-                    
-            ## print 'Error in computing network distance: %s' % str(e)
-            
+            print 'merda: %s' % e
+
         self.computed = return_value
         return return_value
     

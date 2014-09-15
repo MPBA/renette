@@ -15,7 +15,7 @@ from django.core.files import File
 @celery.task(bind=True)
 def netdist(self, files, sep, param):
     nd = compute_netdist.NetDist(files, sep, param)
-
+    
     tmpdir = str(uuid.uuid4())
     result_path = os.path.join(settings.MEDIA_ROOT, settings.RESULT_PATH)
     result_path_full = os.path.join(result_path, tmpdir)
