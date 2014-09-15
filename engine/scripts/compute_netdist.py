@@ -1,9 +1,7 @@
 from rpy2.rinterface._rinterface import RRuntimeError
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
-from rpy2.robjects.vectors import DataFrame, ListVector
 import rpy2.rlike.container as rlc
-from rpy2.robjects.numpy2ri import numpy2ri
 import rpy2.rinterface as ri
 import numpy as np
 import os.path
@@ -254,5 +252,3 @@ class NetDist:
         except RRuntimeError, e:
             print 'No results found: %s' % str(e)
             return False
-
-

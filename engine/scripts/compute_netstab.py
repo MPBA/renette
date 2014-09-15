@@ -2,7 +2,6 @@ import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
 from rpy2.robjects.vectors import DataFrame
 import rpy2.rlike.container as rlc
-from rpy2.robjects.numpy2ri import numpy2ri
 import rpy2.rinterface as ri
 import numpy as np
 import os.path

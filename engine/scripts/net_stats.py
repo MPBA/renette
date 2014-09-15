@@ -4,15 +4,9 @@ from rpy2.robjects.packages import importr
 ## from rpy2.robjects.numpy2ri import numpy2ri
 import rpy2.robjects.numpy2ri
 rpy2.robjects.numpy2ri.activate()
-from rpy2.robjects.vectors import DataFrame
-from random import randrange
 import rpy2.rinterface as ri
 import numpy as np
-import os.path
-import csv
-import json
 from rpy2.rinterface._rinterface import RRuntimeError
-# numpy2ri.activate()
 
 class Net_Stats:
     
@@ -100,8 +94,7 @@ class Net_Stats:
         self.mm = mm
                 
         return self.mm
-        
-        
+
     def modularity(self):
         if self.comm:
             return self.igraph.modularity(self.g, self.mm)
@@ -112,7 +105,6 @@ class Net_Stats:
         tmp = self.igraph.graph_strength(self.g)
         return tmp
 
-        
     def degree_by_community(self):
         # Get node degree by community
         if self.comm:
@@ -236,4 +228,3 @@ class Net_Stats:
             return tmp
         else:
             return False
-            

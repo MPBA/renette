@@ -1,7 +1,5 @@
 from rpy2.rinterface._rinterface import RRuntimeError
 import rpy2.robjects as robjects
-from rpy2.robjects.packages import importr
-from rpy2.robjects.vectors import DataFrame, ListVector
 import rpy2.rlike.container as rlc
 import rpy2.robjects.numpy2ri 
 rpy2.robjects.numpy2ri.activate()
@@ -281,5 +279,3 @@ class NetStats:
         except RRuntimeError, e:
             print 'No results found: %s' % str(e)
             return False
-
-
