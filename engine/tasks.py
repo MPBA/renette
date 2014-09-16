@@ -11,16 +11,15 @@ from .models import Results, RunningProcess
 from django.core.files import File
 
 
-
 @celery.task(bind=True)
 def netdist(self, files, sep, param):
     nd = compute_netdist.NetDist(files, sep, param)
-    
+
     tmpdir = str(uuid.uuid4())
     result_path = os.path.join(settings.MEDIA_ROOT, settings.RESULT_PATH)
     result_path_full = os.path.join(result_path, tmpdir)
     media_path = os.path.join(settings.RESULT_PATH, tmpdir)
-    
+
     if not os.path.exists(result_path_full):
         os.makedirs(result_path_full)
 
@@ -33,21 +32,21 @@ def netdist(self, files, sep, param):
     self.update_state(state='RUNNING', meta='Fetching result...')
     result = nd.get_results(filepath=result_path_full, )
     pname = 'Network Distance'
-    
+
     if type(result) is dict:
+        self.update_state(state='RUNNING', meta='Saving to db...')
         sdb = save_to_db(result, pname=pname, pid=self.request.id, result_path_full=result_path_full)
-        ## sdb = save_to_db(result, pname=pname, pid=self.request.id, result_path_full=result_path_full)
-        
-        print 'Saving to db %s' % 'Success' if sdb else 'Error'
-    else:
-        if type(result) is list:
-            resdb = Results(process_name='Network Distance',
-                            filepath=result_path_full,
-                            filetype='Error',
-                            task_id=RunningProcess.objects.get(task_id=self.request.id)
-            )
-    
-    ## print result
+        # # sdb = save_to_db(result, pname=pname, pid=self.request.id, result_path_full=result_path_full)
+        if sdb:
+            self.update_state(state='RUNNING', meta='Correctly saved to db')
+        else:
+            self.update_state(state='RUNNING', meta='Saving error')
+    elif type(result) is list:
+        resdb = Results(process_name='Network Distance',
+                        filepath=result_path_full,
+                        filetype='Error',
+                        task_id=RunningProcess.objects.get(task_id=self.request.id)
+        )
     return True
 
 
@@ -83,39 +82,39 @@ def test_netdist(self, files, sep, param):
 
 @celery.task(bind=True)
 def netinf(self, files, sep, param):
-    
     ad = compute_adj.Mat2Adj(files, sep, param)
-    
+
     tmpdir = str(uuid.uuid4())
     result_path = os.path.join(settings.MEDIA_ROOT, settings.RESULT_PATH)
     result_path_full = os.path.join(result_path, tmpdir)
     media_path = os.path.join(settings.RESULT_PATH, tmpdir)
-    
-    
+
     if not os.path.exists(result_path_full):
         os.makedirs(result_path_full)
-        
+
     self.update_state(state='RUNNING', meta='Load files...')
     ad.loadfiles()
-    
+
     self.update_state(state='RUNNING', meta='Compute inference...')
     ad.compute()
-    
+
     self.update_state(state='RUNNING', meta='Fetching result...')
     result = ad.get_results(filepath=result_path_full, )
     pname = 'Network Inference'
-    
+
     if type(result) is dict:
+        self.update_state(state='RUNNING', meta='Saving to db...')
         sdb = save_to_db(result, pname=pname, pid=self.request.id, result_path_full=result_path_full)
-        print 'Saving to db %s' % 'Success' if sdb else 'Error'
-    else:
-        if type(result) is list:
-            resdb = Results(process_name='Network Inference',
-                            filepath=result_path_full,
-                            filetype='Error',
-                            task_id=RunningProcess.objects.get(task_id=self.request.id)
-            )
-    ## print result
+        if sdb:
+            self.update_state(state='RUNNING', meta='Correctly saved to db')
+        else:
+            self.update_state(state='RUNNING', meta='Saving error')
+    elif type(result) is list:
+        resdb = Results(process_name='Network Inference',
+                        filepath=result_path_full,
+                        filetype='Error',
+                        task_id=RunningProcess.objects.get(task_id=self.request.id)
+        )
     return True
 
 
@@ -150,10 +149,11 @@ def test_netinf(self, files, sep, param):
             result.update({key: val})
     return result
 
+
 @celery.task(bind=True)
 def netstab(self, files, sep, param):
     ad = compute_netstab.NetStability(files, sep, param)
-    
+
     tmpdir = str(uuid.uuid4())
     result_path = os.path.join(settings.MEDIA_ROOT, settings.RESULT_PATH)
     result_path_full = os.path.join(result_path, tmpdir)
@@ -170,22 +170,21 @@ def netstab(self, files, sep, param):
     self.update_state(state='RUNNING', meta='Fetching result...')
     result = ad.get_results(filepath=result_path_full, )
     pname = 'Network Stability'
-    
+
     if type(result) is dict:
-
+        self.update_state(state='RUNNING', meta='Saving to db...')
         sdb = save_to_db(result, pname=pname, pid=self.request.id, result_path_full=result_path_full)
-        print 'Saving to db %s' % 'Success' if sdb else 'Error'
-    else:
-        if type(result) is list:
-            resdb = Results(process_name='Network Stability',
-                            filepath=result_path_full,
-                            filetype='Error',
-                            task_id=RunningProcess.objects.get(task_id=self.request.id)
-            )
-            
+        if sdb:
+            self.update_state(state='RUNNING', meta='Correctly saved to db')
+        else:
+            self.update_state(state='RUNNING', meta='Saving error')
+    elif type(result) is list:
+        resdb = Results(process_name='Network Stability',
+                        filepath=result_path_full,
+                        filetype='Error',
+                        task_id=RunningProcess.objects.get(task_id=self.request.id)
+        )
     return True
-
-
 
 
 @celery.task(bind=True)
@@ -228,28 +227,27 @@ def netstats(self, files, sep, param):
     result_path = os.path.join(settings.MEDIA_ROOT, settings.RESULT_PATH)
     result_path_full = os.path.join(result_path, tmpdir)
     media_path = os.path.join(settings.RESULT_PATH, tmpdir)
-    
+
     if not os.path.exists(result_path_full):
         os.makedirs(result_path_full)
-    
+
     print "Load"
     self.update_state(state='RUNNING', meta='Load files...')
     nd.loadfiles()
-    
+
     print "Compute"
     self.update_state(state='RUNNING', meta='Compute statistics...')
     nd.compute()
-    
+
     self.update_state(state='RUNNING', meta='Fetching result...')
     result = nd.get_results(filepath=result_path_full, )
     pname = 'Network Statistics'
-    
+
     if type(result) is dict:
-        self.update_state(state='RUNNING', meta='Saving to db1')
+        self.update_state(state='RUNNING', meta='Saving to db')
         sdb = save_to_db(result, pname=pname, pid=self.request.id, result_path_full=result_path_full)
-        ## sdb = save_to_db(result, pname=pname, pid=self.request.id, result_path_full=result_path_full)
         if sdb:
-            self.update_state(state='RUNNING', meta='Saving to db2')
+            self.update_state(state='RUNNING', meta='Correctly saved to db')
         else:
             self.update_state(state='RUNNING', meta='Saving error')
     elif type(result) is list:
@@ -258,15 +256,12 @@ def netstats(self, files, sep, param):
                         filetype='Error',
                         task_id=RunningProcess.objects.get(task_id=self.request.id)
         )
-
-    ## print result
     return True
 
 
 def save_to_db(result, pname, pid, result_path_full=settings.MEDIA_ROOT):
-    
     """
-    Save to Results db
+    Save Results to the db
     """
     for key in result.keys():
         val = result.get(key)
@@ -275,7 +270,7 @@ def save_to_db(result, pname, pid, result_path_full=settings.MEDIA_ROOT):
             if val[k]:
                 for i in range(len(val[k])):
                     myn = val[k][i]
-                    ## print myn
+                    # # print myn
                     try:
                         resdb = Results(
                             process_name=pname,
@@ -284,19 +279,20 @@ def save_to_db(result, pname, pid, result_path_full=settings.MEDIA_ROOT):
                             filename=myn,
                             task_id=RunningProcess.objects.get(task_id=pid)
                         )
-                        
+
                         if tp == 'csv':
                             mydesc = 'This is a csv file format. Each field is separated by a "tab" character'
                         if tp == 'json':
                             mydesc = 'This is a json file format. This is automatically created for visualization porpose. In particular it is used by the sigma js pluging. Community detection has been performed with "spinglass algorithm" and nodes are placed according to the Fructherman Reingold algorithm'
                         if tp == 'graph':
-                            mydesc = 'This is a graph file format (%s). It can be imported by the most popular graph visualization softwares.' % myn.split('.')[-1]
+                            mydesc = 'This is a graph file format (%s). It can be imported by the most popular graph visualization softwares.' % \
+                                     myn.split('.')[-1]
                         if tp == 'img':
                             mydesc = 'This is an image file format produced using R.'
-                            
+
                         # Store description in the DB
                         resdb.desc = mydesc
-                        
+
                         # Store files in the DB
                         if tp == 'csv':
                             f = open(os.path.join(result_path_full, myn))
@@ -306,7 +302,7 @@ def save_to_db(result, pname, pid, result_path_full=settings.MEDIA_ROOT):
                             reader = csv.reader(f, delimiter='\t')
                             idx = 0
                             for line in iter(reader):
-                                if(idx==0):
+                                if (idx == 0):
                                     resdb.filefirstrow = line
                                 idx += 1
 
