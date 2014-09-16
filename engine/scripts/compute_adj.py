@@ -54,6 +54,7 @@ class Mat2Adj:
         # Read all the files in the R-environment
         for f, s in zip(self.filelist, self.seplist):
             try:
+                print f
                 tmpdata = DataFrame.from_csvfile(f,
                                                  sep=str(s),
                                                  header=param['header'],
