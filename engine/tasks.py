@@ -245,25 +245,22 @@ def netstats(self, files, sep, param):
     pname = 'Network Statistics'
     
     if type(result) is dict:
+        self.update_state(state='RUNNING', meta='Saving to db1')
         sdb = save_to_db(result, pname=pname, pid=self.request.id, result_path_full=result_path_full)
         ## sdb = save_to_db(result, pname=pname, pid=self.request.id, result_path_full=result_path_full)
-        
-        print 'Saving to db %s' % 'Success' if sdb else 'Error'
-    else:
-        if type(result) is list:
-            resdb = Results(process_name='Network Statistics',
-                            filepath=result_path_full,
-                            filetype='Error',
-                            task_id=RunningProcess.objects.get(task_id=self.request.id)
-            )
-    
+        if sdb:
+            self.update_state(state='RUNNING', meta='Saving to db2')
+        else:
+            self.update_state(state='RUNNING', meta='Saving error')
+    elif type(result) is list:
+        resdb = Results(process_name='Network Statistics',
+                        filepath=result_path_full,
+                        filetype='Error',
+                        task_id=RunningProcess.objects.get(task_id=self.request.id)
+        )
+
     ## print result
     return True
-
-
-
-
-
 
 
 def save_to_db(result, pname, pid, result_path_full=settings.MEDIA_ROOT):
@@ -285,7 +282,7 @@ def save_to_db(result, pname, pid, result_path_full=settings.MEDIA_ROOT):
                             filepath=result_path_full,
                             filetype=tp,
                             filename=myn,
-                            task_id = RunningProcess.objects.get(task_id=pid)
+                            task_id=RunningProcess.objects.get(task_id=pid)
                         )
                         
                         if tp == 'csv':
