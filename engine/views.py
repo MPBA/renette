@@ -4,16 +4,15 @@ from redis import ConnectionError
 __author__ = 'ernesto'
 #This file contains only the views for the main app. It's made just to render an home page for the project
 
-from django.views.generic import TemplateView
 from django.views.generic.base import View
-from django.shortcuts import redirect, render, render_to_response
+from django.shortcuts import redirect, render
 from django.core.files.uploadedfile import UploadedFile
 from django.db import DatabaseError
-from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseServerError, HttpResponseRedirect
-from .utils import document_validator, get_bootsrap_badge, read_csv_results, handle_upload
+from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from .utils import document_validator, get_bootsrap_badge,  handle_upload
 from .models import RunningProcess, Results
 from django.contrib import messages
-from engine.tasks import test_netdist, test_netinf, test_netstab, netinf, netstab, netdist, netstats
+from engine.tasks import netinf, netstab, netdist, netstats
 from django.conf import settings
 from tojson.decorators import render_to_json
 import djcelery
@@ -22,7 +21,6 @@ import StringIO
 import zipfile
 import json
 from datetime import datetime
-import magic
 
 
 ## ClassView computing stability of networks

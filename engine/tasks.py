@@ -11,7 +11,7 @@ from .models import Results, RunningProcess
 from django.core.files import File
 
 
-@celery.task(bind=True)
+@celery.task(bind=True, name='netdist')
 def netdist(self, files, sep, param):
     nd = compute_netdist.NetDist(files, sep, param)
 
@@ -36,7 +36,6 @@ def netdist(self, files, sep, param):
     if type(result) is dict:
         self.update_state(state='RUNNING', meta='Saving to db...')
         sdb = save_to_db(result, pname=pname, pid=self.request.id, result_path_full=result_path_full)
-        # # sdb = save_to_db(result, pname=pname, pid=self.request.id, result_path_full=result_path_full)
         if sdb:
             self.update_state(state='RUNNING', meta='Correctly saved to db')
         else:
@@ -80,7 +79,7 @@ def test_netdist(self, files, sep, param):
     return result
 
 
-@celery.task(bind=True)
+@celery.task(bind=True, name='netinf')
 def netinf(self, files, sep, param):
     ad = compute_adj.Mat2Adj(files, sep, param)
 
@@ -149,8 +148,7 @@ def test_netinf(self, files, sep, param):
             result.update({key: val})
     return result
 
-
-@celery.task(bind=True)
+@celery.task(bind=True, name='netstab')
 def netstab(self, files, sep, param):
     ad = compute_netstab.NetStability(files, sep, param)
 
@@ -186,7 +184,6 @@ def netstab(self, files, sep, param):
         )
     return True
 
-
 @celery.task(bind=True)
 def test_netstab(self, files, sep, param):
     ad = compute_netstab.NetStability(files, sep, param)
@@ -219,7 +216,7 @@ def test_netstab(self, files, sep, param):
     return result
 
 
-@celery.task(bind=True)
+@celery.task(bind=True, name='netstats')
 def netstats(self, files, sep, param):
     nd = compute_stats.NetStats(files, sep, param)
 
@@ -270,7 +267,6 @@ def save_to_db(result, pname, pid, result_path_full=settings.MEDIA_ROOT):
             if val[k]:
                 for i in range(len(val[k])):
                     myn = val[k][i]
-                    # # print myn
                     try:
                         resdb = Results(
                             process_name=pname,
@@ -326,5 +322,3 @@ def save_to_db(result, pname, pid, result_path_full=settings.MEDIA_ROOT):
                         print e
 
     return True
-
-

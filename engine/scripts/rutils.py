@@ -10,8 +10,6 @@ import os.path
 import csv
 import json
 
-
-
 def write_Sw (Sw, N, filename='Sw.csv'):
     """
     Write file for edge stability indicator

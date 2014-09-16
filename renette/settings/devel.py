@@ -150,6 +150,8 @@ TEMPLATE_LOADERS = (
 UPLOAD_PATH = 'uploads/%Y/%m/%d'
 RESULT_PATH = 'results'
 
+
+
 ############## CELERY CONFIGURATION ################
 ##BROKER_URL = 'amqp://renette:renette@geopg.fbk.eu:50010/renette'
 BROKER_URL = 'redis://localhost:6379/0'

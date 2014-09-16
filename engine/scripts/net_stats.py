@@ -90,8 +90,7 @@ class Net_Stats:
         self.mm = mm
                 
         return self.mm
-        
-        
+
     def modularity(self):
         if self.comm:
             return self.igraph.modularity(self.g, self.mm)
@@ -102,7 +101,6 @@ class Net_Stats:
         tmp = self.igraph.graph_strength(self.g)
         return tmp
 
-        
     def degree_by_community(self):
         # Get node degree by community
         if self.comm:
@@ -226,4 +224,3 @@ class Net_Stats:
             return tmp
         else:
             return False
-            

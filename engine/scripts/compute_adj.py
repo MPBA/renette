@@ -3,12 +3,9 @@ import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
 from rpy2.robjects.vectors import DataFrame
 import rpy2.rlike.container as rlc
-from rpy2.robjects.numpy2ri import numpy2ri
 import rpy2.rinterface as ri
 import numpy as np
 import os.path
-import csv
-import json
 import rutils as ru
 
 
@@ -70,8 +67,7 @@ class Mat2Adj:
             return True
         else:
             return False
-            
-    
+
     def compute(self):
         """
         Compute adjacency matrices using package nettools

@@ -274,5 +274,3 @@ class NetStats:
         except RRuntimeError, e:
             print 'No results found: %s' % str(e)
             return False
-
-
