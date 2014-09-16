@@ -8,7 +8,6 @@ import numpy as np
 import os.path
 import rutils as ru
 
-
 class Mat2Adj:
     
     def __init__(self, filelist, seplist, param={}):
