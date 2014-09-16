@@ -63,8 +63,7 @@ class Net_Stats:
         self.ww = ri.NULL
         if weight:
             self.ww = self.igraph.get_edge_attribute(self.g, "weight")
-        
-    
+
     def ret_names (self):
         """
         Return names of the matrix after cutting out variables with zero variance
