@@ -473,7 +473,7 @@ class NetworkStatsStep3Class(View):
                 inputs=param,
                 submited=datetime.now()
             )
-            t = netstats.delay(files, sep, param)
+            t = netstats.delay(files, sep, param, settings.MEDIA_ROOT, settings.RESULT_PATH)
             runp.task_id = t.id
 
         except Exception, e:

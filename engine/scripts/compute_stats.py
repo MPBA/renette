@@ -1,14 +1,13 @@
 from rpy2.rinterface._rinterface import RRuntimeError
 import rpy2.robjects as robjects
 import rpy2.rlike.container as rlc
-import rpy2.robjects.numpy2ri 
-rpy2.robjects.numpy2ri.activate()
 import rpy2.rinterface as ri
 import numpy as np
 import os.path
 import rutils as ru
 import net_stats as ns
 import csv
+from rpy2.robjects import DataFrame
 
 class NetStats:
     
@@ -64,7 +63,7 @@ class NetStats:
                 # Do it for all the inputs, just to be sure
                 zcount = 0
                 for i in xrange(dataf.ncol):
-                    if (dataf.rx[i+1,i+1][0] - 0.0 >= 1e-8):
+                    if (dataf.rx(i+1,i+1)[0] - 0.0 >= 1e-8):
                         zcount += 1
                         dataf.rx[i+1,i+1] = 0
 

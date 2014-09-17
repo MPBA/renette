@@ -1,7 +1,6 @@
-import csv
+import json
 
 __author__ = 'droghetti'
-import time
 import uuid
 import celery
 import os
@@ -9,6 +8,8 @@ from django.conf import settings
 from engine.scripts import compute_netdist, compute_adj, compute_netstab, compute_stats
 from .models import Results, RunningProcess
 from django.core.files import File
+import csv
+import psycopg2
 
 
 @celery.task(bind=True, name='netdist')
@@ -217,11 +218,12 @@ def test_netstab(self, files, sep, param):
 
 
 @celery.task(bind=True, name='netstats')
-def netstats(self, files, sep, param):
+def netstats(self, files, sep, param, media_root, result_path):
     nd = compute_stats.NetStats(files, sep, param)
 
     tmpdir = str(uuid.uuid4())
-    result_path = os.path.join(settings.MEDIA_ROOT, settings.RESULT_PATH)
+    # result_path = os.path.join(settings.MEDIA_ROOT, settings.RESULT_PATH)
+    result_path = os.path.join(media_root, result_path)
     result_path_full = os.path.join(result_path, tmpdir)
     media_path = os.path.join(settings.RESULT_PATH, tmpdir)
     
@@ -257,16 +259,21 @@ def netstats(self, files, sep, param):
     return True
 
 
-
-
-
-
-
 def save_to_db(result, pname, pid, result_path_full=settings.MEDIA_ROOT):
     
     """
     Save to Results db
     """
+
+    ## Set up the DB connection
+    con = psycopg2.connect(dbname='renette', user='renette', password='nette@re!!', host='geopg', port=50003)
+    cursor = con.cursor()
+
+    # Get the current running process
+    cursor.execute("select id from engine_runningprocess where task_id='{}';".format(pid))
+    id = cursor.fetchone()[0]
+
+    # Cycle over all results
     for key in result.keys():
         val = result.get(key)
         for k in ['json_files', 'rdata', 'csv_files', 'img_files', 'graph_files']:
@@ -275,14 +282,7 @@ def save_to_db(result, pname, pid, result_path_full=settings.MEDIA_ROOT):
                 for i in range(len(val[k])):
                     myn = val[k][i]
                     try:
-                        resdb = Results(
-                            process_name=pname,
-                            filepath=result_path_full,
-                            filetype=tp,
-                            filename=myn,
-                            task_id = RunningProcess.objects.get(task_id=pid)
-                        )
-                        
+                        # Set description for the record according to file type
                         if tp == 'csv':
                             mydesc = 'This is a csv file format. Each field is separated by a "tab" character'
                         if tp == 'json':
@@ -291,40 +291,50 @@ def save_to_db(result, pname, pid, result_path_full=settings.MEDIA_ROOT):
                             mydesc = 'This is a graph file format (%s). It can be imported by the most popular graph visualization softwares.' % myn.split('.')[-1]
                         if tp == 'img':
                             mydesc = 'This is an image file format produced using R.'
-                            
-                        # Store description in the DB
-                        resdb.desc = mydesc
-                        
-                        # Store files in the DB
+
+                        # Allocate the entry in the result db
+                        cursor.execute("INSERT INTO engine_results (process_name, filepath, filetype, filename, task_id_id, desc )"
+                                       "VALUES (%s, %s, %s, %s, %s, %s);", [pname, result_path_full, tp, myn, id, mydesc])
+
+                        # Get the id of the last entry
+                        cursor.execute("SELECT max(id) FROM engine_results")
+                        idres = cursor.fetchone()[0]
+
+                        # CSV file store
                         if tp == 'csv':
                             f = open(os.path.join(result_path_full, myn))
-                            resdb.filestore.save(myn, File(f))
-
+                            cursor.execute("UPDATE engine_results SET filestore=%s WHERE id=%s", [f, idres])
                             f.seek(0)
                             reader = csv.reader(f, delimiter='\t')
                             idx = 0
                             for line in iter(reader):
                                 if(idx==0):
-                                    resdb.filefirstrow = line
+                                    cursor.execute("UPDATE engine_results SET filefirstrow=%s WHERE id=%s", [line, idres])
                                 idx += 1
 
-                            resdb.filerow = idx
-                            resdb.filecol = len(line) if line else None
+                            cursor.execute("UPDATE engine_results SET filerow=%s, filecol=%s WHERE id=%s",
+                                            [idx, len(line) if line else None])
                             f.close()
+
+                        # JSON and GRAPH file store
                         if tp == 'json' or tp == 'graph':
                             f = open(os.path.join(result_path_full, myn))
-                            resdb.filestore.save(myn, File(f))
+                            cursor.execute("UPDATE engine_results SET filestore=%s WHERE id=%s", [f, idres])
+                            # resdb.filestore.save(myn, File(f))
                             f.close()
-                        if tp == 'img':
-                            ## print myn
-                            f = open(os.path.join(result_path_full, myn))
-                            resdb.imagestore.save(myn, File(f))
-                            f.close()
-                    except Exception, e:
-                        print e
-                    try:
-                        resdb.save()
-                    except Exception, e:
-                        print e
 
+                        # IMAGE files
+                        if tp == 'img':
+                            f = open(os.path.join(result_path_full, myn))
+                            cursor.execute("UPDATE engine_results SET imagestore=%s WHERE id=%s", [f, idres])
+                            f.close()
+                    except Exception, e:
+                        print e
+                    # try:
+                    #     resdb.save()
+                    # except Exception, e:
+                    #     print e
+    con.commit()
+    cursor.close()
+    con.close()
     return True
