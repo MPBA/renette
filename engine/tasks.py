@@ -287,7 +287,7 @@ def save_to_db(result, pname, pid, result_path_full=settings.MEDIA_ROOT):
                             mydesc = 'This is an image file format produced using R.'
 
                         # Store description in the DB
-                        resdb.desc = mydesc
+                        resdb.description = mydesc
 
                         # Store files in the DB
                         if tp == 'csv':

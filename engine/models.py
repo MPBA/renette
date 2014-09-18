@@ -98,7 +98,7 @@ class Results(models.Model):
     filerow = models.IntegerField(blank=True, null=True)
     filefirstrow = models.TextField(blank=True, null=True)
     imagestore = models.ImageField(upload_to=get_tmp_dir)
-    desc = models.TextField()
+    description = models.TextField()
     
     def __unicode__(self):
         return u'%s: %s' % (self.task_id.task_id, self.filetype)
