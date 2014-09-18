@@ -1,5 +1,6 @@
 from rpy2.rinterface._rinterface import RRuntimeError
 import rpy2.robjects as robjects
+from rpy2.robjects import DataFrame
 from rpy2.robjects.packages import importr
 import rpy2.rlike.container as rlc
 import rpy2.rinterface as ri
