@@ -64,7 +64,7 @@ class NetDist:
                 # Do it for all the inputs, just to be sure
                 zcount = 0
                 for i in xrange(dataf.ncol):
-                    if (dataf.rx[i+1,i+1][0] - 0.0 >= 1e-8):
+                    if (dataf.rx(i+1,i+1)[0] - 0.0 >= 1e-8):
                         zcount += 1
                         dataf.rx[i+1,i+1] = 0
 

@@ -2,6 +2,7 @@ import csv
 import json
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.files import File
 from django.conf import settings
 import jsonfield
 import djcelery
@@ -98,7 +99,7 @@ class Results(models.Model):
     filerow = models.IntegerField(blank=True, null=True)
     filefirstrow = models.TextField(blank=True, null=True)
     imagestore = models.ImageField(upload_to=get_tmp_dir)
-    desc = models.TextField()
+    description = models.TextField()
     
     def __unicode__(self):
         return u'%s: %s' % (self.task_id.task_id, self.filetype)

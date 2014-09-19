@@ -349,7 +349,7 @@ class NetworkDistanceStep3Class(View):
                 inputs=param,
                 submited=datetime.now()
             )
-            t = netdist.delay(files, sep, param)
+            t = netdist.delay(files, sep, param, settings.MEDIA_ROOT, settings.RESULT_PATH)
             runp.task_id = t.id
 
         except Exception, e:
