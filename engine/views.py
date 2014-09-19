@@ -12,10 +12,8 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpRespo
 from .utils import document_validator, get_bootsrap_badge,  handle_upload
 from .models import RunningProcess, Results
 from django.contrib import messages
-from engine.tasks import netinf, netstab, netdist, netstats
 from django.conf import settings
 from tojson.decorators import render_to_json
-import djcelery
 import os
 import StringIO
 import zipfile
@@ -105,8 +103,8 @@ class NetworkStabilityStep3Class(View):
                 inputs=param,
                 submited=datetime.now()
             )
-            #t = test_netstab.delay(files, sep, param)
-            t = netstab.delay(files, sep, param)
+            # t = netstab.delay(files, sep, param)
+            t = settings.APP.send_task('netdist', [files, sep, param, settings.MEDIA_ROOT, settings.RESULT_PATH])
             runp.task_id = t.id
             
         except Exception, e:
@@ -132,7 +130,8 @@ class NetworkStabilityStep4Class(View):
 
     def get(self, request, uuid, **kwargs):
         
-        task = djcelery.celery.AsyncResult(uuid)
+        # task = djcelery.celery.AsyncResult(uuid)
+        task = settings.APP.AsyncResult(uuid)
         
         try:
             runp = RunningProcess.objects.get(task_id=uuid)
@@ -225,8 +224,8 @@ class NetworkInferenceStep3Class(View):
                 inputs=param,
                 submited=datetime.now()
             )
-            # t = test_netinf.delay(files, sep, param)
-            t = netinf.delay(files, sep, param)
+            # t = netinf.delay(files, sep, param)
+            t = settings.APP.send_task('netinf', [files, sep, param, settings.MEDIA_ROOT, settings.RESULT_PATH])
             runp.task_id = t.id
 
         except Exception, e:
@@ -253,7 +252,8 @@ class NetworkInferenceStep4Class(View):
 
     def get(self, request, uuid, **kwargs):
         
-        task = djcelery.celery.AsyncResult(uuid)
+        # task = djcelery.celery.AsyncResult(uuid)
+        task = settings.APP.AsyncResult(uuid)
         
         try:
             runp = RunningProcess.objects.get(task_id=uuid)
@@ -349,7 +349,8 @@ class NetworkDistanceStep3Class(View):
                 inputs=param,
                 submited=datetime.now()
             )
-            t = netdist.delay(files, sep, param, settings.MEDIA_ROOT, settings.RESULT_PATH)
+            # t = netdist.delay(files, sep, param, settings.MEDIA_ROOT, settings.RESULT_PATH)
+            t = settings.APP.send_task('netdist', [files, sep, param, settings.MEDIA_ROOT, settings.RESULT_PATH])
             runp.task_id = t.id
 
         except Exception, e:
@@ -375,15 +376,16 @@ class NetworkDistanceStep4Class(View):
 
     def get(self, request, uuid, **kwargs):
         
-        task = djcelery.celery.AsyncResult(uuid)
-        
+        # task = djcelery.celery.AsyncResult(uuid)
+        task = settings.APP.AsyncResult(uuid)
+
         try:
             runp = RunningProcess.objects.get(task_id=uuid)
         except RunningProcess.DoesNotExist:
             runp = None
             messages.add_message(self.request, messages.ERROR, 'Some information not available!')
 
-        
+
         context = {
             'runp': runp,
             'tables': runp.results_set.filter(filetype='csv'),
@@ -399,11 +401,8 @@ class NetworkDistanceStep4Class(View):
         return render(request, self.template_name, context)
 
 
-
 ## ClassView computing statistic on network
 ##--------------------------------------------------
-
-
 class NetworkStatsClass(View):
     template_name = 'engine/network_stats.html'
 
@@ -473,7 +472,8 @@ class NetworkStatsStep3Class(View):
                 inputs=param,
                 submited=datetime.now()
             )
-            t = netstats.delay(files, sep, param, settings.MEDIA_ROOT, settings.RESULT_PATH)
+            # t = netstats.delay(files, sep, param, settings.MEDIA_ROOT, settings.RESULT_PATH)
+            t = settings.APP.send_task('netdist', [files, sep, param, settings.MEDIA_ROOT, settings.RESULT_PATH])
             runp.task_id = t.id
 
         except Exception, e:
@@ -499,7 +499,8 @@ class NetworkStatsStep4Class(View):
 
     def get(self, request, uuid, **kwargs):
         
-        task = djcelery.celery.AsyncResult(uuid)
+        # task = djcelery.celery.AsyncResult(uuid)
+        task = settings.APP.AsyncResult(uuid)
         
         try:
             runp = RunningProcess.objects.get(task_id=uuid)

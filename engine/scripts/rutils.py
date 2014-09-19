@@ -170,7 +170,7 @@ def export_to_json(reslist, i, filepath='.', perc=10, prefix='graph_', weight=Tr
                                           'source':  'n%d' % n,
                                           'target':  'n%d' % j,
                                           'weights': tmp[n, j]})
-    print response
+    # print response
     
     # Write json file for sigmajs
     try:
@@ -256,8 +256,8 @@ def plot_degree_distrib(adj_mat, i, filepath='.', prefix='ddist_'):
         myfname = ''
     
     myf = robjects.Formula('y ~ x')
-    myf.getenvironment()['x'] = degdens.rx2['x']
-    myf.getenvironment()['y'] = degdens.rx2['y']
+    myf.getenvironment()['x'] = degdens.rx2('x')
+    myf.getenvironment()['y'] = degdens.rx2('y')
     p = xyplot(myf, type='l', lwd=3, 
                xlab='Node Degree', ylab='Density',
                main='Node degree distribution')

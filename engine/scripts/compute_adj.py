@@ -147,7 +147,7 @@ class Mat2Adj:
                                     'col.names': colnames,
                                     'row.names': rownames
                                 })
-                    self.results[self.listname[i]]['csv_files'] += [myfname]
+                    # self.results[self.listname[i]]['csv_files'] += [myfname]
                 except IOError, e:
                     self.error += e
                     

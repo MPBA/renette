@@ -10,6 +10,7 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import celery
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # Quick-start development settings - unsuitable for production
@@ -172,5 +173,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'gsgisng@gmail.com'
 EMAIL_HOST_PASSWORD = 'ciaociaociao'
 
-import djcelery
-djcelery.setup_loader()
+# import djcelery
+# djcelery.setup_loader()
+
+APP = celery.Celery('engine.tasks', broker = 'redis://localhost:6379/0', backend = 'redis://localhost:6379/0')
