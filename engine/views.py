@@ -677,7 +677,8 @@ def process_list(request):
         return render(request, 'engine/my_process_list.html', context)
     except ConnectionError, e:
         context = None
-        messages.add_message(request, messages.ERROR, 'Sorry, error connecting to server. Try again.')
+        messages.add_message(request, messages.ERROR, 'Sorry, error connecting to worker server. Try again later.')
+        return render(request, 'engine/my_process_list.html', context)
     except Exception, e:
         context = None
         messages.add_message(request, messages.ERROR, 'Sorry, unexpected error occured. Try again.')
