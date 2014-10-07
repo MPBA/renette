@@ -683,3 +683,15 @@ def process_list(request):
         messages.add_message(request, messages.ERROR, 'Sorry, unexpected error occured. Try again.')
         return render(request, 'engine/my_process_list.html', context)
     
+def revoke_job(request):
+    if request.POST:
+        runp = RunningProcess.objects.get(pk=request.POST['taskid'])
+        try:
+            task = settings.APP.AsyncResult(runp.task_id)
+            task.revoke(terminate=True, signal="SIGKILL")
+            payload = {'success': True}
+            messages.add_message(request, messages.SUCCESS, 'Job stopped')
+        except:
+            payload = {'success': False}
+            messages.add_message(request, messages.SUCCESS, 'Could not revoke the job')
+        return HttpResponse(json.dumps(payload), content_type='application/json')

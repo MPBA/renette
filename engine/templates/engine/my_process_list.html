@@ -2,6 +2,31 @@
 {% load static %}
 {% load engine_tags %}
 
+{% block extrahead %}
+<script>
+    $(document).ready(function() {
+        $(".delete_button").click(function() {
+            if (confirm('Do you relly want to stop this job?')){
+                var id = $(this).attr('id');
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'revoke_job' %}",
+                    data: { taskid: id,
+                            csrfmiddlewaretoken: "{{ csrf_token }}" },
+                    success: function(response){
+                        if (response.success) {
+                            location.reload(true)
+                        } else {
+                            alert('Could not stop the job!');
+                        }
+                    }
+                });
+                return false;
+            } else { return false }
+        });
+    });
+</script>
+{% endblock extrahead %}
 
 {% block container %}
 <div class="row row-offcanvas row-offcanvas-right">
@@ -33,6 +58,7 @@
                               <th>Type</th>
                               <th>Status</th>
                               <th>Action</th>
+                              <th>Revoke Job</th>
                           </tr>
                       </thead>
                       {% if runp %}
@@ -51,10 +77,17 @@
                                     Download all files
                                   </a>
                                   {% endif %}
-				  <a href="{% url r.process_name|match_url r.task_id %}" target="_blank" class="btn btn-info btn-xs" role="button"> 
-                                    View details
+                                  <a href="{% url r.process_name|match_url r.task_id %}" target="_blank" class="btn btn-info btn-xs" role="button">
+                                  View details
                                   </a>
-                                  </td>
+                              </td>
+                              <td style="text-align: center">
+                                  {% if r.celery_task.status == "RUNNING"  or r.celery_task.status == "PENDING" %}
+                                  <a href="#" id="{{ r.pk }}" class="delete_button">
+                                  <span class="glyphicon glyphicon-remove-circle" style="color: red"></span>
+                                  </a>
+                                  {% endif %}
+                              </td>
                           </tr>
                           {% endfor %}
                       {% else %}
