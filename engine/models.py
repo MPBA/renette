@@ -94,11 +94,11 @@ class Results(models.Model):
     filetype = models.CharField(max_length=36, choices=FILE_TYPES)
     filename = models.CharField(max_length=40)
     filepath = models.CharField(max_length=100)
-    filestore = models.FileField(upload_to=get_tmp_dir)
+    filestore = models.FileField(upload_to=get_tmp_dir, null=True)
     filecol = models.IntegerField(blank=True, null=True)
     filerow = models.IntegerField(blank=True, null=True)
     filefirstrow = models.TextField(blank=True, null=True)
-    imagestore = models.ImageField(upload_to=get_tmp_dir)
+    imagestore = models.ImageField(upload_to=get_tmp_dir, null=True)
     description = models.TextField()
     
     def __unicode__(self):
