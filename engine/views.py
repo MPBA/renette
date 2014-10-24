@@ -284,7 +284,8 @@ class NetworkDistanceClass(View):
     template_name = 'engine/network_distance.html'
 
     def get(self, request, **kwargs):
-        context = {'step2': 'network_distance_2'}
+        context = {'step2': 'network_distance_2',
+                   'from_web': True}
         return render(request, self.template_name, context)
 
 
@@ -295,7 +296,9 @@ class NetworkDistanceStep2Class(View):
         files = []
         removed_files = []
         dim = []
-
+        from_web = True if request.POST.get('from_web') == 'true' else False
+        print from_web
+        # if from_web:
         for filepath in request.POST.getlist('uploaded'):
             ex_first_row = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
             ex_first_col = request.POST['exclude_row_header'] if 'exclude_row_header' in request.POST else None
@@ -309,7 +312,7 @@ class NetworkDistanceStep2Class(View):
                               })
             else:
                 removed_files.append(ret_file)
-
+        print files
         if len(files) < 1:
             messages.add_message(self.request, messages.ERROR, 'Your files properties are not valid.')
             return redirect('network_distance')
