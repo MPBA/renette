@@ -7,8 +7,9 @@ from scripts import compute_netdist, compute_adj, compute_netstab, compute_stats
 import csv
 import psycopg2
 import json
+import settings
 
-APP = celery.Celery('task', broker='redis://localhost:6379/0', backend='redis://localhost:6379/0')
+APP = celery.Celery('task', broker=settings.BROKER_URL, backend=settings.BACKEND_URL)
 
 @APP.task(bind=True, name='netdist')
 def netdist(self, files, sep, param, media_root, result_path):
@@ -157,7 +158,7 @@ def save_to_db(result, pname, pid, result_path_full='.'):
     """
 
     # # Set up the DB connection
-    con = psycopg2.connect(dbname='renette', user='renette', password='nette@re!!', host='geopg', port=50003)
+    con = psycopg2.connect(dbname=settings.DBNAME, user=settings.DBUSER, password=settings.DBPASSWORD, host=settings.DBHOST, port=settings.DBPORT)
     cursor = con.cursor()
 
     # Get the current running process
