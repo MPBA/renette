@@ -227,7 +227,6 @@ class NetworkInferenceStep3Class(View):
             # t = netinf.delay(files, sep, param)
             t = settings.APP.send_task('netinf', [files, sep, param, settings.MEDIA_ROOT, settings.RESULT_PATH])
             runp.task_id = t.id
-            print t.id
         except Exception, e:
             messages.add_message(self.request, messages.ERROR, 'Error: %s' % str(e))
 
