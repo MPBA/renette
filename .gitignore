@@ -16,3 +16,4 @@ engine/scripts/data/data_phenotype/
 celerybeat-schedule
 *.json
 *.tsv
+*.pg

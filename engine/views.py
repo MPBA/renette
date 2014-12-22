@@ -12,10 +12,8 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpRespo
 from .utils import document_validator, get_bootsrap_badge,  handle_upload
 from .models import RunningProcess, Results
 from django.contrib import messages
-from engine.tasks import netinf, netstab, netdist, netstats
 from django.conf import settings
 from tojson.decorators import render_to_json
-import djcelery
 import os
 import StringIO
 import zipfile
@@ -105,8 +103,8 @@ class NetworkStabilityStep3Class(View):
                 inputs=param,
                 submited=datetime.now()
             )
-            #t = test_netstab.delay(files, sep, param)
-            t = netstab.delay(files, sep, param)
+            # t = netstab.delay(files, sep, param)
+            t = settings.APP.send_task('netdist', [files, sep, param, settings.MEDIA_ROOT, settings.RESULT_PATH])
             runp.task_id = t.id
             
         except Exception, e:
@@ -132,7 +130,8 @@ class NetworkStabilityStep4Class(View):
 
     def get(self, request, uuid, **kwargs):
         
-        task = djcelery.celery.AsyncResult(uuid)
+        # task = djcelery.celery.AsyncResult(uuid)
+        task = settings.APP.AsyncResult(uuid)
         
         try:
             runp = RunningProcess.objects.get(task_id=uuid)
@@ -225,23 +224,22 @@ class NetworkInferenceStep3Class(View):
                 inputs=param,
                 submited=datetime.now()
             )
-            # t = test_netinf.delay(files, sep, param)
-            t = netinf.delay(files, sep, param)
+            # t = netinf.delay(files, sep, param)
+            t = settings.APP.send_task('netinf', [files, sep, param, settings.MEDIA_ROOT, settings.RESULT_PATH])
             runp.task_id = t.id
-
         except Exception, e:
             messages.add_message(self.request, messages.ERROR, 'Error: %s' % str(e))
 
-        try:
-            runp.save()
-            context = {'files': files, 'task': t, 'uuid': t.id}
+        # try:
+        runp.save()
+        context = {'files': files, 'task': t, 'uuid': t.id}
 
-            session = self.request.session.get('runp',[])
-            session.append(runp.pk)
-            self.request.session['runp'] = session
-        except DatabaseError, e:
-            t.revoke(terminate=True)
-            messages.add_message(self.request, messages.ERROR, 'Error: %s' % str(e))
+        session = self.request.session.get('runp',[])
+        session.append(runp.pk)
+        self.request.session['runp'] = session
+        # except DatabaseError, e:
+        #     t.revoke(terminate=True)
+        #     messages.add_message(self.request, messages.ERROR, 'Error: %s' % str(e))
 
         messages.add_message(self.request, messages.SUCCESS, 'Process submitted with success!!!')
         return render(request, self.template_name, context)
@@ -253,7 +251,8 @@ class NetworkInferenceStep4Class(View):
 
     def get(self, request, uuid, **kwargs):
         
-        task = djcelery.celery.AsyncResult(uuid)
+        # task = djcelery.celery.AsyncResult(uuid)
+        task = settings.APP.AsyncResult(uuid)
         
         try:
             runp = RunningProcess.objects.get(task_id=uuid)
@@ -284,7 +283,8 @@ class NetworkDistanceClass(View):
     template_name = 'engine/network_distance.html'
 
     def get(self, request, **kwargs):
-        context = {'step2': 'network_distance_2'}
+        context = {'step2': 'network_distance_2',
+                   'from_web': True}
         return render(request, self.template_name, context)
 
 
@@ -295,7 +295,9 @@ class NetworkDistanceStep2Class(View):
         files = []
         removed_files = []
         dim = []
-
+        from_web = True if request.POST.get('from_web') == 'true' else False
+        print from_web
+        # if from_web:
         for filepath in request.POST.getlist('uploaded'):
             ex_first_row = request.POST['exclude_col_header'] if 'exclude_col_header' in request.POST else None
             ex_first_col = request.POST['exclude_row_header'] if 'exclude_row_header' in request.POST else None
@@ -309,7 +311,7 @@ class NetworkDistanceStep2Class(View):
                               })
             else:
                 removed_files.append(ret_file)
-
+        print files
         if len(files) < 1:
             messages.add_message(self.request, messages.ERROR, 'Your files properties are not valid.')
             return redirect('network_distance')
@@ -349,7 +351,8 @@ class NetworkDistanceStep3Class(View):
                 inputs=param,
                 submited=datetime.now()
             )
-            t = netdist.delay(files, sep, param)
+            # t = netdist.delay(files, sep, param, settings.MEDIA_ROOT, settings.RESULT_PATH)
+            t = settings.APP.send_task('netdist', [files, sep, param, settings.MEDIA_ROOT, settings.RESULT_PATH])
             runp.task_id = t.id
 
         except Exception, e:
@@ -375,15 +378,16 @@ class NetworkDistanceStep4Class(View):
 
     def get(self, request, uuid, **kwargs):
         
-        task = djcelery.celery.AsyncResult(uuid)
-        
+        # task = djcelery.celery.AsyncResult(uuid)
+        task = settings.APP.AsyncResult(uuid)
+
         try:
             runp = RunningProcess.objects.get(task_id=uuid)
         except RunningProcess.DoesNotExist:
             runp = None
             messages.add_message(self.request, messages.ERROR, 'Some information not available!')
 
-        
+
         context = {
             'runp': runp,
             'tables': runp.results_set.filter(filetype='csv'),
@@ -399,11 +403,8 @@ class NetworkDistanceStep4Class(View):
         return render(request, self.template_name, context)
 
 
-
 ## ClassView computing statistic on network
 ##--------------------------------------------------
-
-
 class NetworkStatsClass(View):
     template_name = 'engine/network_stats.html'
 
@@ -473,7 +474,8 @@ class NetworkStatsStep3Class(View):
                 inputs=param,
                 submited=datetime.now()
             )
-            t = netstats.delay(files, sep, param)
+            # t = netstats.delay(files, sep, param, settings.MEDIA_ROOT, settings.RESULT_PATH)
+            t = settings.APP.send_task('netdist', [files, sep, param, settings.MEDIA_ROOT, settings.RESULT_PATH])
             runp.task_id = t.id
 
         except Exception, e:
@@ -499,7 +501,8 @@ class NetworkStatsStep4Class(View):
 
     def get(self, request, uuid, **kwargs):
         
-        task = djcelery.celery.AsyncResult(uuid)
+        # task = djcelery.celery.AsyncResult(uuid)
+        task = settings.APP.AsyncResult(uuid)
         
         try:
             runp = RunningProcess.objects.get(task_id=uuid)
@@ -676,9 +679,22 @@ def process_list(request):
         return render(request, 'engine/my_process_list.html', context)
     except ConnectionError, e:
         context = None
-        messages.add_message(request, messages.ERROR, 'Sorry, error connecting to server. Try again.')
+        messages.add_message(request, messages.ERROR, 'Sorry, error connecting to worker server. Try again later.')
+        return render(request, 'engine/my_process_list.html', context)
     except Exception, e:
         context = None
         messages.add_message(request, messages.ERROR, 'Sorry, unexpected error occured. Try again.')
         return render(request, 'engine/my_process_list.html', context)
     
+def revoke_job(request):
+    if request.POST:
+        runp = RunningProcess.objects.get(pk=request.POST['taskid'])
+        try:
+            task = settings.APP.AsyncResult(runp.task_id)
+            task.revoke(terminate=True, signal="SIGKILL")
+            payload = {'success': True}
+            messages.add_message(request, messages.SUCCESS, 'Job stopped')
+        except:
+            payload = {'success': False}
+            messages.add_message(request, messages.SUCCESS, 'Could not revoke the job')
+        return HttpResponse(json.dumps(payload), content_type='application/json')

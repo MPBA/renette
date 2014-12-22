@@ -170,7 +170,7 @@ def export_to_json(reslist, i, filepath='.', perc=10, prefix='graph_', weight=Tr
                                           'source':  'n%d' % n,
                                           'target':  'n%d' % j,
                                           'weights': tmp[n, j]})
-    print response
+    # print response
     
     # Write json file for sigmajs
     try:
@@ -337,7 +337,6 @@ def get_hubs (adj_mat, i, quart=90, stab_mat=[], stab_mat_all=[], filepath=".", 
     
     ## Set hub percentile to 90 [1,100]
     thr = np.percentile(deg, quart)
-    
     idx = np.where(deg>=thr)[0]
     ii = np.argsort(deg[idx])[::-1]
     

@@ -1,10 +1,10 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import patterns, url
 
 from django.contrib import admin
-from .views import (NetworkDistanceClass, NetworkDistanceStep2Class, NetworkDistanceStep3Class, NetworkDistanceStep4Class,
-                    download_zip_file,
-                    NetworkInferenceClass, NetworkInferenceStep2Class, NetworkInferenceStep3Class, NetworkInferenceStep4Class,
-                    NetworkStabilityClass, NetworkStabilityStep2Class, NetworkStabilityStep3Class, NetworkStabilityStep4Class, 
+from .views import (NetworkDistanceClass, NetworkDistanceStep2Class, NetworkDistanceStep3Class,
+                    NetworkDistanceStep4Class, download_zip_file, NetworkInferenceClass, NetworkInferenceStep2Class,
+                    NetworkInferenceStep3Class, NetworkInferenceStep4Class, NetworkStabilityClass,
+                    NetworkStabilityStep2Class, NetworkStabilityStep3Class, NetworkStabilityStep4Class,
                     NetworkStatsClass, NetworkStatsStep2Class, NetworkStatsStep3Class, NetworkStatsStep4Class, 
                     ProcessStatus2)
 admin.autodiscover()
@@ -94,6 +94,8 @@ urlpatterns = patterns('engine.views',
 
                        
                        url(r'^datatables/(?P<pk>\d+)/$', 'datatables', name="datatables"),
+
+                       url(r'^revoke/job', 'revoke_job', name='revoke_job'),
 
                        #url(regex='^process/graph/(.+)/(.+)/(\d+)/$',
                        #    view='process_graph',

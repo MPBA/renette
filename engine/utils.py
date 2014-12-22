@@ -67,16 +67,19 @@ def document_validator(filepath, ex_first_row, ex_first_col):
         print ex_first_row
         if not ex_first_row:
             print "Ciao"
-            
+
         # check char in first row and first col
         if not ex_first_row and not float(temp_list[0][-1]):
+            print 'Hola'
             raise ValueError
         if not ex_first_col and not float(temp_list[-1][0]):
+            print 'Hello'
             raise ValueError
         ncol = (len(temp_list[0]) - 1) if ex_first_col else len(temp_list[0])
         nrow = (reader.line_num - 1) if ex_first_col else reader.line_num
 
         if nrow <= 2:
+            print 'Hey'
             raise ValueError
 
         is_cubic = True if (ncol == nrow) else False

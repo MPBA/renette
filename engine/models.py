@@ -2,6 +2,7 @@ import csv
 import json
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.files import File
 from django.conf import settings
 import jsonfield
 import djcelery
@@ -93,11 +94,14 @@ class Results(models.Model):
     filetype = models.CharField(max_length=36, choices=FILE_TYPES)
     filename = models.CharField(max_length=40)
     filepath = models.CharField(max_length=100)
-    filestore = models.FileField(upload_to=get_tmp_dir)
+    filestore = models.FileField(upload_to=get_tmp_dir, null=True)
     filecol = models.IntegerField(blank=True, null=True)
     filerow = models.IntegerField(blank=True, null=True)
     filefirstrow = models.TextField(blank=True, null=True)
-    imagestore = models.ImageField(upload_to=get_tmp_dir)
+# <<<<<<< HEAD
+#     imagestore = models.ImageField(upload_to=get_tmp_dir)
+# =======
+    imagestore = models.ImageField(upload_to=get_tmp_dir, null=True)
     description = models.TextField()
     
     def __unicode__(self):
