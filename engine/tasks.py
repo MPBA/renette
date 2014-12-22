@@ -9,7 +9,8 @@ import psycopg2
 import json
 import settings
 
-APP = celery.Celery('task', broker=settings.BROKER_URL, backend=settings.BACKEND_URL)
+APP = celery.Celery('tasks', broker=settings.BROKER_URL, backend=settings.BACKEND_URL)
+
 
 @APP.task(bind=True, name='netdist')
 def netdist(self, files, sep, param, media_root, result_path):
@@ -46,6 +47,7 @@ def netdist(self, files, sep, param, media_root, result_path):
 
     return True
 
+
 @APP.task(bind=True, name='netinf')
 def netinf(self, files, sep, param, media_root, result_path):
     ad = compute_adj.Mat2Adj(files, sep, param)
@@ -78,6 +80,7 @@ def netinf(self, files, sep, param, media_root, result_path):
     #                       task_id=RunningProcess.objects.get(task_id=self.request.id)
     #         )
     return True
+
 
 @APP.task(bind=True, name='netstab')
 def netstab(self, files, sep, param, media_root, result_path):
