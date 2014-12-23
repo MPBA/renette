@@ -87,7 +87,7 @@ class NetDist:
         if rcount == self.nfiles:
             return True
         else:
-            raise False # IOError('Cannot read all the files')
+            return False # IOError('Cannot read all the files')
             
     def compute(self):
         """
