@@ -9,6 +9,7 @@ from django.shortcuts import redirect, render
 from django.core.files.uploadedfile import UploadedFile
 from django.db import DatabaseError
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.views.decorators.csrf import csrf_exempt
 from .utils import document_validator, get_bootsrap_badge,  handle_upload
 from .models import RunningProcess, Results
 from django.contrib import messages
@@ -699,7 +700,7 @@ def revoke_job(request):
             messages.add_message(request, messages.SUCCESS, 'Could not revoke the job')
         return HttpResponse(json.dumps(payload), content_type='application/json')
 
-
+@csrf_exempt
 def fake_save(request):
 
     if request.POST:
