@@ -698,3 +698,23 @@ def revoke_job(request):
             payload = {'success': False}
             messages.add_message(request, messages.SUCCESS, 'Could not revoke the job')
         return HttpResponse(json.dumps(payload), content_type='application/json')
+
+
+def fake_save(request):
+
+    if request.POST:
+        param = {'pp': request.POST.get('p1')}
+        process_name = request.POST.get('process_name')
+        task_id = request.POST.get('task_id')
+        runp = RunningProcess(
+                process_name=process_name,
+                inputs=param,
+                submited=datetime.now()
+        )
+        try:
+            runp.save()
+            payload = {'success': True}
+        except:
+            payload = {'success': False}
+
+        return HttpResponse(json.dumps(payload), content_type='application/json')
