@@ -731,7 +731,6 @@ def fake_save(request):
             payload = {'success': False,
                        'id': None}
         response = HttpResponse(json.dumps(payload), content_type='application/json')
-        # response = ['Access-Control-Allow-Origin'] = "*"
         response.__setitem__("Access-Control-Allow-Origin", "*")
 
         return response
@@ -754,7 +753,6 @@ def fake_get(request):
     else:
         payload = {'success': False}
         response = HttpResponse(json.dumps(payload), content_type='application/json')
-        # response = ['Access-Control-Allow-Origin'] = "*"
         response.__setitem__("Access-Control-Allow-Origin", "*")
 
         return response
