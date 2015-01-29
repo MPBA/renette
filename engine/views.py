@@ -7,6 +7,7 @@ __author__ = 'ernesto'
 from django.views.generic.base import View
 from django.shortcuts import redirect, render
 from django.core.files.uploadedfile import UploadedFile
+from django.core import serializers
 from django.db import DatabaseError
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
@@ -707,15 +708,53 @@ def fake_save(request):
         param = {'pp': request.POST.get('p1')}
         process_name = request.POST.get('process_name')
         task_id = request.POST.get('task_id')
-        runp = RunningProcess(
-                process_name=process_name,
-                inputs=param,
-                submited=datetime.now()
-        )
+
+        id = request.POST.get('id')
+        if id:
+            runp, created = RunningProcess.objects.get_or_create(pk=id)
+            if not created:
+                runp.task_id = task_id
+                runp.inputs = param
+                runp.submited = datetime.now()
+        else:
+            runp = RunningProcess(
+                    process_name=process_name,
+                    inputs=param,
+                    task_id=task_id,
+                    submited=datetime.now()
+            )
         try:
             runp.save()
-            payload = {'success': True}
+            payload = {'success': True,
+                       'id': runp.id}
         except:
-            payload = {'success': False}
+            payload = {'success': False,
+                       'id': None}
+        response = HttpResponse(json.dumps(payload), content_type='application/json')
+        # response = ['Access-Control-Allow-Origin'] = "*"
+        response.__setitem__("Access-Control-Allow-Origin", "*")
 
-        return HttpResponse(json.dumps(payload), content_type='application/json')
+        return response
+
+
+@csrf_exempt
+def fake_get(request):
+    if request.POST:
+        id = request.POST.get('id')
+        runp = RunningProcess.objects.filter(pk=id)
+        data = serializers.serialize('json', runp, fields=('id', 'process_name', 'task_id', 'inputs'))
+    if data:
+        data = data.replace('[', '')
+        data = data.replace(']', '')
+        response = HttpResponse(data, content_type='application/json')
+        # response = ['Access-Control-Allow-Origin'] = "*"
+        response.__setitem__("Access-Control-Allow-Origin", "*")
+
+        return response
+    else:
+        payload = {'success': False}
+        response = HttpResponse(json.dumps(payload), content_type='application/json')
+        # response = ['Access-Control-Allow-Origin'] = "*"
+        response.__setitem__("Access-Control-Allow-Origin", "*")
+
+        return response

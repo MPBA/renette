@@ -98,6 +98,8 @@ urlpatterns = patterns('engine.views',
                        url(r'^revoke/job', 'revoke_job', name='revoke_job'),
 
                        url(r'^save/fake', 'fake_save', name='fake_save'),
+                       url(r'^get/fake', 'fake_get', name='fake_get'),
+
                        #url(regex='^process/graph/(.+)/(.+)/(\d+)/$',
                        #    view='process_graph',
                        #    name='process_graph'),
