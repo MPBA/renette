@@ -5,7 +5,6 @@ from rpy2.robjects.numpy2ri import numpy2ri
 import rpy2.rinterface as ri
 import numpy as np
 from rpy2.rinterface._rinterface import RRuntimeError
-robjects.conversion.py2ri = numpy2ri
 
 class Net_Stats:
     
