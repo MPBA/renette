@@ -8,14 +8,19 @@
            $("#load-example").click(function(){
                $("#files").find('p').remove();
                $("#uploaded-files").find('input').remove();
-       $('<p/>').text('HUMAN_HCC_MALE_-1_adj.dat').appendTo('#files');
-               $('<p/>').text('HUMAN_HCC_MALE_1_adj.dat').appendTo('#files');
-       $('<p/>').text('HUMAN_HCC_FEMALE_-1_adj.dat').appendTo('#files');
-               $('<p/>').text('HUMAN_HCC_FEMALE_1_adj.dat').appendTo('#files');
-               $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/HUMAN_HCC_MALE_-1_adj.dat">');
-               $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/HUMAN_HCC_MALE_1_adj.dat">');
-               $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/HUMAN_HCC_FEMALE_-1_adj.dat">');
-               $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/HUMAN_HCC_FEMALE_1_adj.dat">');
+{#               $('<p/>').text('HUMAN_HCC_MALE_-1_adj.dat').appendTo('#files');#}
+{#               $('<p/>').text('HUMAN_HCC_MALE_1_adj.dat').appendTo('#files');#}
+{#               $('<p/>').text('HUMAN_HCC_FEMALE_-1_adj.dat').appendTo('#files');#}
+{#               $('<p/>').text('HUMAN_HCC_FEMALE_1_adj.dat').appendTo('#files');#}
+{#               $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/HUMAN_HCC_MALE_-1_adj.dat">');#}
+{#               $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/HUMAN_HCC_MALE_1_adj.dat">');#}
+{#               $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/HUMAN_HCC_FEMALE_-1_adj.dat">');#}
+{#               $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/HUMAN_HCC_FEMALE_1_adj.dat">');#}
+
+               $('<p/>').text('microbiome_Actinobacteria_0.0-diet_adj.csv').appendTo('#files');
+               $('<p/>').text('microbiome_Actinobacteria_1.0-diet_adj.csv').appendTo('#files');
+               $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/microbiome_Actinobacteria_0.0-diet_adj.csv">');
+               $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/microbiome_Actinobacteria_1.0-diet_adj.csv">');
                $('input[name=exclude_col_header]').attr('checked', true)
                $('input[name=exclude_row_header]').attr('checked', true)
                $('#progress .progress-bar').css(
