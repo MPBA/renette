@@ -7,6 +7,8 @@ import rpy2.rinterface as ri
 import numpy as np
 import os.path
 import rutils as ru
+import rpy2.robjects.numpy2ri
+rpy2.robjects.numpy2ri.activate()
 
 class Mat2Adj:
     
