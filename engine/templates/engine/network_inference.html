@@ -7,14 +7,19 @@
            $("#load-example").click(function(){
                $("#files").find('p').remove();
                $("#uploaded-files").find('input').remove();
-       $('<p/>').text('HUMAN_HCC_MALE_-1.dat').appendTo('#files');
-               $('<p/>').text('HUMAN_HCC_MALE_1.dat').appendTo('#files');
-       $('<p/>').text('HUMAN_HCC_FEMALE_-1.dat').appendTo('#files');
-               $('<p/>').text('HUMAN_HCC_FEMALE_1.dat').appendTo('#files');
-                $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/HUMAN_HCC_MALE_-1.dat">');
-       $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/HUMAN_HCC_MALE_1.dat">');
-       $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/HUMAN_HCC_FEMALE_-1.dat">');
-                $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/HUMAN_HCC_FEMALE_1.dat">');               
+{#               $('<p/>').text('HUMAN_HCC_MALE_-1.dat').appendTo('#files');#}
+{#               $('<p/>').text('HUMAN_HCC_MALE_1.dat').appendTo('#files');#}
+{#               $('<p/>').text('HUMAN_HCC_FEMALE_-1.dat').appendTo('#files');#}
+{#               $('<p/>').text('HUMAN_HCC_FEMALE_1.dat').appendTo('#files');#}
+{#               $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/HUMAN_HCC_MALE_-1.dat">');#}
+{#               $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/HUMAN_HCC_MALE_1.dat">');#}
+{#               $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/HUMAN_HCC_FEMALE_-1.dat">');#}
+{#               $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/HUMAN_HCC_FEMALE_1.dat">');#}
+
+               $('<p/>').text('microbiome_Actinobacteria_0.0-diet.csv').appendTo('#files');
+               $('<p/>').text('microbiome_Actinobacteria_1.0-diet.csv').appendTo('#files');
+               $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/microbiome_Actinobacteria_0.0-diet.csv">');
+               $('#uploaded-files').append('<input type="hidden" name="uploaded" value="example/microbiome_Actinobacteria_1.0-diet.csv">');
                $('input[name=exclude_col_header]').attr('checked', true)
                $('input[name=exclude_row_header]').attr('checked', false)
                $('#progress .progress-bar').css(
@@ -68,58 +73,60 @@
                             <th>Separator</th>
                           </tr>
                         </thead>
-                <tbody><tr>
-                    <td><a href="{% get_media_prefix %}example/HUMAN_HCC_MALE_1.dat">HUMAN_HCC_MALE_1.dat</a></td>
-                    <td>text/plain</td>
-                    <td>210</td>
-                    <td>210</td>
-                    <td>
-                      TAB
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><a href="{% get_media_prefix %}example/HUMAN_HCC_MALE_-1.dat">HUMAN_HCC_MALE_-1.dat</a></td>
-                    <td>text/plain</td>
-                    <td>210</td>
-                    <td>210</td>
-                    <td>
-                      TAB
-                    </td>
-                  </tr>
-		  <tr>
-                    <td><a href="{% get_media_prefix %}example/HUMAN_HCC_FEMALE_1.dat">HUMAN_HCC_FEMALE_1.dat</a></td>
-                    <td>text/plain</td>
-                    <td>30</td>
-                    <td>210</td>
-                    <td>
-                      TAB
-                    </td>
-                  </tr>
-		  <tr>
-                    <td><a href="{% get_media_prefix %}example/HUMAN_HCC_FEMALE_-1.dat">HUMAN_HCC_FEMALE_-1.dat</a></td>
-                    <td>text/plain</td>
-                    <td>30</td>
-                    <td>210</td>
-                    <td>
-                      TAB
-                    </td>
-                  </tr>
-              </tbody>
-		<!-- 	<tbody><tr> -->
-                <!--             <td><a href="{% get_media_prefix %}example/microbiome_Actinobacteria_0.0-diet.csv">microbiome_Actinobacteria_0.0-diet.csv</a></td> -->
-                <!--             <td>text/plain</td> -->
-                <!--             <td>390</td> -->
-                <!--             <td>188</td> -->
-                <!--             <td>TAB</td> -->
-                <!--         </tr> -->
-                <!--         <tr> -->
-                <!--             <td><a href="{% get_media_prefix %}example/microbiome_Actinobacteria_1.0-diet.csv">microbiome_Actinobacteria_1.0-diet.csv</a></td> -->
-                <!--             <td>text/plain</td> -->
-                <!--             <td>270</td> -->
-                <!--             <td>188</td> -->
-                <!--             <td>TAB</td> -->
-                <!--         </tr> -->
-                <!-- </tbody> --></table>
+{#                <tbody><tr>#}
+{#                    <td><a href="{% get_media_prefix %}example/HUMAN_HCC_MALE_1.dat">HUMAN_HCC_MALE_1.dat</a></td>#}
+{#                    <td>text/plain</td>#}
+{#                    <td>210</td>#}
+{#                    <td>210</td>#}
+{#                    <td>#}
+{#                      TAB#}
+{#                    </td>#}
+{#                  </tr>#}
+{#                  <tr>#}
+{#                    <td><a href="{% get_media_prefix %}example/HUMAN_HCC_MALE_-1.dat">HUMAN_HCC_MALE_-1.dat</a></td>#}
+{#                    <td>text/plain</td>#}
+{#                    <td>210</td>#}
+{#                    <td>210</td>#}
+{#                    <td>#}
+{#                      TAB#}
+{#                    </td>#}
+{#                  </tr>#}
+{#		  <tr>#}
+{#                    <td><a href="{% get_media_prefix %}example/HUMAN_HCC_FEMALE_1.dat">HUMAN_HCC_FEMALE_1.dat</a></td>#}
+{#                    <td>text/plain</td>#}
+{#                    <td>30</td>#}
+{#                    <td>210</td>#}
+{#                    <td>#}
+{#                      TAB#}
+{#                    </td>#}
+{#                  </tr>#}
+{#		  <tr>#}
+{#                    <td><a href="{% get_media_prefix %}example/HUMAN_HCC_FEMALE_-1.dat">HUMAN_HCC_FEMALE_-1.dat</a></td>#}
+{#                    <td>text/plain</td>#}
+{#                    <td>30</td>#}
+{#                    <td>210</td>#}
+{#                    <td>#}
+{#                      TAB#}
+{#                    </td>#}
+{#                  </tr>#}
+{#              </tbody>#}
+		            <tbody>
+                        <tr>
+                            <td><a href="{% get_media_prefix %}example/microbiome_Actinobacteria_0.0-diet.csv">microbiome_Actinobacteria_0.0-diet.csv</a></td> -->
+                            <td>text/plain</td>
+                            <td>390</td>
+                            <td>188</td>
+                            <td>TAB</td>
+                        </tr>
+                        <tr>
+                            <td><a href="{% get_media_prefix %}example/microbiome_Actinobacteria_1.0-diet.csv">microbiome_Actinobacteria_1.0-diet.csv</a></td>
+                            <td>text/plain</td>
+                            <td>270</td>
+                            <td>188</td>
+                            <td>TAB</td>
+                        </tr>
+                    </tbody>
+                  </table>
 
                     </div>
                     <div class="col-sm-offset-6">
