@@ -188,7 +188,7 @@ class NetStability:
                             **{'col.names': robjects.NA_Logical, 
                                'row.names': True})
                 
-                print tmp.rx2('Sd_boot')
+                ## print tmp.rx2('Sd_boot')
                 
                 ## Get hubs and plot stability
                 hname = ru.get_hubs(tmp.rx2('ADJ'), i=i, stab_mat=tmp.rx2('Sd'),
