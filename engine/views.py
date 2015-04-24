@@ -104,9 +104,9 @@ class NetworkStabilityStep3Class(View):
                 submited=datetime.now()
             )
             # t = netstab.delay(files, sep, param)
-            t = settings.APP.send_task('netdist', [files, sep, param, settings.MEDIA_ROOT, settings.RESULT_PATH])
+            t = settings.APP.send_task('netstab', [files, sep, param, settings.MEDIA_ROOT, settings.RESULT_PATH])
             runp.task_id = t.id
-            
+
         except Exception, e:
             messages.add_message(self.request, messages.ERROR, 'Error: %s' % str(e))
 
