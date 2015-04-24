@@ -223,7 +223,7 @@ def plot_mds (results, i, filepath='.', prefix='mds_'):
     
     ## print "MDS %s" % filepath
     
-    grdevices.png(file=os.path.join(filepath, myfname), width=512, height=512)
+    grdevices.png(file=os.path.join(filepath, myfname), width=512, height=512, type="cairo")
     robjects.r.plot(mmp.rx(True,1),mmp.rx(True,2), type="n", col='red',
                     ylab='Coord. 2', xlab='Coord. 1', main='Multi-Dimensional Scaling plot')
     robjects.r.text(mmp.rx(True,1),mmp.rx(True,2), mmp.rownames)
@@ -263,7 +263,7 @@ def plot_degree_distrib(adj_mat, i, filepath='.', prefix='ddist_'):
                main='Node degree distribution')
     
     myfname = prefix + str(i) + '.png'
-    grdevices.png(file=os.path.join(filepath, myfname), width=512, height=512)
+    grdevices.png(file=os.path.join(filepath, myfname), width=512, height=512, type="cairo")
     rprint(p)
     grdevices.dev_off()
     
@@ -289,7 +289,7 @@ def plot_edge_distrib(adj_mat, i, filepath='.', prefix='edist_'):
                main='Edge weight degree distribution', **{'plot.points':False})
     
     myfname = prefix + str(i) + '.png'
-    grdevices.png(file=os.path.join(filepath, myfname), width=512, height=512)
+    grdevices.png(file=os.path.join(filepath, myfname), width=512, height=512, type="cairo")
     rprint(p)
     grdevices.dev_off()
     
@@ -313,7 +313,7 @@ def plot_degree_stab(dstab, i, myd, filepath=".", prefix='dstab_'):
     )
     
     myfname = prefix + str(i) + '.png'
-    grdevices.png(file=os.path.join(filepath, myfname), width=512, height=512)
+    grdevices.png(file=os.path.join(filepath, myfname), width=512, height=512, type="cairo")
     rprint(p)
     grdevices.dev_off()
     
@@ -370,7 +370,7 @@ def get_hubs (adj_mat, i, quart=90, stab_mat=[], stab_mat_all=[], filepath=".", 
             bnames = robjects.StrVector(['Node_%d' % n for n in (idx[ii] + 1)])
 
         ## Plotting hubs stability
-        grdevices.png(file=os.path.join(filepath,pname), width=512, height=512)
+        grdevices.png(file=os.path.join(filepath,pname), width=512, height=512, type="cairo")
         boxplot(stab_mat_all.rx(True, ridx), names=bnames, col='grey80')
         points(robjects.IntVector(np.arange(len(ii)) + 1), 
                robjects.FloatVector(deg[idx[ii]]), pch=19, col="red")
